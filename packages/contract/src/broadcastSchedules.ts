@@ -2,7 +2,7 @@ import { broadcastSchedules } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { Id, isoDate, listOf } from './common';
+import { Id, isoDate, listOf, readsByPost } from './common';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { BroadcastChannel } from './values';
 
@@ -111,7 +111,13 @@ export const UpcomingRun = z.object({
 
 export type UpcomingRun = z.infer<typeof UpcomingRun>;
 
-const { BROADCAST_STATUS, BROADCAST_INCOMPLETE, EMAIL_NOT_CONFIGURED, REPEAT_STATE } = ERRORS;
+const {
+  BROADCAST_STATUS,
+  BROADCAST_INCOMPLETE,
+  EMAIL_NOT_CONFIGURED,
+  REPEAT_STATE,
+  SMS_NOT_CONFIGURED,
+} = ERRORS;
 
 const base = oc.errors({ ...COMMON_ERRORS, BROADCAST_STATUS, REPEAT_STATE });
 
@@ -137,17 +143,19 @@ export const broadcastSchedulesContract = {
     .route({
       method: 'GET',
       path: '/broadcasts/{id}/schedule',
-      summary: "A broadcast's repeat schedule; null when it doesn't repeat",
+      summary: 'Get a repeat schedule',
+      description: "A broadcast's repeat schedule; null when it doesn't repeat",
     })
     .input(ById)
     .output(BroadcastSchedule.nullable()),
   start: base
-    .errors({ BROADCAST_INCOMPLETE, EMAIL_NOT_CONFIGURED })
+    .errors({ BROADCAST_INCOMPLETE, EMAIL_NOT_CONFIGURED, SMS_NOT_CONFIGURED })
     .route({
       method: 'POST',
       path: '/broadcasts/{id}/schedule/start',
-      summary:
-        'Make a draft recurring on this schedule: from now each run sends a copy of it, the audience counted then. 409 BROADCAST_STATUS unless a draft, EMAIL_NOT_CONFIGURED when email can’t be delivered',
+      summary: 'Make a broadcast repeat',
+      description:
+        'Make a draft recurring on this schedule: from now each run sends a copy of it, the audience counted then. 409 BROADCAST_STATUS unless a draft, EMAIL_NOT_CONFIGURED or SMS_NOT_CONFIGURED when the channel can’t deliver',
     })
     .input(WithRule)
     .output(BroadcastSchedule),
@@ -155,7 +163,8 @@ export const broadcastSchedulesContract = {
     .route({
       method: 'PUT',
       path: '/broadcasts/{id}/schedule',
-      summary:
+      summary: 'Change a repeat schedule',
+      description:
         'Change the schedule; runs already made stay. On a draft it is kept until it starts. 409 BROADCAST_STATUS unless a draft or recurring, REPEAT_STATE once it ended',
     })
     .input(WithRule)
@@ -164,17 +173,19 @@ export const broadcastSchedulesContract = {
     .route({
       method: 'POST',
       path: '/broadcasts/{id}/schedule/pause',
-      summary: 'Make no runs until resumed. 409 REPEAT_STATE unless active',
+      summary: 'Pause a repeat schedule',
+      description: 'Make no runs until resumed. 409 REPEAT_STATE unless active',
     })
     .input(ById)
     .output(BroadcastSchedule),
   resume: base
-    .errors({ EMAIL_NOT_CONFIGURED })
+    .errors({ EMAIL_NOT_CONFIGURED, SMS_NOT_CONFIGURED })
     .route({
       method: 'POST',
       path: '/broadcasts/{id}/schedule/resume',
-      summary:
-        'Run again from the next time after now; times missed while paused are skipped. 409 REPEAT_STATE unless paused, EMAIL_NOT_CONFIGURED when email can’t be delivered',
+      summary: 'Resume a repeat schedule',
+      description:
+        'Run again from the next time after now; times missed while paused are skipped. 409 REPEAT_STATE unless paused, EMAIL_NOT_CONFIGURED or SMS_NOT_CONFIGURED when the channel can’t deliver',
     })
     .input(ById)
     .output(BroadcastSchedule),
@@ -182,7 +193,8 @@ export const broadcastSchedulesContract = {
     .route({
       method: 'POST',
       path: '/broadcasts/{id}/schedule/stop',
-      summary: 'End it for good; its runs stay. 409 REPEAT_STATE once it ended',
+      summary: 'End a repeat schedule',
+      description: 'End it for good; its runs stay. 409 REPEAT_STATE once it ended',
     })
     .input(ById)
     .output(BroadcastSchedule),
@@ -190,7 +202,9 @@ export const broadcastSchedulesContract = {
     .route({
       method: 'POST',
       path: '/broadcast-schedules/preview',
-      summary:
+      spec: readsByPost,
+      summary: 'Preview repeat times',
+      description:
         'The next times a schedule would run, after now and within its end, on the organisation’s clock',
     })
     .input(RuleFields.extend({ count: z.int().min(1).max(10).default(5) }).superRefine(ruleIssues))
@@ -199,7 +213,8 @@ export const broadcastSchedulesContract = {
     .route({
       method: 'GET',
       path: '/broadcast-schedules/upcoming',
-      summary:
+      summary: 'List upcoming repeat runs',
+      description:
         'Runs of active recurring broadcasts not made yet, between `from` (or now) and `to` (at most 62 days)',
     })
     .input(Window)

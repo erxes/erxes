@@ -25,7 +25,7 @@ import { PropertyGroupEditSheet } from './PropertyGroupEdit';
 import { PropertyGroupLayoutSheet } from './PropertyGroupLayoutSheet';
 
 const NoGroups = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
 
   return (
     <Empty>

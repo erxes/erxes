@@ -8,6 +8,7 @@ import {
   type ApiKeyArea,
   type ApiKeyAreas,
   type CorePermission,
+  type KeyDecision,
 } from '@erxes/core-contract';
 import type { KeyRules } from '@erxes/core-db';
 import { getContractRouter, isContractProcedure } from '@orpc/contract';
@@ -28,6 +29,8 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   assistant: null,
   apiKeys: 'keys',
   automations: 'automations',
+  // The organisation's bank accounts and money: members only.
+  banks: null,
   // Entries name customers, and streams send the log out.
   audit: null,
   auth: null,
@@ -35,10 +38,16 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   broadcasts: null,
   broadcastSchedules: null,
   suppressions: null,
+  // What broadcasts are written from: members only, as broadcasts are.
+  emailTemplates: null,
   companies: 'contacts',
   customers: 'contacts',
   favorites: null,
+  // An app acting as the member: they allow it themselves, signed in.
+  oauthConsent: null,
   customerAccount: null,
+  // Staff blocking or signing out a customer's account: a signed-in member's call.
+  customerAccounts: null,
   customerAuth: null,
   customerNotifications: null,
   dataFields: { lookup: true, writes: 'settings' },
@@ -52,12 +61,17 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   dataRecords: null,
   dataValues: null,
   emails: null,
+  sms: null,
+  secrets: null,
   // The event stream carries contacts' data.
   events: null,
+  exchangeRates: { lookup: true, writes: 'settings' },
   fieldGroups: { lookup: true, writes: 'settings' },
   fields: { lookup: true, writes: 'settings' },
   files: 'files',
-  integrations: null,
+  integrations: 'settings',
+  // A member's own GitHub sign-in picks the installation: no key does it for them.
+  githubApp: null,
   leads: 'contacts',
   notifications: null,
   organizations: { lookup: true, writes: 'settings' },
@@ -65,10 +79,14 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   ebarimt: 'payments',
   plugins: 'plugins',
   productCategories: 'products',
+  productInventories: 'products',
   products: 'products',
   recordTypes: { lookup: true, writes: 'settings' },
   roles: 'team',
   saas: 'settings',
+  license: 'settings',
+  // Who may enter the organisation as erxes support: owners only, never a key.
+  supportAccess: null,
   search: { lookup: true, writes: 'settings' },
   tags: { lookup: true, writes: 'settings' },
   units: { lookup: true, writes: 'team' },
@@ -80,6 +98,10 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   users: 'team',
   views: null,
   webhooks: 'webhooks',
+  // Portals hold sign-in settings and portal keys: members set them up in erxes only.
+  portals: null,
+  portalAuth: null,
+  portalContact: null,
 };
 
 const GROUPS = new Map<string, GroupRule>(Object.entries(GROUP_RULES));
@@ -112,16 +134,14 @@ const PROCEDURE_RULES: Partial<Record<ProcedurePath, ApiKeyArea | null>> = {
   'leads.reorderStages': 'settings',
   'leads.removeStage': 'settings',
   'payments.gateways': 'settings',
-  'payments.addGateway': 'settings',
-  'payments.updateGateway': 'settings',
-  'payments.removeGateway': 'settings',
-  'payments.pluginSettings': 'settings',
-  'payments.updatePluginSettings': 'settings',
+  'payments.settings': 'settings',
+  'payments.saveSettings': 'settings',
+  'payments.quickQrDistricts': 'settings',
   'payments.payTestInvoice': 'settings',
-  'ebarimt.settings': 'settings',
-  'ebarimt.plugins': 'settings',
-  'ebarimt.saveSettings': 'settings',
-  'ebarimt.removeSettings': 'settings',
+  'ebarimt.configs': 'settings',
+  'ebarimt.createConfig': 'settings',
+  'ebarimt.updateConfig': 'settings',
+  'ebarimt.removeConfig': 'settings',
   'ebarimt.testConnection': 'settings',
   'ebarimt.printTemplates': 'settings',
   'ebarimt.savePrintTemplate': 'settings',
@@ -214,13 +234,6 @@ const NEEDS = [...POLICIES.keys()].map((path) => ({ path, need: keyNeed(path) })
 /** The calls a key may make in the area with the access. */
 export const areaCalls = (area: ApiKeyArea, access: ApiKeyAccess) =>
   NEEDS.filter(({ need }) => need?.area === area && need.access === access).map(({ path }) => path);
-
-export interface KeyDecision {
-  allowed: boolean;
-  /** The rule that decided, as the audit log and "Try this key" show it. */
-  rule: string;
-  reason: string;
-}
 
 const isLimited = (rows: KeyRules['rows']) => rows.owners !== null || rows.tags !== null;
 

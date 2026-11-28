@@ -1,13 +1,7 @@
-import {
-  BOOLEAN_STRINGS,
-  EMAIL_DRIVERS,
-  FILE_STORAGES,
-  LOG_FORMATS,
-  LOG_LEVELS,
-  SMS_DRIVERS,
-} from '@erxes/core-db/enums';
+import { EMAIL_DRIVERS, FILE_STORAGES, LOG_FORMATS, LOG_LEVELS } from '@erxes/core-db/enums';
 import { readFileSync } from 'node:fs';
 import { z } from 'zod';
+import { baseUrl, flag, list, optional, overrideUrl, positive, text } from './envFields';
 
 /** Settings that may also come from a file named by `<NAME>_FILE` (Docker and Kubernetes secrets). */
 const SECRETS = [
@@ -19,6 +13,7 @@ const SECRETS = [
   'CORE_SIGNING_KEY',
   'CORE_SIGNING_KEYS_RETIRED',
   'CORE_ENCRYPTION_KEY',
+  'CORE_ENCRYPTION_KEYS_RETIRED',
   'CORE_PLUGIN_KEYS',
   'EMAIL_SMTP_URL',
   'SAAS_PLATFORM_TOKEN',
@@ -29,6 +24,14 @@ const SECRETS = [
   'CLOUDFLARE_ACCESS_KEY_ID',
   'CLOUDFLARE_SECRET_ACCESS_KEY',
   'CLOUDFLARE_API_TOKEN',
+  'QUICK_QR_PASSWORD',
+  'INTEGRATION_OAUTH_APPS',
+  'META_APP_SECRET',
+  'META_RELAY_KEY',
+  'GITHUB_APP_PRIVATE_KEY',
+  'ERXES_LICENSE',
+  'ERXES_ACTIVATION_KEY',
+  'GITHUB_APP_CLIENT_SECRET',
 ] as const;
 
 const readSecret = (name: string) => {
@@ -36,32 +39,6 @@ const readSecret = (name: string) => {
 
   return file ? readFileSync(file, 'utf8') : process.env[name];
 };
-
-/** Blank counts as unset; values are trimmed. */
-const optional = <T extends z.ZodType>(schema: T) =>
-  z.preprocess(
-    (value) => (typeof value === 'string' ? value.trim() || undefined : value),
-    schema.optional(),
-  );
-
-const text = optional(z.string());
-
-const flag = optional(z.enum(BOOLEAN_STRINGS).transform((value) => value === 'true'));
-
-const positive = (fallback: number) =>
-  optional(z.coerce.number().positive()).transform((value) => value ?? fallback);
-
-const baseUrl = (fallback: string) =>
-  optional(z.url())
-    .transform((value) => value ?? fallback)
-    .transform((value) => value.replace(/\/+$/, ''));
-
-const list = optional(z.string()).transform((value) =>
-  (value ?? '')
-    .split(',')
-    .map((entry) => entry.trim())
-    .filter(Boolean),
-);
 
 const PLUGIN_NAME = /^[a-z][a-z0-9_]{0,39}$/;
 
@@ -71,6 +48,49 @@ const PLUGIN_NAME = /^[a-z][a-z0-9_]{0,39}$/;
  * its secret for short-lived tokens (`POST /core/v1/plugins/token`) and never
  * sends it on API calls. `pnpm plugin:secret <name>` rotates one.
  */
+const OAuthApp = z.object({ clientId: z.string().min(1), clientSecret: z.string().min(1) });
+
+const oauthApps = optional(z.string())
+  .transform((value, ctx) => {
+    if (!value) return {};
+
+    try {
+      return z.record(z.string(), OAuthApp).parse(JSON.parse(value));
+    } catch {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'INTEGRATION_OAUTH_APPS is JSON: {"google":{"clientId":"…","clientSecret":"…"}}',
+      });
+
+      return z.NEVER;
+    }
+  })
+  .pipe(z.record(z.string(), OAuthApp));
+
+/** A P-256 public key erxes.io signs "Open as support" links with; only the public part is kept. */
+const SupportKey = z.object({
+  kty: z.literal('EC'),
+  crv: z.literal('P-256'),
+  kid: z.string().min(1),
+  x: z.string().min(1),
+  y: z.string().min(1),
+});
+
+const supportJwks = optional(z.string()).transform((value, ctx) => {
+  if (!value) return [];
+
+  try {
+    return z.array(SupportKey).parse(JSON.parse(value));
+  } catch {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'SUPPORT_LOGIN_JWKS is JSON: [{"kty":"EC","crv":"P-256","kid":"…","x":"…","y":"…"}]',
+    });
+
+    return z.NEVER;
+  }
+});
+
 const pluginKeys = optional(z.string()).transform((value, ctx) => {
   const keys = new Map<string, string>();
 
@@ -129,6 +149,7 @@ const Env = z
     CORE_SIGNING_KEY_DEV_FILE: text,
     CORE_SIGNING_KEYS_RETIRED: text,
     CORE_ENCRYPTION_KEY: text,
+    CORE_ENCRYPTION_KEYS_RETIRED: text,
     CORE_PLUGIN_KEYS: pluginKeys,
     PLUGINS_AUTO_INSTALL: flag,
 
@@ -142,17 +163,34 @@ const Env = z
     SES_EVENTS_TOPIC_ARNS: list,
     EMAIL_AUTH_HOURLY_CAP: positive(300),
 
-    SMS_DRIVER: optional(z.enum(SMS_DRIVERS)),
-
     BROADCAST_PER_MINUTE: positive(600),
 
     OUTBOUND_ALLOW_PRIVATE: flag,
 
-    ASSISTANT_OPENAI_URL: baseUrl('https://api.openai.com/v1'),
-    ASSISTANT_GROK_URL: baseUrl('https://api.x.ai/v1'),
-    ASSISTANT_KIMI_URL: baseUrl('https://api.moonshot.ai/v1'),
-    ASSISTANT_KIMI_CODE_URL: baseUrl('https://api.kimi.com/coding/v1'),
+    ASSISTANT_OPENAI_URL: overrideUrl,
+    ASSISTANT_ANTHROPIC_URL: overrideUrl,
+    ASSISTANT_OPENROUTER_URL: overrideUrl,
+    ASSISTANT_KIMI_URL: overrideUrl,
+    ASSISTANT_KIMI_CODE_URL: overrideUrl,
+    ASSISTANT_GROK_URL: overrideUrl,
+    ASSISTANT_TYPESAFE_URL: overrideUrl,
     EBARIMT_TAXPAYER_URL: baseUrl('https://api.ebarimt.mn/api/info/check'),
+    // QPay QuickQR's vendor account: the names erxes 3.x used, so its settings carry over.
+    QUICK_QR_URL: baseUrl('https://quickqr.qpay.mn'),
+    QUICK_QR_USERNAME: text,
+    QUICK_QR_PASSWORD: text,
+
+    INTEGRATION_OAUTH_APPS: oauthApps,
+    INTEGRATION_OAUTH_CALLBACK_URL: optional(z.url()),
+    META_APP_ID: optional(z.string().regex(/^\d+$/, 'META_APP_ID is the Meta app id, digits only')),
+    META_APP_SECRET: text,
+    GITHUB_APP_ID: optional(z.string().regex(/^\d+$/, 'GITHUB_APP_ID is the App id, digits only')),
+    GITHUB_APP_SLUG: text,
+    GITHUB_APP_PRIVATE_KEY: optional(z.string().transform((value) => value.replace(/\\n/g, '\n'))),
+    GITHUB_APP_CLIENT_ID: text,
+    GITHUB_APP_CLIENT_SECRET: text,
+    META_RELAY_URL: overrideUrl,
+    META_RELAY_KEY: optional(z.string().min(16)),
 
     SAAS: flag,
     SAAS_PLATFORM_URL: baseUrl('https://erxes.io'),
@@ -161,6 +199,14 @@ const Env = z
     SAAS_GRACE_DAYS: positive(7),
     SAAS_BILLING_URL: text,
     SAAS_STRIPE_SECRET_KEY: text,
+    // erxes.io's public keys for "Open as support" links: a JSON array of P-256 JWKs with `kid`.
+    SUPPORT_LOGIN_JWKS: supportJwks,
+    // Self-hosted: the erxes license (a JWT) given by hand, or the server's activation key, with
+    // which core fetches it from erxes.io every day. Core verifies it with keys built into it.
+    ERXES_LICENSE: text,
+    ERXES_ACTIVATION_KEY: text,
+    // The build this is (the image's commit), as a self-hosted server reports it to erxes.io.
+    VERSION: text,
 
     FILES_STORAGE: optional(z.string().toLowerCase().pipe(z.enum(FILE_STORAGES))),
     FILES_LOCAL_DIR: text,
@@ -204,6 +250,12 @@ const Env = z
       problem('CORE_JWT_SECRET (or CORE_JWT_SECRET_FILE) must be set in production');
     }
 
+    if (!env.CORE_ENCRYPTION_KEY) {
+      problem(
+        'CORE_ENCRYPTION_KEY (or CORE_ENCRYPTION_KEY_FILE) must be set in production: openssl rand -base64 48',
+      );
+    }
+
     if (!env.CORE_SIGNING_KEY) {
       problem(
         'CORE_SIGNING_KEY (or CORE_SIGNING_KEY_FILE) must be set in production: openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256',
@@ -221,6 +273,29 @@ const Env = z
       ctx.addIssue({
         code: 'custom',
         message: 'SAAS=true needs SAAS_PLATFORM_TOKEN (≥ 32 characters) and SAAS_STRIPE_SECRET_KEY',
+      });
+    }
+
+    if (!env.META_APP_ID !== !env.META_APP_SECRET) {
+      ctx.addIssue({ code: 'custom', message: 'Set META_APP_ID and META_APP_SECRET together' });
+    }
+
+    if (!env.META_RELAY_URL !== !env.META_RELAY_KEY) {
+      ctx.addIssue({ code: 'custom', message: 'Set META_RELAY_URL and META_RELAY_KEY together' });
+    }
+
+    if (env.META_RELAY_URL && !env.META_APP_ID) {
+      ctx.addIssue({
+        code: 'custom',
+        message: "META_RELAY_URL needs META_APP_ID and META_APP_SECRET: the relay's Meta app",
+      });
+    }
+
+    if (env.META_APP_ID && env.INTEGRATION_OAUTH_APPS.facebook) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          'Set the Facebook app once: META_APP_ID and META_APP_SECRET, not INTEGRATION_OAUTH_APPS.facebook',
       });
     }
 

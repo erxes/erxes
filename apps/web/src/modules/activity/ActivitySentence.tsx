@@ -7,7 +7,7 @@ import { isApiError } from '@erxes/core-contract/client';
 import { useCompany } from '~/modules/contacts/companies/useCompanies';
 import { useCustomer } from '~/modules/contacts/customers/useCustomers';
 import { useStageName } from '~/modules/leads/i18n';
-import { usePluginText } from '~/modules/plugins/pluginText';
+import { usePluginSentence, usePluginText } from '~/modules/plugins/pluginText';
 import { usePluginRecordType } from '~/modules/plugins/usePluginRecordType';
 import { Link } from 'react-router-dom';
 import { paths } from '~/lib/paths';
@@ -18,6 +18,7 @@ import {
   readLead,
   readMerged,
   readTagged,
+  readWroteIn,
   verbOf,
 } from './activityData';
 
@@ -247,7 +248,7 @@ const EMAILED_SENTENCE = {
 
 /** An email to the customer: its subject, what sent it (a broadcast links to it), and a failure's reason. */
 const EmailedSentence = ({ activity }: { activity: Activity }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'integrations.email.deliveries' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'email-deliveries' });
   const email = readEmailed(activity);
 
   if (!email) return <SentenceLine name="other" values={{ actor: '', type: activity.type }} />;
@@ -280,9 +281,33 @@ const EmailedSentence = ({ activity }: { activity: Activity }) => {
   );
 };
 
+/** A message the customer sent from a portal's contact form: the portal, subject and phone (the words show below). */
+const WroteInSentence = ({ activity }: { activity: Activity }) => {
+  const message = readWroteIn(activity);
+
+  if (!message) return <SentenceLine name="other" values={{ actor: '', type: activity.type }} />;
+
+  return (
+    <>
+      <SentenceLine
+        name="wrote-in"
+        values={{ portal: message.portalName, subject: message.subject }}
+      />
+      {message.phone && <span className="text-muted-foreground"> · {message.phone}</span>}
+    </>
+  );
+};
+
+/** A plugin entry's own summary, in the member's language when the plugin translates it. */
+const PluginSummary = ({ activity }: { activity: Activity }) => {
+  const sentence = usePluginSentence();
+
+  return <>{activity.summary ? sentence(activity.source, activity.summary) : null}</>;
+};
+
 /** One line about a core entry: who did what; plugin entries bring their own summary. */
 export const Sentence = ({ activity, actor, lookups }: SentenceProps) => {
-  if (activity.source !== 'core') return <>{activity.summary}</>;
+  if (activity.source !== 'core') return <PluginSummary activity={activity} />;
 
   const verb = verbOf(activity);
   // "this customer", "this company", or "this record" for any other target.
@@ -315,6 +340,8 @@ export const Sentence = ({ activity, actor, lookups }: SentenceProps) => {
       return <SentenceLine name={`data-${verb.split('.')[1]}`} values={{ actor }} />;
     case 'emailed':
       return <EmailedSentence activity={activity} />;
+    case 'wrote_in':
+      return <WroteInSentence activity={activity} />;
     default:
       return <SentenceLine name="other" values={{ actor, type: activity.type }} />;
   }

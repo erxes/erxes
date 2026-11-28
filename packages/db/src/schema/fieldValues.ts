@@ -47,6 +47,14 @@ const fieldValues = (name: keyof typeof RECORDS) => {
       numberValue: doublePrecision(),
       dateValue: date({ mode: 'string' }),
       boolValue: boolean(),
+      /**
+       * A date value as month * 100 + day (1231), for anniversaries. Stored, as the birthday is:
+       * under row level security an index on the expression serves nothing (extract isn't
+       * LEAKPROOF), an index on the column does.
+       */
+      monthDay: smallint().generatedAlwaysAs(
+        sql`((extract(month from date_value) * 100 + extract(day from date_value))::smallint)`,
+      ),
     },
     (table) => [
       // Reading a record's values; "has a value" checks per record.
@@ -66,12 +74,8 @@ const fieldValues = (name: keyof typeof RECORDS) => {
         .where(sql`${table.dateValue} IS NOT NULL`),
       // Anniversaries ("within the next 7 days, any year"): month * 100 + day.
       index(`${t}_month_day_idx`)
-        .on(
-          table.orgId,
-          table.fieldId,
-          sql`((extract(month from ${table.dateValue}) * 100 + extract(day from ${table.dateValue}))::smallint)`,
-        )
-        .where(sql`${table.dateValue} IS NOT NULL`),
+        .on(table.orgId, table.fieldId, table.monthDay)
+        .where(sql`${table.monthDay} IS NOT NULL`),
       index(`${t}_bool_idx`)
         .on(table.orgId, table.fieldId, table.boolValue)
         .where(sql`${table.boolValue} IS NOT NULL`),

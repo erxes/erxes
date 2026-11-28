@@ -167,7 +167,7 @@ const ThreadMenu = ({
           <DropdownMenu.Separator />
         </>
       )}
-      <DropdownMenu.Item onClick={() => void navigate(paths.settings.assistant)}>
+      <DropdownMenu.Item onClick={() => void navigate(paths.settings.assistantAppearance)}>
         <IconSettings />
         {t('open-settings', 'Assistant settings')}
       </DropdownMenu.Item>

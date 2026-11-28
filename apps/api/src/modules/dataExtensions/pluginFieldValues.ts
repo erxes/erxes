@@ -1,4 +1,8 @@
-import { dataExtensionValueSchema } from '@erxes/core-contract';
+import {
+  dataExtensionValueSchema,
+  type PluginValue as PluginValueSchema,
+} from '@erxes/core-contract';
+import type { z } from 'zod';
 import { caller, companies, customers, type Db, dataFields } from '@erxes/core-db';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
@@ -13,7 +17,7 @@ import { PLUGIN_FIELD_RECORD_TYPES } from './pluginFieldSync';
  * spent), so no history entry, event, audit row or notification, which would come on every order.
  */
 
-type PluginValue = { recordId: string; code: string; value: number | string | string[] | null };
+type PluginValue = z.infer<typeof PluginValueSchema>;
 
 const isBlank = (value: PluginValue['value']) =>
   value === null || value === '' || (Array.isArray(value) && !value.length);

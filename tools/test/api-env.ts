@@ -20,6 +20,15 @@ export const apiTestEnv = {
     format: 'pem',
     type: 'pkcs8',
   }),
+  // A GitHub App for organisation GitHub connections; tests answer for github.com.
+  GITHUB_APP_ID: '424242',
+  GITHUB_APP_SLUG: 'erxes-test',
+  GITHUB_APP_PRIVATE_KEY: generateKeyPairSync('rsa', { modulusLength: 2048 }).privateKey.export({
+    format: 'pem',
+    type: 'pkcs8',
+  }),
+  GITHUB_APP_CLIENT_ID: 'Iv1.test',
+  GITHUB_APP_CLIENT_SECRET: 'test-github-app-secret',
   // logging.test.ts logs to its own destination.
   LOG_LEVEL: 'silent',
 };

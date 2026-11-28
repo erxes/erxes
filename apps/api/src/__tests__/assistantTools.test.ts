@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { config } from '~/config';
 import { useTestDatabase } from './db';
-import { fakeModel, lastToolResult, type Script } from './fakeModel';
-import { callsTo, chat, resultsOf, textOf, userMessage } from './assistantChat';
+import { connectProvider, fakeModel, lastToolResult, type Script } from './fakeModel';
+import { chat, resultsOf, textOf, userMessage } from './assistantChat';
 import { type CoreClient, useTwoOrgs } from './support';
 
 const KEY = 'fake-kimi-key-for-tests-0003';
@@ -19,6 +19,8 @@ const searchThen: Script = (request) =>
     ? { tool: 'searchApi', input: { query: 'audit log' } }
     : { text: 'Found.' };
 
+const block = (root: string) => `<a2ui>\nsurface("totals")\nroot = ${root}\n</a2ui>`;
+
 describe('assistant tools', () => {
   useTestDatabase();
 
@@ -34,7 +36,7 @@ describe('assistant tools', () => {
   beforeAll(async () => {
     model = await fakeModel(KEY);
     Object.assign(config.assistant.endpoints, { kimi: model.url });
-    await t.owner().assistant.saveConnection({ provider: 'kimi', apiKey: KEY });
+    await connectProvider(t.owner(), KEY);
   });
 
   afterAll(() => model.close());
@@ -48,6 +50,18 @@ describe('assistant tools', () => {
     expect(resultsOf(view, 'callApi')).toEqual([expect.objectContaining({ ok: true })]);
     expect(textOf(view)).toBe('Done.');
     expect(model.lastToolResult()).toContain('Wholesale');
+  });
+
+  it('finds app triggers and actions in the automation catalog whole, not cut off', async () => {
+    model.script(callThen('automations.catalog', { search: 'github issue opened comment' }));
+
+    const { view } = await ask('Reply to every GitHub issue opened');
+    const [result] = resultsOf(view, 'callApi');
+
+    expect(result).toMatchObject({ ok: true });
+    expect(result).not.toHaveProperty('truncated');
+    expect(model.lastToolResult()).toContain('app.github.issue_opened');
+    expect(model.lastToolResult()).toContain('github.add_comment');
   });
 
   it('runs a write as the member and tells the model it changed data', async () => {
@@ -68,49 +82,8 @@ describe('assistant tools', () => {
 
     const { view } = await ask("Reset the member's password");
 
-    expect(JSON.stringify(resultsOf(view, 'callApi'))).toContain('ASSISTANT_DENIED');
-    expect(model.lastToolResult()).toContain('ASSISTANT_DENIED');
-  });
-
-  it("writes a custom integration's program but never its key or its hosts", async () => {
-    const integration = await t.owner().integrations.create({
-      key: 'boat',
-      name: 'Boat',
-      hosts: ['api.boat.test'],
-    });
-
-    model.script(
-      callThen('integrations.setSecrets', { id: integration.id, secrets: { apiKey: 'sk_1234' } }),
-    );
-    await ask('Save the Boat key sk_1234');
-    expect(model.lastToolResult()).toContain('ASSISTANT_DENIED');
-
-    model.script(callThen('integrations.update', { id: integration.id, hosts: ['evil.test'] }));
-    await ask('Let Boat call evil.test');
-    expect(model.lastToolResult()).toContain('ASSISTANT_DENIED');
-
-    model.script(
-      callThen('integrations.saveProgram', {
-        integrationId: integration.id,
-        kind: 'action',
-        key: 'ping',
-        label: 'Ping Boat',
-        code: 'return { pong: true };',
-      }),
-    );
-    await ask('Add a ping action to Boat');
-
-    const detail = await t.owner().integrations.get({ id: integration.id });
-
-    expect(detail).toMatchObject({
-      hosts: ['api.boat.test'],
-      sealedNames: [],
-      programs: [expect.objectContaining({ key: 'ping', version: 1 })],
-    });
-
-    model.script(callThen('integrations.testProgram', { id: detail.programs[0]?.id }));
-    await ask('Ping Boat now');
-    expect(model.lastToolResult()).toContain('"pong":true');
+    expect(JSON.stringify(resultsOf(view, 'callApi'))).toContain('"DENIED"');
+    expect(model.lastToolResult()).toContain('"DENIED"');
   });
 
   it("refuses what the member's role can't do, and doesn't offer it", async () => {
@@ -139,28 +112,57 @@ describe('assistant tools', () => {
     expect(model.lastToolResult()).toContain('"procedure":"companies.list"');
   });
 
-  it("asks the member a question, ends the run, and carries on with the member's answer", async () => {
-    model.script((request) =>
-      lastToolResult(request) === null
-        ? { tool: 'ask_user', input: { questions: [{ question: 'Which period?' }] } }
-        : { text: 'Thanks.' },
+  it('tells the model which button the member pressed and what they entered', async () => {
+    model.script(() => ({ text: 'Created.' }));
+
+    await chat(t.owner(), {
+      model: 'kimi-k3',
+      message: {
+        parts: [
+          { type: 'text', text: 'Create task' },
+          {
+            type: 'data-action',
+            data: { surfaceId: 'new-task', name: 'create_task', context: { priority: ['urgent'] } },
+          },
+        ],
+      },
+    });
+
+    const sent = JSON.stringify(model.chats().at(-1)?.messages.at(-1)?.content);
+
+    expect(sent).toContain('Create task');
+    expect(sent).toContain('[UI action]');
+    expect(sent).toContain(
+      JSON.stringify(
+        JSON.stringify({ event: 'create_task', context: { priority: ['urgent'] } }),
+      ).slice(1, -1),
     );
+  });
+
+  it('asks the model once to fix an interface block the panel cannot draw', async () => {
+    model.script((request) => ({
+      text: JSON.stringify(request.messages.at(-1)?.content).includes('[UI check]')
+        ? block('Stat("Orders", "312")')
+        : `Here you go.\n\n${block('Gauge("Orders", "312")')}`,
+    }));
 
     const before = model.chats().length;
-    const { threadId, view } = await ask('Make a report');
+    const { view } = await ask('How many orders?');
 
-    expect(callsTo(view, 'ask_user')).toEqual([{ questions: [{ question: 'Which period?' }] }]);
-    expect(resultsOf(view, 'ask_user')).toEqual([{ asked: true }]);
-    expect(model.chats().length - before).toBe(1);
+    expect(model.chats().length - before).toBe(2);
+    expect(JSON.stringify(model.chats().at(-1)?.messages.at(-1)?.content)).toContain(
+      "Component 'Gauge' is not defined in the catalog",
+    );
+    expect(textOf(view)).toContain('Stat("Orders", "312")');
+  });
 
-    model.script(() => ({ text: 'Here is last month.' }));
+  it('stops asking when the fix cannot be drawn either', async () => {
+    model.script(() => ({ text: block('Gauge("Orders", "312")') }));
 
-    const answered = await ask('Last month', t.owner(), threadId);
+    const before = model.chats().length;
 
-    expect(textOf(answered.view)).toBe('Here is last month.');
-    expect(model.chats().at(-1)?.messages.at(-1)).toMatchObject({
-      role: 'user',
-      content: [{ type: 'text', text: 'Last month' }],
-    });
+    await ask('How many orders?');
+
+    expect(model.chats().length - before).toBe(2);
   });
 });

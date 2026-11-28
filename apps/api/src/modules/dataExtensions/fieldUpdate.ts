@@ -1,5 +1,7 @@
 import { isDeepStrictEqual } from 'node:util';
+import type { DataExtensionFieldUpdate } from '@erxes/core-contract';
 import type { Db, DataFieldOption, DataFieldSettings } from '@erxes/core-db';
+import type { z } from 'zod';
 import { dataFields } from '@erxes/core-db';
 import { textArray } from '@erxes/plugin-sdk/filter';
 import { eq, sql } from 'drizzle-orm';
@@ -84,20 +86,7 @@ const withoutHidden = ({ hidden: _hidden, ...settings }: DataFieldSettings) => s
  */
 export const updateField = async (
   client: Db,
-  {
-    id,
-    ...changes
-  }: {
-    id: string;
-    key?: string;
-    label?: string;
-    description?: string | null;
-    icon?: string | null;
-    type?: Exclude<FieldType, 'relation'>;
-    options?: DataFieldOption[];
-    settings?: DataFieldSettings;
-    groupId?: string | null;
-  },
+  { id, ...changes }: z.infer<typeof DataExtensionFieldUpdate>,
 ) => {
   const field = await findField(client, id);
 

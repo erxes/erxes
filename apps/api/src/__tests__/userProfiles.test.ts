@@ -68,6 +68,13 @@ describe('team member profiles', () => {
     expect(dorj).toMatchObject({ fullName: 'Dorj', firstName: 'Dorj', lastName: null });
     await update(dorj.id, { employeeId: 'E-777' });
     expect(emails(await t.owner().users.list({ search: 'E-777' }))).toEqual(['dorj@acme.mn']);
+
+    // 3.x's member code: set, found by search, read by plugins, cleared with ''.
+    expect((await update(dorj.id, { code: ' 007 ' })).code).toBe('007');
+    expect(emails(await t.owner().users.list({ search: '007' }))).toEqual(['dorj@acme.mn']);
+    expect((await t.hr().users.get({ id: dorj.id })).code).toBe('007');
+    expect((await update(dorj.id, { code: '' })).code).toBeNull();
+    expect((await t.owner().users.add({ fullName: 'Worker', code: 'W01' })).code).toBe('W01');
     await expect(update(t.ids.owner, { birthDate: '02/01/1990' })).rejects.toMatchObject({
       code: 'INVALID_INPUT',
     });

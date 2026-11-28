@@ -42,6 +42,16 @@ export type DataExtensionChange = z.infer<typeof DataExtensionChange>;
 
 const ConvertibleType = z.enum(DATA_EXTENSION_CONVERTIBLE_TYPES);
 
+/** A field's conversion to another type: a dry run unless `apply`. */
+export const DataExtensionFieldConvert = z.object({
+  id: Id,
+  type: ConvertibleType,
+  /** A select's options; made from the field's values when left out. */
+  options: DataExtensionOptions.optional(),
+  apply: z.boolean().default(false),
+  clearUnconvertible: z.boolean().default(false),
+});
+
 /** What converting a field gives: how many values carry over, and some that don't. */
 export const DataExtensionConversion = z.object({
   converted: z.int(),
@@ -65,8 +75,9 @@ export const dataChangesContract = {
     .route({
       method: 'GET',
       path: '/data-history/{recordType}/{recordId}',
-      summary:
-        'Who changed a record’s values, when and from what, newest first. 400 INVALID_REFERENCE for a plugin’s record type, whose plugin keeps its history',
+      summary: 'List a record’s value history',
+      description:
+        'Who changed a record’s values, when and from what, newest first. 400 INVALID_REFERENCE for a plugin’s record type, whose plugin keeps its history.',
     })
     .input(CursorQuery.extend({ recordType: DataExtensionRecordType, recordId: Id }))
     .output(cursorPageOf(DataExtensionChange)),
@@ -74,26 +85,19 @@ export const dataChangesContract = {
     .route({
       method: 'POST',
       path: '/data-fields/{id}/convert',
-      summary:
-        'Convert a field to another type, its values carried over where they fit. `apply` false is a dry run; 409 UNCONVERTIBLE when values would be cleared and `clearUnconvertible` is not set; 400 INVALID_TYPE for a plugin’s record type, whose plugin keeps the values',
+      summary: 'Convert a field to another type',
+      description:
+        'Converts a field to another type and carries its values over where they fit. `apply` false is a dry run; 409 UNCONVERTIBLE when values would be cleared and `clearUnconvertible` is not set; 400 INVALID_TYPE for a plugin’s record type, whose plugin keeps the values.',
     })
-    .input(
-      z.object({
-        id: Id,
-        type: ConvertibleType,
-        /** A select's options; made from the field's values when left out. */
-        options: DataExtensionOptions.optional(),
-        apply: z.boolean().default(false),
-        clearUnconvertible: z.boolean().default(false),
-      }),
-    )
+    .input(DataExtensionFieldConvert)
     .output(DataExtensionConversion),
   remove: base
     .route({
       method: 'POST',
       path: '/data-values/{recordType}/remove',
-      summary:
-        'A plugin’s records are gone: clear the links core keeps to them (on core’s and custom records, and their pairs). `removed` counts them',
+      summary: 'Clear links to a plugin’s removed records',
+      description:
+        'A plugin calls it when its records are gone: clears the links core keeps to them, on core’s and custom records and their pairs. `removed` counts them.',
     })
     .input(
       z.object({ recordType: DataExtensionRecordType, recordIds: z.array(Id).min(1).max(100) }),

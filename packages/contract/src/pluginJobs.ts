@@ -9,6 +9,23 @@ export const JobName = z
     'lower case letters, digits and . _ - (starting with a letter)',
   );
 
+/**
+ * Attempts in all; the first retry waits `delay` seconds, each next one
+ * about twice as long, up to `maxDelay`.
+ */
+export const JobRetry = z
+  .object({
+    attempts: z.int().min(1).max(25),
+    delay: z.int().min(1).max(86_400),
+    maxDelay: z
+      .int()
+      .min(1)
+      .max(7 * 86_400),
+  })
+  .refine((retry) => retry.maxDelay >= retry.delay, 'maxDelay is at least delay');
+
+export type JobRetry = z.infer<typeof JobRetry>;
+
 const PluginJob = z.object({
   name: JobName,
   /** A cron schedule in UTC (`0 3 * * *`): one job per organisation each time it comes due. */
@@ -18,21 +35,8 @@ const PluginJob = z.object({
    * version asks for: a backfill of what the plugin could not do before.
    */
   onInstall: z.boolean().optional(),
-  /**
-   * Attempts in all; the first retry waits `delay` seconds, each next one
-   * about twice as long, up to `maxDelay`. Default: 8 attempts, 30 s, 6 hours.
-   */
-  retry: z
-    .object({
-      attempts: z.int().min(1).max(25),
-      delay: z.int().min(1).max(86_400),
-      maxDelay: z
-        .int()
-        .min(1)
-        .max(7 * 86_400),
-    })
-    .refine((retry) => retry.maxDelay >= retry.delay, 'maxDelay is at least delay')
-    .optional(),
+  /** Default: 8 attempts, 30 s, 6 hours. */
+  retry: JobRetry.optional(),
 });
 
 /**

@@ -217,7 +217,7 @@ export const AuditStreams = () => {
           </Sheet.Description>
           <Sheet.Close />
         </Sheet.Header>
-        <Sheet.Content className="min-h-0 overflow-y-auto">
+        <Sheet.Content>
           <div className="space-y-4">
             {secret && <SecretNotice secret={secret} />}
             {open && <StreamList />}

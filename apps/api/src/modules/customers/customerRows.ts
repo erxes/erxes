@@ -1,6 +1,6 @@
 import type { CustomValue, Db } from '@erxes/core-db';
 import { customers } from '@erxes/core-db';
-import { arrayContains, eq, getTableColumns, or, sql } from 'drizzle-orm';
+import { arrayContains, eq, getTableColumns, type SQL } from 'drizzle-orm';
 import { notFound } from '~/http/errors';
 import { customFieldsColumn } from '~/modules/fields/fieldValues';
 import { tagIdsColumn } from '~/modules/tags/tagLinks';
@@ -25,14 +25,19 @@ export const selectCustomers = (client: Db) => {
     .from(customers);
 };
 
-/** A customer by id; with `followMerges`, an id merged into another customer resolves to it. */
+const firstCustomer = async (client: Db, where: SQL) =>
+  (await selectCustomers(client).where(where).limit(1))[0];
+
+/**
+ * A customer by id; with `followMerges`, an id merged into another customer resolves to it. The id
+ * is looked up first, by its key: only an id merged away reads the merged ids, which no index serves.
+ */
 export const findCustomer = async (client: Db, id: string, followMerges = false) => {
-  const [row] = await selectCustomers(client)
-    .where(
-      followMerges ? or(eq(customers.id, id), arrayContains(customers.mergedIds, [id])) : inOrg(id),
-    )
-    .orderBy(sql`${customers.id} = ${id} DESC`)
-    .limit(1);
+  const row =
+    (await firstCustomer(client, inOrg(id))) ??
+    (followMerges
+      ? await firstCustomer(client, arrayContains(customers.mergedIds, [id]))
+      : undefined);
 
   if (!row) {
     throw notFound('Customer');

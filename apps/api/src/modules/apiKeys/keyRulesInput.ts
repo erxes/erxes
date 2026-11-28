@@ -5,6 +5,7 @@ import {
   type ApiKeyActions,
   type ApiKeyArea,
   type ApiKeyAreas,
+  type ApiKeyRules,
   type ApiKeyPlugins,
   CORE_PERMISSIONS,
   OWNER_ONLY_PERMISSIONS,
@@ -18,26 +19,27 @@ import { installedPlugin } from '../plugins/installedPlugin';
 
 type Member = Extract<Caller, { type: 'user' }>;
 
-export interface KeyRulesInput {
-  kind: 'regular' | 'management';
-  areas: ApiKeyAreas;
-  pluginAccess: ApiKeyPlugins;
-  actions: ApiKeyActions;
-  ownRecords: boolean;
-  unitIds: string[];
-  tagIds: string[];
-  allowedIps: string[];
-}
+export type KeyRulesInput = Omit<ApiKeyRules, 'name' | 'lifetimeDays'>;
 
 const invalid = (field: string, message: string) =>
   fail('INVALID_INPUT', message, { issues: [{ path: [field], message }] });
+
+export const opensSomething = ({
+  areas,
+  pluginAccess,
+}: Pick<ApiKeyRules, 'areas' | 'pluginAccess'>) =>
+  API_KEY_AREAS.some((area) => areas[area]) || Object.keys(pluginAccess).length > 0;
+
+export const mustOpenSomething = (rules: Pick<ApiKeyRules, 'areas' | 'pluginAccess'>) => {
+  if (!opensSomething(rules)) throw invalid('areas', 'Choose at least one area');
+};
 
 const OWNER_ONLY = new Set(OWNER_ONLY_PERMISSIONS);
 
 /** What the member may do now, spelled out: a key keeps this list, not a role or `*`. */
 const permissionsOf = (member: Member) => {
-  const core = CORE_PERMISSIONS.map((permission) => permission.action).filter(
-    (action) => member.role === 'owner' || can(member, action),
+  const core = CORE_PERMISSIONS.map((permission) => permission.action).filter((action) =>
+    can(member, action),
   );
 
   const own = member.permissions.filter((action) => action !== '*' && !OWNER_ONLY.has(action));
@@ -155,8 +157,6 @@ const checkKeyRules = async (client: Db, me: Member, input: KeyRulesInput) => {
 
   const opened = API_KEY_AREAS.filter((area) => input.areas[area]);
   const plugins = Object.keys(input.pluginAccess);
-
-  if (!opened.length && !plugins.length) throw invalid('areas', 'Choose at least one area');
 
   if (plugins.length && input.kind !== 'regular') {
     throw invalid('pluginAccess', 'Only regular keys call plugins');

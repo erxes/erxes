@@ -1,3 +1,5 @@
+import type { coreContract } from '@erxes/core-contract';
+import type { InferContractRouterInputs } from '@orpc/contract';
 import { recordAudit } from '~/modules/audit/audit.service';
 import {
   caller,
@@ -48,6 +50,8 @@ const findAccount = async (email: string, subdomain: string | undefined) => {
         and(
           sql`lower(${users.email}) = ${email}`,
           eq(users.canSignIn, true),
+          // erxes support comes in only through erxes.io's link.
+          eq(users.isSupport, false),
           subdomain ? sql`lower(${organizations.subdomain}) = ${subdomain}` : undefined,
         ),
       )
@@ -141,7 +145,7 @@ const upgradePasswordHash = async (user: Account['user'], password: string) => {
  * same, so the response never tells whether an email exists.
  */
 export const signIn = async (
-  input: { email: string; password: string; subdomain?: string },
+  input: InferContractRouterInputs<typeof coreContract>['auth']['signIn'],
   host?: string,
 ) => {
   const email = input.email.trim().toLowerCase();
@@ -220,6 +224,7 @@ export const getSession = async (orgId: string, userId: string) =>
       permissions: await effectivePermissions(tx, {
         role: row.user.role,
         permissions: row.permissions,
+        ...(row.user.isSupport ? { support: true } : {}),
       }),
       hasPassword: row.hasPassword,
     };

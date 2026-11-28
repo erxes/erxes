@@ -1,269 +1,335 @@
 import {
+  APP_TRIGGER_DELIVERIES,
+  GATEWAY_REFUND_KINDS,
+  INTEGRATION_CONNECTION_STATUSES,
   INTEGRATION_FIELD_TYPES,
-  INTEGRATION_PROGRAM_KINDS,
-} from '@erxes/core-db/integrationEnums';
+  OAUTH_CLIENT_SOURCES,
+} from '@erxes/core-db/enums';
 import {
-  integrationPrograms,
-  integrationProgramVersions,
-  integrations,
+  integrationConnections,
+  integrationSubscriptions,
+  pluginIntegrationStates,
 } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
-import { createSelectSchema } from 'drizzle-zod';
+import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { DataField } from './automationRuns';
+import { ActionInfo, RecordType } from './automationRuns';
 import { Id, isoDate, listOf } from './common';
+import { connectionUseContract } from './connectionUse';
 import { COMMON_ERRORS, ERRORS } from './errors';
-import {
-  INTEGRATION_FIELD_MAX,
-  IntegrationDataKey,
-  IntegrationHosts,
-  IntegrationKey,
-} from './integrationValues';
 
-export const INTEGRATION_PROGRAM_MAX = 50;
+import { IntegrationCategory, IntegrationKey, IntegrationScope } from './values';
 
-export const INTEGRATION_VERSION_WINDOW = 50;
-
-export const INTEGRATION_CODE_MAX = 20_000;
-
-const INCOMING_BODY_MAX = 256 * 1024;
-
-const Label = DataField.shape.label;
-
-const IntegrationField = z.object({
-  key: IntegrationDataKey,
-  label: Label,
-  type: z.enum(INTEGRATION_FIELD_TYPES),
-  required: z.boolean().default(false),
-  options: z
-    .array(z.object({ value: z.string().max(200), label: Label }))
-    .max(100)
-    .optional(),
-  description: z.string().trim().max(300).optional(),
-});
-
-export const IntegrationDataField = DataField.omit({ recordType: true });
-
-const IntegrationEvent = z.object({
-  key: IntegrationKey,
-  label: Label,
-  fields: z.array(IntegrationDataField).max(INTEGRATION_FIELD_MAX),
-});
-
-const ProgramDefinition = z.object({
-  label: Label,
-  description: z.string().trim().max(300).nullable(),
-  fields: z.array(IntegrationField).max(INTEGRATION_FIELD_MAX),
-  outputs: z.array(IntegrationDataField).max(INTEGRATION_FIELD_MAX),
-  events: z.array(IntegrationEvent).max(INTEGRATION_FIELD_MAX),
-  code: z.string().min(1).max(INTEGRATION_CODE_MAX),
-});
-
-export const Integration = createSelectSchema(integrations, {
+export const IntegrationConnection = createSelectSchema(integrationConnections, {
   id: Id,
-  hosts: () => IntegrationHosts,
-  sealedNames: () => z.array(z.string()),
   createdAt: isoDate,
-  updatedAt: isoDate,
+  /** The values a member reads and changes (`invoiceCode`, `sandbox`); never a secret. */
+  settings: z.record(z.string(), z.unknown()),
 }).pick({
   id: true,
   key: true,
   name: true,
-  hosts: true,
-  sealedNames: true,
+  settings: true,
+  status: true,
+  ownerId: true,
   createdAt: true,
-  updatedAt: true,
+});
+
+export type IntegrationConnection = z.infer<typeof IntegrationConnection>;
+
+export const VaultConnection = IntegrationConnection.extend({
+  usedBy: z.array(z.string()),
+});
+
+export type VaultConnection = z.infer<typeof VaultConnection>;
+
+export const IntegrationField = z.object({
+  key: z.string(),
+  label: z.string(),
+  type: z.enum(INTEGRATION_FIELD_TYPES),
+  optional: z.boolean(),
+  /** A `select` field's values. */
+  options: z.array(z.string()).optional(),
+  /** A trigger setting that is one of the app's records, picked from `records` by this type. */
+  recordType: RecordType.optional(),
+  /** The key of another setting: its records are the ones under that setting's value. */
+  dependsOn: z.string().optional(),
+});
+
+export type IntegrationField = z.infer<typeof IntegrationField>;
+
+const stateColumns = { count: () => z.int().min(0) };
+
+/** Where an integration stands here; `count`: how many are connected, when known. */
+export const IntegrationStatus = createSelectSchema(pluginIntegrationStates, stateColumns).pick({
+  state: true,
+  count: true,
+});
+
+export type IntegrationStatus = z.infer<typeof IntegrationStatus>;
+
+export const IntegrationPayments = z.object({
+  currencies: z.array(z.string()),
+  refunds: z.enum(GATEWAY_REFUND_KINDS),
+  pays: z.string(),
+});
+
+/** An action it brings to automations (`qpay.invoice.create`), as the builder lists it. */
+export const IntegrationAction = ActionInfo.pick({ type: true, label: true, description: true });
+
+export const Integration = z.object({
+  key: z.string(),
+  /** The plugin whose manifest declares it; null for core's own. */
+  plugin: z.string().nullable(),
+  /** A plugin's integration that connects through this core integration's connections; else null. */
+  connection: z.string().nullable(),
+  name: z.string(),
+  summary: z.string(),
+  category: IntegrationCategory,
+  countries: z.array(z.string()),
+  permission: z.string(),
+  /** Who its connections can serve: `org`, `personal`, or both. */
+  scopes: z.array(IntegrationScope),
+  dashboard: z.string().nullable(),
+  keyed: z.boolean(),
+  fields: z.array(IntegrationField),
+  payments: IntegrationPayments.nullable(),
+  /** It texts the organisation's messages (CallPro, Twilio): a portal may text its codes through it. */
+  sms: z.boolean(),
+  oauth: z
+    .object({
+      client: z.enum(OAUTH_CLIENT_SOURCES).nullable(),
+      callbackUrl: z.string(),
+      /** The organisation's own app's client id; null on the server's app or none. */
+      clientId: z.string().nullable(),
+    })
+    .nullable(),
+  status: IntegrationStatus,
+  actions: z.array(IntegrationAction),
 });
 
 export type Integration = z.infer<typeof Integration>;
 
-export const IntegrationProgram = createSelectSchema(integrationPrograms, {
+const ReportedState = createUpdateSchema(pluginIntegrationStates, stateColumns)
+  .pick({ state: true, count: true })
+  .required({ state: true });
+
+export const AutomationAppTrigger = z.object({
+  key: z.string(),
+  type: z.string(),
+  label: z.string(),
+  description: z.string(),
+  via: z.enum(APP_TRIGGER_DELIVERIES),
+  params: z.array(IntegrationField),
+});
+
+export const AutomationApp = z.object({
+  key: z.string(),
+  name: z.string(),
+  category: IntegrationCategory,
+  triggers: z.array(AutomationAppTrigger),
+  /** The record types it lists for pickers (`records`); others are the run's values or typed. */
+  records: z.array(RecordType),
+  connections: z.array(IntegrationConnection.pick({ id: true, name: true, status: true })),
+});
+
+export type AutomationApp = z.infer<typeof AutomationApp>;
+
+export const AppSubscription = createSelectSchema(integrationSubscriptions, {
   id: Id,
-  integrationId: Id,
-  fields: () => z.array(IntegrationField),
-  outputs: () => z.array(IntegrationDataField),
-  events: () => z.array(IntegrationEvent),
-  version: () => z.int(),
-  createdAt: isoDate,
-  updatedAt: isoDate,
+  connectionId: Id,
+  params: z.record(z.string(), z.unknown()),
+  failures: () => z.int(),
+  lastDeliveryAt: isoDate,
 })
   .pick({
     id: true,
-    integrationId: true,
-    kind: true,
-    key: true,
-    label: true,
-    description: true,
-    fields: true,
-    outputs: true,
-    events: true,
-    code: true,
-    version: true,
-    createdAt: true,
-    updatedAt: true,
+    connectionId: true,
+    channel: true,
+    params: true,
+    status: true,
+    lastError: true,
+    failures: true,
+    lastDeliveryAt: true,
   })
-  .extend({ address: z.string().nullable() });
+  .extend({
+    connectionName: z.string(),
+    triggers: z.array(z.object({ key: z.string(), label: z.string() })),
+    automations: z.array(z.object({ id: Id, name: z.string() })),
+  });
 
-export type IntegrationProgram = z.infer<typeof IntegrationProgram>;
+export type AppSubscription = z.infer<typeof AppSubscription>;
 
-export const IntegrationDetail = Integration.extend({
-  programs: z.array(IntegrationProgram).max(INTEGRATION_PROGRAM_MAX),
+const ConnectionName = z.string().trim().min(1).max(80);
+
+const ConnectionKeys = z.record(z.string(), z.unknown());
+
+export const AuthorizeInput = z.object({
+  key: IntegrationKey,
+  name: ConnectionName.optional(),
+  scope: IntegrationScope.default('org'),
 });
 
-export type IntegrationDetail = z.infer<typeof IntegrationDetail>;
+/** One of an app's records as a picker offers it: its id, and the name a member reads. */
+export const AppRecord = z.object({ value: z.string(), label: z.string() });
 
-export const IntegrationProgramVersion = createSelectSchema(integrationProgramVersions, {
-  version: () => z.int(),
-  definition: () => ProgramDefinition,
-  createdAt: isoDate,
-}).pick({ version: true, definition: true, createdBy: true, createdAt: true });
+export type AppRecord = z.infer<typeof AppRecord>;
 
-export const IntegrationIncomingCall = z.object({
-  method: z.string().max(10).default('POST'),
-  headers: z.record(z.string(), z.string()).default({}),
-  query: z.record(z.string(), z.string()).default({}),
-  rawBody: z.string().max(INCOMING_BODY_MAX).default(''),
+const {
+  APP_IN_USE,
+  BANK_IN_USE,
+  CONNECTION_IN_USE,
+  GATEWAY_IN_USE,
+  GATEWAY_REFUSED,
+  KIND_CHANGED,
+  NOT_CONNECTED,
+  NOT_SET_UP,
+} = ERRORS;
+
+const base = oc.errors({
+  ...COMMON_ERRORS,
+  APP_IN_USE,
+  BANK_IN_USE,
+  CONNECTION_IN_USE,
+  GATEWAY_IN_USE,
+  GATEWAY_REFUSED,
+  KIND_CHANGED,
+  NOT_CONNECTED,
+  NOT_SET_UP,
 });
-
-export type IntegrationIncomingCall = z.infer<typeof IntegrationIncomingCall>;
-
-export const IntegrationProgramRun = z.discriminatedUnion('ok', [
-  z.object({
-    ok: z.literal(true),
-    result: z.unknown(),
-    logs: z.array(z.string()),
-  }),
-  z.object({
-    ok: z.literal(false),
-    code: z.string(),
-    message: z.string(),
-  }),
-]);
-
-export type IntegrationProgramRun = z.infer<typeof IntegrationProgramRun>;
-
-const { LIMIT_EXCEEDED } = ERRORS;
-
-const base = oc.errors({ ...COMMON_ERRORS, LIMIT_EXCEEDED });
-
-const ok = z.object({ ok: z.literal(true) });
 
 export const integrationsContract = {
+  authorize: base
+    .route({
+      method: 'POST',
+      path: '/integrations/{key}/authorize',
+      summary: 'Start an app sign-in',
+      description:
+        "Where to send the member to sign in to the app; the app sends them back to the callback, which saves the connection. One connection per account: signing in again with it renews that connection's sign-in and keeps its name. A new account's connection takes `name`, or else the account's name. 400 NOT_SET_UP without the app's client id and secret",
+    })
+    .input(AuthorizeInput)
+    .output(z.object({ url: z.string() })),
+  setOAuthApp: base
+    .route({
+      method: 'PUT',
+      path: '/integrations/{key}/oauth-app',
+      summary: 'Set our own OAuth app',
+      description:
+        "The organisation's own OAuth app for this integration, kept in the vault. 409 APP_IN_USE while connections sign in through it; 403 NOT_ALLOWED where the server's app signs in",
+    })
+    .input(
+      z.object({
+        key: IntegrationKey,
+        clientId: z.string().trim().min(1).max(500),
+        clientSecret: z.string().trim().min(1).max(2000),
+      }),
+    )
+    .output(z.object({ ok: z.literal(true) })),
+  removeOAuthApp: base
+    .route({
+      method: 'DELETE',
+      path: '/integrations/{key}/oauth-app',
+      summary: 'Remove our own OAuth app',
+      description:
+        "409 APP_IN_USE while connections sign in through it; 403 NOT_ALLOWED where the server's app signs in",
+    })
+    .input(z.object({ key: IntegrationKey }))
+    .output(z.object({ ok: z.literal(true) })),
   list: base
     .route({
       method: 'GET',
       path: '/integrations',
-      summary: 'The custom integrations: services connected by hand, by name',
+      summary: 'List integrations',
+      description:
+        "The integrations the member may manage, core's with their form fields and those of the plugins installed here, with their state",
     })
-    .input(z.object({}))
     .output(listOf(Integration)),
-  get: base
+  connections: base
     .route({
       method: 'GET',
-      path: '/integrations/{id}',
-      summary: `A custom integration with its programs (at most ${INTEGRATION_PROGRAM_MAX})`,
+      path: '/integrations/connections',
+      summary: 'List connections',
+      description:
+        'The connections the member may manage, of one integration or of all, with their settings and what uses them but never their secrets',
     })
-    .input(z.object({ id: Id }))
-    .output(IntegrationDetail),
-  create: base
+    .input(z.object({ key: IntegrationKey.optional() }))
+    .output(listOf(VaultConnection)),
+  ...connectionUseContract,
+  subscriptions: base
+    .route({
+      method: 'GET',
+      path: '/integrations/{key}/subscriptions',
+      summary: 'List trigger subscriptions',
+      description:
+        "How the app's connections listen for automation triggers: each one's state, the triggers in use and the active automations listening",
+    })
+    .input(z.object({ key: IntegrationKey }))
+    .output(listOf(AppSubscription)),
+  records: base
+    .route({
+      method: 'GET',
+      path: '/integrations/{key}/records/{recordType}',
+      summary: 'List an app’s records',
+      description:
+        "The records of one type an app lists for the automation builder's pickers (the Facebook pages, a repository's workflows), read with `connection`, else the default one. `parents`: the values of the inputs the picker depends on, nearest first. A type the app doesn't list answers none. 409 NOT_CONNECTED; 400 GATEWAY_REFUSED with the service's own message",
+    })
+    .input(
+      z.object({
+        key: IntegrationKey,
+        recordType: RecordType,
+        connection: Id.optional(),
+        parents: z.array(z.string().trim().min(1).max(500)).max(5).optional(),
+        search: z.string().trim().max(200).optional(),
+      }),
+    )
+    .output(listOf(AppRecord)),
+  connect: base
     .route({
       method: 'POST',
-      path: '/integrations',
+      path: '/integrations/{key}/connections',
       successStatus: 201,
-      summary:
-        'Add a custom integration: its key, name and the hosts its programs may call. 409 TAKEN when the key is taken',
+      summary: 'Add a connection',
+      description:
+        'Connect with these keys, checked against the service first. 400 GATEWAY_REFUSED',
     })
-    .input(z.object({ key: IntegrationKey, name: Label, hosts: IntegrationHosts }))
-    .output(Integration),
+    .input(AuthorizeInput.extend({ name: ConnectionName, keys: ConnectionKeys }))
+    .output(IntegrationConnection),
   update: base
     .route({
       method: 'PATCH',
-      path: '/integrations/{id}',
-      summary: 'Rename a custom integration or change the hosts its programs may call',
-    })
-    .input(
-      z
-        .object({ id: Id, name: Label.optional(), hosts: IntegrationHosts.optional() })
-        .refine((value) => Object.keys(value).some((key) => key !== 'id'), 'nothing to update'),
-    )
-    .output(Integration),
-  setSecrets: base
-    .route({
-      method: 'PUT',
-      path: '/integrations/{id}/secrets',
-      summary:
-        'Set or remove (null) sealed values by name. Programs write {{secret.<name>}}; the API never returns a value',
+      path: '/integrations/{key}/connections/{id}',
+      summary: 'Change a connection',
+      description:
+        'Rename, turn off or on, or change the values `keys` names: a setting, or a secret typed anew. A value left out stays as kept, `null` empties an optional one, and the whole set is checked with the service first. 400 GATEWAY_REFUSED; 400 KIND_CHANGED when the connection is of another integration',
     })
     .input(
       z.object({
+        key: IntegrationKey,
         id: Id,
-        secrets: z.record(IntegrationDataKey, z.string().min(1).max(4000).nullable()),
+        name: ConnectionName.optional(),
+        keys: ConnectionKeys.optional(),
+        status: z.enum(INTEGRATION_CONNECTION_STATUSES).optional(),
       }),
     )
-    .output(Integration),
+    .output(IntegrationConnection),
   remove: base
     .route({
       method: 'DELETE',
-      path: '/integrations/{id}',
-      summary: 'Delete a custom integration with its programs; automations that use them fail',
+      path: '/integrations/{key}/connections/{id}',
+      summary: 'Remove a connection',
+      description:
+        '409 GATEWAY_IN_USE when a gateway has invoices: turn it off instead; 409 CONNECTION_IN_USE while active automations listen on it or its webhooks are still being removed',
     })
-    .input(z.object({ id: Id }))
-    .output(ok),
-  saveProgram: base
+    .input(z.object({ key: IntegrationKey, id: Id }))
+    .output(z.object({ ok: z.literal(true) })),
+  report: base
     .route({
       method: 'PUT',
-      path: '/integrations/{integrationId}/programs',
-      summary: `Add or replace a program by kind and key; it is live at once and the version before is kept. 400 LIMIT_EXCEEDED past ${INTEGRATION_PROGRAM_MAX} programs`,
+      path: '/integrations/{key}/state',
+      summary: 'Report a plugin integration’s state',
+      description:
+        "The calling plugin says where one of its manifest's integrations stands in this organisation (`count`: how many are connected). 404 when its manifest doesn't declare the key",
     })
-    .input(
-      ProgramDefinition.extend({
-        integrationId: Id,
-        kind: z.enum(INTEGRATION_PROGRAM_KINDS),
-        key: IntegrationKey,
-        description: ProgramDefinition.shape.description.default(null),
-        fields: ProgramDefinition.shape.fields.default([]),
-        outputs: ProgramDefinition.shape.outputs.default([]),
-        events: ProgramDefinition.shape.events.default([]),
-      }),
-    )
-    .output(IntegrationProgram),
-  removeProgram: base
-    .route({
-      method: 'DELETE',
-      path: '/integrations/programs/{id}',
-      summary: 'Delete a program with its versions',
-    })
-    .input(z.object({ id: Id }))
-    .output(ok),
-  programVersions: base
-    .route({
-      method: 'GET',
-      path: '/integrations/programs/{id}/versions',
-      summary: `A program's versions, newest first (the last ${INTEGRATION_VERSION_WINDOW})`,
-    })
-    .input(z.object({ id: Id }))
-    .output(z.object({ data: z.array(IntegrationProgramVersion).max(INTEGRATION_VERSION_WINDOW) })),
-  restoreProgram: base
-    .route({
-      method: 'POST',
-      path: '/integrations/programs/{id}/restore',
-      summary: 'Make an earlier version live again, as a new version',
-    })
-    .input(z.object({ id: Id, version: z.int().min(1) }))
-    .output(IntegrationProgram),
-  testProgram: base
-    .route({
-      method: 'POST',
-      path: '/integrations/programs/{id}/test',
-      summary:
-        'Run a program once: an action with input, an incoming program with a sample call. It reaches the service; an incoming run publishes nothing',
-    })
-    .input(
-      z.object({
-        id: Id,
-        input: z.record(z.string(), z.unknown()).default({}),
-        incoming: IntegrationIncomingCall.prefault({}),
-      }),
-    )
-    .output(IntegrationProgramRun),
+    .input(ReportedState.extend({ key: IntegrationKey }))
+    .output(IntegrationStatus),
 };

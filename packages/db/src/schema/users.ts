@@ -15,6 +15,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { inList, orgIdColumn, pgTable } from '../table';
 import { organizations } from './organizations';
+import { secrets } from './secrets';
 
 /**
  * Roles of an organisation: named sets of permissions (`contacts.delete`,
@@ -72,6 +73,8 @@ export const users = pgTable(
     lastName: text(),
     shortName: text(),
     employeeId: text(),
+    /** The member's code (3.x `users.code`): accounting prints it as a voucher's party code. */
+    code: text(),
     phone: text(),
     birthDate: date({ mode: 'string' }),
     workStartedDate: date({ mode: 'string' }),
@@ -88,10 +91,8 @@ export const users = pgTable(
      * disable, enable, "sign out everywhere") ends every session issued before.
      */
     sessionVersion: integer().default(1).notNull(),
-    /** Two-factor sign-in (TOTP): the sealed secret, set once confirmed with a code. */
-    totpSecretSealed: text(),
-    /** A secret being set up, until the member confirms it with a code. */
-    totpPendingSealed: text(),
+    totpSecretId: text(),
+    totpPendingSecretId: text(),
     totpEnabledAt: timestamp({ withTimezone: true, mode: 'date' }),
     /** The last 30-second step a code was accepted for: a code works once. */
     totpLastStep: integer(),
@@ -124,6 +125,12 @@ export const users = pgTable(
     index('core_users_org_status_idx').on(table.orgId, table.status),
     // Keyset paging, newest first.
     index('core_users_org_created_idx').on(table.orgId, table.createdAt.desc(), table.id.desc()),
+    index('core_users_totp_secret_idx')
+      .on(table.totpSecretId)
+      .where(sql`${table.totpSecretId} is not null`),
+    index('core_users_totp_pending_secret_idx')
+      .on(table.totpPendingSecretId)
+      .where(sql`${table.totpPendingSecretId} is not null`),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],
@@ -133,6 +140,16 @@ export const users = pgTable(
       columns: [table.orgId, table.role],
       foreignColumns: [roles.orgId, roles.key],
       name: 'core_users_role_fkey',
+    }),
+    foreignKey({
+      columns: [table.totpSecretId],
+      foreignColumns: [secrets.id],
+      name: 'core_users_totp_secret_id_fkey',
+    }),
+    foreignKey({
+      columns: [table.totpPendingSecretId],
+      foreignColumns: [secrets.id],
+      name: 'core_users_totp_pending_secret_id_fkey',
     }),
     check('core_users_status_check', inList(table.status, USER_STATUSES)),
     // Whoever signs in has an email, and only they are invited.

@@ -1,10 +1,15 @@
-import { type SORT_DIRECTIONS, VIEW_RECORD_TYPES } from '@erxes/core-db/enums';
-import type { ConditionGroup, ViewListType, ViewRecordType } from '@erxes/core-contract';
+import { VIEW_RECORD_TYPES } from '@erxes/core-db/enums';
+import type {
+  ConditionGroup,
+  ViewFields,
+  ViewListType,
+  ViewRecordType,
+} from '@erxes/core-contract';
 import { broadcasts, caller, type Db, newId, views } from '@erxes/core-db';
 import { and, asc, count, eq, getTableColumns, inArray, or, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { callerCan } from '~/http/access';
-import { fail, notFound } from '~/http/errors';
+import { fail, notAllowed, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { DATA_PATH } from '~/modules/dataExtensions/hostFilters';
 import { dataSort } from './dataFilterFields';
@@ -27,9 +32,6 @@ const corePermissions = (recordType: ViewRecordType) =>
 
 const permissionsOf = (recordType: ViewListType) =>
   isCoreList(recordType) ? corePermissions(recordType) : { see: null, share: null };
-
-const notAllowed = (permission: string, message = "Your role doesn't allow this") =>
-  fail('NOT_ALLOWED', message, { permission });
 
 /** The member may see the list the views are of. */
 const assertSees = (recordType: ViewListType) => {
@@ -77,15 +79,6 @@ export const listViews = async (client: Db, recordType: ViewListType) => {
   return { data: rows };
 };
 
-interface ViewInput {
-  name?: string;
-  filter?: ConditionGroup | null;
-  search?: string | null;
-  columns?: string[] | null;
-  sort?: { field: string; direction: (typeof SORT_DIRECTIONS)[number] } | null;
-  shared?: boolean;
-}
-
 /** Sharing a view needs the list's share permission. */
 const assertShareable = (recordType: ViewListType, shared: boolean | undefined) => {
   const { share } = permissionsOf(recordType);
@@ -105,7 +98,7 @@ const assertFilter = async (
 };
 
 /** A core list's sort by a Data Extensions field (`data.<key>`) names one it can sort by. */
-const assertSort = async (client: Db, recordType: ViewListType, sort: ViewInput['sort']) => {
+const assertSort = async (client: Db, recordType: ViewListType, sort: ViewFields['sort']) => {
   if (isCoreList(recordType) && sort?.field.startsWith(DATA_PATH)) {
     await dataSort(client, recordType, { sortField: sort.field, sortDirection: sort.direction });
   }
@@ -114,7 +107,7 @@ const assertSort = async (client: Db, recordType: ViewListType, sort: ViewInput[
 /** Saves a view after checking its filter. */
 export const createView = async (
   client: Db,
-  input: ViewInput & { recordType: ViewListType; name: string },
+  input: ViewFields & { recordType: ViewListType; name: string },
 ) => {
   assertSees(input.recordType);
   assertShareable(input.recordType, input.shared);
@@ -158,7 +151,7 @@ const notEditable = (what: string) =>
     `Only its creator (or, when shared, members who may share views) can ${what} this view`,
   );
 
-export const updateView = async (client: Db, id: string, { search, ...input }: ViewInput) => {
+export const updateView = async (client: Db, id: string, { search, ...input }: ViewFields) => {
   const row = await viewOrThrow(client, id);
 
   if (!row.editable) throw notEditable('change');

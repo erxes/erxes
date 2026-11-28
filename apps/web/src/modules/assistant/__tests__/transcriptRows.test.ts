@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { answerMessage, transcriptOf } from '../transcriptRows';
+import { transcriptOf } from '../transcriptRows';
 
 // Entry ids are numbers, as pi stores them.
 const member = (id: number, text: string) => ({
@@ -229,62 +229,5 @@ describe('transcriptOf', () => {
     expect(rows.map((row) => row.kind)).toEqual(['thinking', 'steps', 'text']);
     expect(rows[0]).toMatchObject({ text: 'First.\n\nSecond.\n\nThird.', streaming: false });
     expect(rows[1]).toMatchObject({ steps: [{ key: 'c1' }, { key: 'c2' }] });
-  });
-});
-
-describe('questions the assistant asks', () => {
-  const asked = said(
-    2,
-    call('q2', 'ask_user', {
-      questions: [
-        { question: 'Which channel?', options: [{ label: 'Email' }, { label: 'SMS' }] },
-        { question: 'Anything to add?' },
-      ],
-    }),
-  );
-
-  it('asks the questions of an ask_user call after the latest member message', () => {
-    const entries = [member(1, 'Send a campaign'), asked, result('q2', { asked: true })];
-    const transcript = transcriptOf({ entries, docs: {} });
-
-    expect(transcript.pending).toBe('question');
-    expect(replyRows(entries)).toMatchObject([
-      {
-        kind: 'question',
-        key: 'q2',
-        questions: [
-          { question: 'Which channel?', options: [{ label: 'Email' }, { label: 'SMS' }] },
-          { question: 'Anything to add?', options: [] },
-        ],
-      },
-    ]);
-  });
-
-  it('answers with one line per question, and asks no more once answered', () => {
-    const text = answerMessage(
-      [
-        { question: 'Which channel?', options: [] },
-        { question: 'Which days?', options: [], selectionMode: 'multi_select' },
-      ],
-      ['Email', ['Mon', 'Tue']],
-    );
-
-    expect(text).toBe('Which channel?: Email\nWhich days?: Mon, Tue');
-
-    const transcript = transcriptOf({
-      entries: [
-        member(1, 'Send a campaign'),
-        asked,
-        result('q2', { asked: true }),
-        member(3, text),
-        said(4, { type: 'text', text: 'Sent.' }),
-      ],
-      docs: {},
-    });
-
-    expect(transcript.pending).toBeNull();
-    expect(
-      transcript.messages.flatMap((message) => (message.role === 'user' ? [] : message.rows)),
-    ).toMatchObject([{ kind: 'text', text: 'Sent.' }]);
   });
 });

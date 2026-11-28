@@ -24,7 +24,7 @@ const PropertyFormGroupField = ({
   form: PropertyFormApi;
   contentType: PropertyContentType;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const client = useQueryClient();
   const { groups, error } = useFieldGroups(contentType);
 
@@ -88,7 +88,7 @@ const PropertyFormGroupField = ({
 
 /** Icon, name, code and description. */
 const PropertyBasics = ({ form }: { form: PropertyFormApi }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
 
   return (
     <>
@@ -165,7 +165,7 @@ const PropertySwitchField = ({
   label,
 }: {
   form: PropertyFormApi;
-  name: 'isVisible' | 'isRequired' | 'isVisibleToCreate';
+  name: 'isVisible' | 'isRequired' | 'isVisibleToCreate' | 'customerEditable';
   label: string;
 }) => (
   <Form.Field
@@ -183,9 +183,18 @@ const PropertySwitchField = ({
   />
 );
 
-/** Where the property shows, and whether a record needs it. */
-const PropertySwitches = ({ form }: { form: PropertyFormApi }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+/**
+ * Where the property shows, and whether a record needs it. A customer's can be theirs to fill in
+ * on websites, at sign-up (where required, they must) and on their profile.
+ */
+const PropertySwitches = ({
+  form,
+  contentType,
+}: {
+  form: PropertyFormApi;
+  contentType: PropertyContentType;
+}) => {
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
 
   return (
     <>
@@ -196,6 +205,13 @@ const PropertySwitches = ({ form }: { form: PropertyFormApi }) => {
         label={t('visible-to-create', 'Visible to create')}
       />
       <PropertySwitchField form={form} name="isRequired" label={t('required', 'Required')} />
+      {contentType === 'customer' && (
+        <PropertySwitchField
+          form={form}
+          name="customerEditable"
+          label={t('customer-editable', 'Customers fill it in on websites')}
+        />
+      )}
     </>
   );
 };
@@ -209,7 +225,7 @@ const PropertyFormFooter = ({
   isEdit?: boolean;
   onCancel: () => void;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const manager = useCanManageFields();
 
   return (
@@ -285,7 +301,7 @@ export const PropertyForm = ({
             allowedTypes={allowedTypes}
             hint={isEdit ? { usage, failed: !!usageFailed } : undefined}
           />
-          <PropertySwitches form={form} />
+          <PropertySwitches form={form} contentType={contentType} />
           <PropertyValidationField form={form} />
           <PropertyOptionsField form={form} heldCount={(value) => optionCounts[value] ?? 0} />
           <PropertyLogicField form={form} contentType={contentType} fieldId={fieldId} />

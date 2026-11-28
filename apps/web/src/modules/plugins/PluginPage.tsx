@@ -5,10 +5,14 @@ import { PluginBoundary, PluginError } from './PluginBoundary';
 import { loadedPluginComponent, loadPluginComponent } from './remotes';
 import type { LoadedPlugin } from './types';
 
-/** Renders a plugin's page module under `/<plugin path>/*`; the plugin draws its own sidebar. */
-export const PluginPage = ({ plugin }: { plugin: LoadedPlugin | undefined }) => {
-  const module = plugin?.config.modules?.[0]?.name ?? plugin?.config.name ?? '';
-
+/** Renders a plugin app's page module (`./<module>`) under its `/<path>/*`; the plugin draws its own sidebar. */
+export const PluginPage = ({
+  plugin,
+  module,
+}: {
+  plugin: LoadedPlugin | undefined;
+  module: string;
+}) => {
   const remote = plugin?.remote ?? '';
 
   // Module Federation loading, not an API call: keyed by the module it loads.

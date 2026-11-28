@@ -92,8 +92,10 @@ export const auditSentence = (entry: AuditEntry, language: string): string => {
       return `stopped streaming the audit log to ${label}`;
     case 'payment.refunded':
       return `refunded ${refundAmount(metadata, language)} of ${label}${metadata.method === 'manual' ? ' (paid back outside erxes)' : ''}: ${textOf(metadata.reason)}`;
-    case 'payment.plugin_settings_updated':
-      return `changed which payment gateways ${label} uses`;
+    case 'payment.default_gateway_changed':
+      return entry.targetLabel
+        ? `made ${entry.targetLabel} the default payment gateway`
+        : 'cleared the default payment gateway';
     case 'auth.sign_in_failed':
       return `failed to sign in as ${label}${metadata.reason ? ` (${textOf(metadata.reason)})` : ''}`;
     case 'auth.password_changed':

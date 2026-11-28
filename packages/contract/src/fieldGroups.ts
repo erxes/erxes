@@ -49,7 +49,8 @@ export const fieldGroupsContract = {
     .route({
       method: 'GET',
       path: '/field-groups',
-      summary:
+      summary: 'List field groups',
+      description:
         "Field groups of a record type, in order. Archived ones only with `archived=true`. Plugins read product groups (`products:read`) and their own record types'",
     })
     .input(z.object({ contentType: PropertyContentType, archived: QueryBoolean.optional() }))
@@ -59,7 +60,8 @@ export const fieldGroupsContract = {
       method: 'POST',
       path: '/field-groups',
       successStatus: 201,
-      summary:
+      summary: 'Add a field group',
+      description:
         "Add a field group (owners and admins). The code defaults to the name; `appliesTo` limits a plugin type's group to some of its records. 409 TAKEN for a taken code, 400 PLUGIN_NOT_INSTALLED as for fields, INVALID_FIELD_GROUP for `appliesTo` on core's records",
     })
     .input(GroupFields.omit({ order: true }).required({ contentType: true, name: true }))
@@ -68,7 +70,8 @@ export const fieldGroupsContract = {
     .route({
       method: 'PATCH',
       path: '/field-groups/{id}',
-      summary:
+      summary: 'Change a field group',
+      description:
         'Rename a field group or change the records it applies to (owners and admins). 400 INVALID_FIELD_GROUP for `appliesTo` on core’s records',
     })
     .input(
@@ -81,7 +84,8 @@ export const fieldGroupsContract = {
     .route({
       method: 'POST',
       path: '/field-groups/order',
-      summary: 'Set the order of field groups (owners and admins)',
+      summary: 'Reorder field groups',
+      description: 'Set the order of field groups (owners and admins)',
     })
     .input(Orders)
     .output(Ok),
@@ -89,7 +93,8 @@ export const fieldGroupsContract = {
     .route({
       method: 'POST',
       path: '/field-groups/{id}/archive',
-      summary: 'Archive a group: it and its fields are hidden, values kept (owners and admins)',
+      summary: 'Archive a field group',
+      description: 'Archive a group: it and its fields are hidden, values kept (owners and admins)',
     })
     .input(z.object({ id: Id }))
     .output(FieldGroup),
@@ -97,7 +102,8 @@ export const fieldGroupsContract = {
     .route({
       method: 'POST',
       path: '/field-groups/{id}/restore',
-      summary: 'Restore an archived group (owners and admins)',
+      summary: 'Restore a field group',
+      description: 'Restore an archived group (owners and admins)',
     })
     .input(z.object({ id: Id }))
     .output(FieldGroup),
@@ -105,7 +111,8 @@ export const fieldGroupsContract = {
     .route({
       method: 'DELETE',
       path: '/field-groups/{id}',
-      summary:
+      summary: 'Delete a field group',
+      description:
         'Delete a group and its fields when no record holds their values (owners and admins). 409 FIELD_IN_USE otherwise',
     })
     .input(z.object({ id: Id }))

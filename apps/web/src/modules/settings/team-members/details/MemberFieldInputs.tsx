@@ -1,7 +1,7 @@
 import { type Icon, IconAlignLeft, IconPhone } from '@tabler/icons-react';
 import {
   DateField,
-  formatPhoneNumber,
+  usePhoneFormatter,
   PhoneInput,
   Popover,
   RecordTableInlineCell,
@@ -80,6 +80,7 @@ export const MemberPhoneField = ({
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { toast } = useToast();
+  const formatPhoneNumber = usePhoneFormatter();
   const [open, setOpen] = useState(false);
   const [phone, setPhone] = useState(value);
   const [isValid, setIsValid] = useState(true);

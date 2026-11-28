@@ -3,17 +3,19 @@ import {
   auditStreams,
   type Db,
   organizations,
+  secrets,
   withOrg,
   withSystem,
 } from '@erxes/core-db';
 import { and, asc, eq, exists, gt, sql } from 'drizzle-orm';
+import { alias } from 'drizzle-orm/pg-core';
 import { z } from 'zod';
 import { repeatWhile } from '~/lib/sequence';
 import { describeError, defineJob, defineSchedule } from '~/modules/jobs/jobs';
 import { logger } from '~/logger';
 import { postOutbound } from '~/lib/outbound';
 import { oneRow } from '~/lib/rows';
-import { unseal } from '~/lib/secrets';
+import { openSecret } from '~/modules/secrets/vault';
 import { signPayload } from '~/modules/webhooks/webhookDelivery';
 import { securityAlert } from './alerts';
 import { formatBatch, streamEntry } from './streamFormat';
@@ -21,6 +23,8 @@ import { formatBatch, streamEntry } from './streamFormat';
 const log = logger.child({ component: 'audit-streams' });
 
 type StreamRow = typeof auditStreams.$inferSelect;
+
+const headerSecrets = alias(secrets, 'header_secrets');
 
 /** Entries per request; a full batch is followed by the next at once. */
 const BATCH = 200;
@@ -37,22 +41,37 @@ export const organizationOf = async (client: Db) =>
       .limit(1),
   );
 
+export const streamToSend = async (client: Db, id: string) => {
+  const [stream] = await client
+    .select({ row: auditStreams, secret: secrets, header: headerSecrets })
+    .from(auditStreams)
+    .innerJoin(secrets, eq(secrets.id, auditStreams.secretId))
+    .leftJoin(headerSecrets, eq(headerSecrets.id, auditStreams.authHeaderSecretId))
+    .where(eq(auditStreams.id, id))
+    .limit(1);
+
+  return stream ?? null;
+};
+
+type StreamToSend = NonNullable<Awaited<ReturnType<typeof streamToSend>>>;
+
 /** POSTs a batch to the stream's endpoint, signed; outside any transaction. */
-export const sendBatch = async (row: StreamRow, body: string) => {
+export const sendBatch = async ({ row, secret, header }: StreamToSend, body: string) => {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'User-Agent': 'erxes-audit-stream/1',
     'Erxes-Stream-Id': row.id,
-    'Erxes-Signature': signPayload(unseal(row.secretSealed), body),
+    'Erxes-Signature': signPayload(openSecret(secret), body),
   };
 
-  if (row.authHeaderName && row.authHeaderValueSealed)
-    headers[row.authHeaderName] = unseal(row.authHeaderValueSealed);
+  if (row.authHeaderName && header) headers[row.authHeaderName] = openSecret(header);
 
   // A refused or unreachable endpoint is the answer this returns, not an error.
-  const response = await postOutbound(row.url, body, headers, 10_000).catch((error: unknown) => ({
-    error: describeError(error).slice(0, 500),
-  }));
+  const response = await postOutbound(row.url, body, headers, { timeoutMs: 10_000 }).catch(
+    (error: unknown) => ({
+      error: describeError(error).slice(0, 500),
+    }),
+  );
 
   if ('error' in response) {
     return { ok: false, status: null, body: null, error: response.error, ms: null };
@@ -72,13 +91,11 @@ export const sendBatch = async (row: StreamRow, body: string) => {
 /** The stream's next batch after its cursor, in chain order, or null when it is removed or paused. */
 const nextBatch = (orgId: string, streamId: string) =>
   withOrg(orgId, async (tx) => {
-    const [row] = await tx
-      .select()
-      .from(auditStreams)
-      .where(eq(auditStreams.id, streamId))
-      .limit(1);
+    const stream = await streamToSend(tx, streamId);
 
-    if (!row || row.status !== 'active') return null;
+    if (stream?.row.status !== 'active') return null;
+
+    const { row } = stream;
 
     const entries = await tx
       .select()
@@ -87,7 +104,7 @@ const nextBatch = (orgId: string, streamId: string) =>
       .orderBy(asc(auditLogs.chainSeq))
       .limit(BATCH);
 
-    return { row, entries, organization: await organizationOf(tx) };
+    return { stream, row, entries, organization: await organizationOf(tx) };
   });
 
 /**
@@ -116,7 +133,7 @@ const sendNextBatch = async (orgId: string, streamId: string) => {
     gap,
   );
 
-  const result = await sendBatch(row, body);
+  const result = await sendBatch(batch.stream, body);
 
   // Only from where this batch read: a stream paused, moved or re-pointed meanwhile is left
   // alone (a batch the old URL took is sent again to the new one).

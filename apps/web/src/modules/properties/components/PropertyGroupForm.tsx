@@ -17,7 +17,7 @@ const GroupFields = ({
 }: {
   form: UseFormReturn<IPropertyGroupForm, unknown, IPropertyGroupValues>;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
 
   return (
     <>
@@ -92,7 +92,7 @@ export const PropertyGroupForm = ({
   onCancel: () => void;
   contentType: PropertyContentType;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
 
   const form = useForm<IPropertyGroupForm, unknown, IPropertyGroupValues>({
     resolver: zodResolver(propertyGroupSchema),

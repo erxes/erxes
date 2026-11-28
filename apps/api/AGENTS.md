@@ -6,7 +6,8 @@ A request goes contract procedure → its policy in `ACCESS` (`src/http/policies
 `src/modules/<feature>/<feature>.router.ts` → service → row → the procedure's output schema, which
 picks the fields and turns Dates into ISO strings. Copy `modules/tags` for a new feature.
 `<feature>.http.ts` is only for Express routes the contract can't describe: byte and event streams,
-OAuth's token and revoke endpoints, and callbacks from outside services (payments, SaaS).
+OAuth's token and revoke endpoints, and callbacks from outside services (payments, SaaS,
+automation webhooks).
 
 ## Rules
 
@@ -69,8 +70,19 @@ OAuth's token and revoke endpoints, and callbacks from outside services (payment
 - Settings are read only in `src/env.ts`, which checks the environment, and shaped in
   `src/config.ts`, which the code imports. Secrets also read `<NAME>_FILE`.
 - `src/lib/crypto.ts` is the only file that imports `node:crypto`: `safeEqual`, `sha256`,
-  `hmacSha256`, `randomToken`, password hashing and sealing. Add a missing helper there.
-  `src/lib/secrets.ts` seals with keys derived from core's secret.
+  `hmacSha256`, `randomToken`, password hashing and the cipher. Add a missing helper there.
+- A password, token or key core reads back lives only in the vault, `core_secrets`
+  (`src/modules/secrets/vault.ts`): `saveSecret(tx, value, id?)` seals it and gives its id (the
+  same id when it replaces), which the feature's row keeps in a `…SecretId` column with a
+  foreign key to `core_secrets` and a `core_drop_secrets` trigger, so the secret goes when the
+  row does. A value used inside the scope is read with `readSecret(tx, id)`; a row that leaves
+  the scope joins `secrets` and is opened later with `openSecret(row.secret)`. Only the vault
+  imports `encrypt` and `decrypt` (lint), and `pnpm check:rls` fails a secret column without its
+  trigger (`tools/check-secrets.sql`). Plugins keep theirs through `secrets.save`,
+  `secrets.read`, `secrets.replace` and `secrets.remove` (scope `secrets:write`), each plugin
+  its own. `CORE_ENCRYPTION_KEY` seals them; a key in `CORE_ENCRYPTION_KEYS_RETIRED` still
+  opens, and `secrets.reseal` moves every secret to the current key each hour.
+  `src/lib/coreKey.ts` derives the keys that sign links, from the same setting.
 - Log through pino, `log.info({ fileId }, 'file removed')`, errors under `err`: `context.log` in
   procedures, `req.log` in Express routes, `logger.child({ component })` in background work, and
   `traced('name', run)` around a job. Thrown 4xx `fail()` errors are answers, logged at info. A new

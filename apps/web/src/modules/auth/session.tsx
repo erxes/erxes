@@ -1,6 +1,6 @@
 import type { Session } from '@erxes/core-contract';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from 'erxes-ui';
+import { HostSessionProvider, useToast } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { createContext, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -37,7 +37,12 @@ export const SessionProvider = ({
 }: {
   session: Session;
   children: ReactNode;
-}) => <SessionContext.Provider value={session}>{children}</SessionContext.Provider>;
+}) => (
+  <SessionContext.Provider value={session}>
+    {/* Plugin pages read the same session through erxes-ui (`Can`, `useHostSession`). */}
+    <HostSessionProvider session={session}>{children}</HostSessionProvider>
+  </SessionContext.Provider>
+);
 
 /** Inside the signed-in app: the current member and organisation. */
 export const useSession = (): Session => {

@@ -13,6 +13,11 @@ import { PopoverScoped } from '../hotkey/components/PopoverScoped';
 import { RecordTableInlineCell } from '../record-table/components/RecordTableCellInline';
 import { MemberLink } from '../records/MemberLink';
 import { EntityPicker } from './EntityPicker';
+import { lazyFamily } from './lazyPickers';
+
+/** 3.x's form and filter parts of the member picker; they load on first use. */
+const memberFamily = lazyFamily(async () => (await import('./memberFamily')).memberFamily);
+
 import {
   type Member,
   type MemberQueries,
@@ -289,9 +294,21 @@ const SelectMemberLinked = ({
   );
 };
 
-/** The member picker: a table cell, a field, or a row opening the member. */
-export const SelectMember = {
+/**
+ * The member picker: a table cell, a field, or a row opening the member.
+ * `<SelectMember members value onValueChange mode />` itself is 3.x's plain controlled picker
+ * outside a form, one member or several (`mode="multiple"`, which stays open to pick more).
+ * 3.x's `FormItem` and filter parts (`FilterItem`, `FilterView`, `FilterBar`) take `members`,
+ * `value` and `onValueChange` with a `mode`, as the branch and product pickers do.
+ */
+export const SelectMember = Object.assign(memberFamily.Field, {
   InlineCell: SelectMemberInlineCell,
   Field: SelectMemberField,
   Linked: SelectMemberLinked,
-};
+  FormItem: memberFamily.FormItem,
+  FilterItem: memberFamily.FilterItem,
+  FilterView: memberFamily.FilterView,
+  FilterBar: memberFamily.FilterBar,
+  Content: memberFamily.Content,
+  Value: memberFamily.Value,
+});

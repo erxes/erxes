@@ -1,6 +1,8 @@
 # Packages what `pnpm image:context` built on the host: the bundled API with
 # its production node_modules (.runtime) and the UI remote, served at /ui.
 FROM node:26-bookworm-slim
+# The runtime only runs node; npm and corepack bring their own dependencies (and advisories).
+RUN rm -rf /usr/local/lib/node_modules /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
 ARG VERSION=0.1.0
 WORKDIR /app
 COPY --chown=node:node .runtime/ ./

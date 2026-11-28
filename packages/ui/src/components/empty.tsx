@@ -49,9 +49,15 @@ const emptyMediaVariants = cva(
         default: 'bg-transparent',
         icon: 'bg-muted text-foreground flex size-10 shrink-0 items-center shadow-sm justify-center rounded-lg [&>svg]:size-6',
       },
+      /** The icon box's size: `lg` is a bigger box and icon, for a page's own empty state. */
+      size: {
+        default: '',
+        lg: 'size-14 rounded-xl [&>svg]:size-8',
+      },
     },
     defaultVariants: {
       variant: 'default',
+      size: 'default',
     },
   },
 );
@@ -59,13 +65,14 @@ const emptyMediaVariants = cva(
 function EmptyMedia({
   className,
   variant = 'default',
+  size,
   ...props
 }: React.ComponentProps<'div'> & VariantProps<typeof emptyMediaVariants>) {
   return (
     <div
       data-slot="empty-icon"
       data-variant={variant}
-      className={cn(emptyMediaVariants({ variant, className }))}
+      className={cn(emptyMediaVariants({ variant, size, className }))}
       {...props}
     />
   );

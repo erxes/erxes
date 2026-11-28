@@ -24,13 +24,15 @@ export const PanelDescriptionField = ({
 }) => {
   const { containerRef, onChange } = useSaveOnLeave({ value, readonly, onSave });
 
+  // The text starts under the label, as the panel's other values do: no drag handle needs the
+  // editor's side room here (`/` still adds blocks), and the hover box reaches into the gutter.
   return (
-    <div className="flex flex-col gap-1.5 pt-2">
+    <div className="flex flex-col gap-1.5 pt-2 pb-3">
       <span className="flex items-center gap-1.5 text-xs font-medium text-accent-foreground">
         <IconAlignLeft className="size-3.5 shrink-0" aria-hidden="true" />
         {label}
       </span>
-      <div ref={containerRef}>
+      <div ref={containerRef} className="-mx-2">
         <Editor
           initialContent={value}
           onChange={onChange}
@@ -39,7 +41,8 @@ export const PanelDescriptionField = ({
           readonly={readonly}
           isHTML={isHTML}
           variant="ghost"
-          className="h-auto min-h-20"
+          sideMenu={false}
+          className="h-auto min-h-20 pb-2 [&_.bn-editor]:px-2!"
         />
       </div>
     </div>

@@ -78,6 +78,16 @@ describe('API keys with chosen calls', () => {
     });
   });
 
+  it('names each call with a short title and keeps its rules in the description', async () => {
+    const { data } = await t.owner().apiKeys.calls();
+
+    const create = data.find((call) => call.procedure === 'productCategories.create');
+
+    expect(create?.summary).toBe('Add a product category');
+    expect(create?.description).toContain('409 TAKEN');
+    expect(data.every((call) => call.summary && call.summary.length <= 48)).toBe(true);
+  });
+
   it('keeps chosen calls that are all of a level as that level', async () => {
     const owner = t.owner();
     const calls = (await owner.apiKeys.calls()).data.filter((call) => call.area === 'contacts');

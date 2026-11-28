@@ -64,7 +64,7 @@ export const contactsSearchAndPanel = async (page: Page) => {
   await openCustomers(page);
   await page.getByRole('button', { name: 'Filter' }).click();
   await page.getByRole('option', { name: 'Search' }).click();
-  await page.getByPlaceholder('Enter search text').waitFor();
+  await page.getByPlaceholder('Search…').waitFor();
 
   // A keystroke's own cost, before any request.
   const typing = await page.evaluate(() =>
@@ -75,12 +75,12 @@ export const contactsSearchAndPanel = async (page: Page) => {
     }),
   );
 
-  // Applying it, until only matching rows are on screen.
+  // Applying it with Enter, until only matching rows are on screen.
   const apply = await page.evaluate(() =>
     window.perf.time(async () => {
-      const input = document.activeElement;
-
-      if (input instanceof HTMLInputElement) input.form?.requestSubmit();
+      document.activeElement?.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', bubbles: true }),
+      );
 
       await window.perf.until(() =>
         [...document.querySelectorAll('tbody tr')].every(
@@ -131,15 +131,17 @@ export const contactsSearchAndPanel = async (page: Page) => {
 };
 
 export const board = async (page: Page) => {
-  await page.evaluate(() => localStorage.setItem('erxes:leads:view', JSON.stringify('board')));
+  await page.evaluate(() =>
+    localStorage.setItem('erxes:list-display:leads', JSON.stringify('board')),
+  );
   await page.goto(`/contacts/leads`);
-  await page.locator('[aria-roledescription=draggable]').first().waitFor();
+  await page.locator('[aria-roledescription="movable card"]').first().waitFor();
   await settle(page);
 
   // Drags the first card across the board and back, one pointer move a frame, and drops it
   // where it started, so the run changes no data.
   const moves = await page.evaluate(async () => {
-    const card = document.querySelector<HTMLElement>('section [aria-roledescription=draggable]');
+    const card = document.querySelector<HTMLElement>('[aria-roledescription="movable card"]');
 
     if (!card) throw new Error('no lead card');
 
@@ -148,26 +150,27 @@ export const board = async (page: Page) => {
     const samples: Sample[] = [];
     let dragged = false;
 
-    window.perf.pointer('pointerdown', x0, y0, card);
+    // The board drags with dnd-kit's mouse sensor, which listens for mouse events.
+    window.perf.pointer('mousedown', x0, y0, card);
 
     for (let step = 1; step <= 30; step++) {
       const x = x0 + (step <= 15 ? step : 30 - step) * 40;
 
-      samples.push(
-        await window.perf.time(() => window.perf.pointer('pointermove', x, y0, document)),
-      );
+      samples.push(await window.perf.time(() => window.perf.pointer('mousemove', x, y0, document)));
       // The board shows a grabbing cursor while dnd-kit drags.
       dragged ||= Boolean(document.querySelector('.cursor-grabbing'));
     }
 
-    window.perf.pointer('pointerup', x0, y0, document);
+    window.perf.pointer('mouseup', x0, y0, document);
 
     if (!dragged) throw new Error('the board drag never started');
 
     return samples;
   });
 
-  await page.evaluate(() => localStorage.setItem('erxes:leads:view', JSON.stringify('table')));
+  await page.evaluate(() =>
+    localStorage.setItem('erxes:list-display:leads', JSON.stringify('table')),
+  );
 
   // The first moves activate the drag; the rest are steady state.
   return { 'lead board: drag a card': summarize(moves.slice(2)) };

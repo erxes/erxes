@@ -1,4 +1,9 @@
-import { customObjectType } from '@erxes/core-contract';
+import {
+  customObjectType,
+  type DataExtensionObjectCreate,
+  type DataExtensionObjectUpdate,
+} from '@erxes/core-contract';
+import type { z } from 'zod';
 import { callerUserId, type Db, dataFields, dataObjects, dataTables, newId } from '@erxes/core-db';
 import { and, asc, count, eq, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
@@ -31,13 +36,7 @@ export const getObject = async (client: Db, key: string) =>
 /** Adds an object, its table and its `name` field, which names its records. */
 export const createObject = async (
   client: Db,
-  input: {
-    key: string;
-    singularLabel: string;
-    pluralLabel: string;
-    description?: string;
-    icon?: string;
-  },
+  input: z.infer<typeof DataExtensionObjectCreate>,
 ) => {
   const [counted] = await client.select({ total: count() }).from(dataObjects);
 
@@ -76,17 +75,7 @@ export const createObject = async (
 
 export const updateObject = async (
   client: Db,
-  {
-    key,
-    ...changes
-  }: {
-    key: string;
-    singularLabel?: string;
-    pluralLabel?: string;
-    description?: string | null;
-    icon?: string | null;
-    labelFieldId?: string;
-  },
+  { key, ...changes }: z.infer<typeof DataExtensionObjectUpdate>,
 ) => {
   const object = await findObject(client, key);
 

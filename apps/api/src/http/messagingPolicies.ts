@@ -1,12 +1,16 @@
 import { MEMBER, needs, PUBLIC } from './policyRules';
 
-/** Email sending, broadcasts and suppressions: their part of the access map (`ACCESS` in `./policies`). */
+/** Organization email, broadcasts and suppressions: their part of the access map (`ACCESS` in `./policies`). */
 export const MESSAGING_ACCESS = {
   'emails.send': { plugin: 'emails:write' },
+  // The Mail service connections a portal, broadcast, automation step or plugin's email picks.
+  'emails.mailConnections': { member: 'any', plugin: 'emails:write' },
+  'sms.send': { plugin: 'sms:write' },
   'emails.settings': needs('integrations.manage'),
   'emails.saveSettings': needs('integrations.manage'),
   'emails.removeSettings': needs('integrations.manage'),
   'emails.sendTest': needs('integrations.manage'),
+  'emails.checkDomains': needs('integrations.manage'),
   // Read by the broadcast and automation editors, for the From and the Reply-To picker.
   'emails.sender': MEMBER,
   'emails.replyTos': MEMBER,
@@ -21,6 +25,13 @@ export const MESSAGING_ACCESS = {
   'emails.setRamp': needs('integrations.manage'),
   // A broadcast's page says when its emails are held.
   'emails.pacing': MEMBER,
+
+  // Templates are what broadcasts are written from: their readers use them, their writers keep them.
+  'emailTemplates.list': needs('broadcasts.view'),
+  'emailTemplates.get': needs('broadcasts.view'),
+  'emailTemplates.create': needs('broadcasts.manage'),
+  'emailTemplates.update': needs('broadcasts.manage'),
+  'emailTemplates.remove': needs('broadcasts.manage'),
 
   'broadcasts.list': needs('broadcasts.view'),
   'broadcasts.get': needs('broadcasts.view'),

@@ -53,7 +53,7 @@ describe('automation data learned from events', () => {
             labels: ['new'],
             sender: { id: 'u1' },
             replyTo: null,
-            'not a key': 'x',
+            'not|a key': 'x',
           },
         },
         { type: 'hr.office.opened' },
@@ -67,6 +67,7 @@ describe('automation data learned from events', () => {
       fields: [
         { key: 'content', label: 'Content', type: 'text' },
         { key: 'labels', label: 'Labels', type: 'list' },
+        { key: 'sender.id', label: 'Sender id', type: 'text' },
         { key: 'unread', label: 'Unread', type: 'number' },
         { key: 'urgent', label: 'Urgent', type: 'boolean' },
       ],
@@ -98,7 +99,15 @@ describe('automation data learned from events', () => {
 
     expect(
       (await triggerOf(t.owner(), 'hr.chat.received'))?.fields.map((field) => field.label),
-    ).toEqual(['Content', 'Labels', 'Unread', 'Urgent', 'Conversation id', 'Reply to id']);
+    ).toEqual([
+      'Content',
+      'Labels',
+      'Sender id',
+      'Unread',
+      'Urgent',
+      'Conversation id',
+      'Reply to id',
+    ]);
   });
 
   it('stops at fifty keys for one event, however many its payloads bring', async () => {
@@ -129,5 +138,55 @@ describe('automation data learned from events', () => {
     expect(keys).toHaveLength(50);
     expect(keys?.at(0)).toBe('q001');
     expect(keys?.at(-1)).toBe('q050');
+  });
+
+  it('offers all a paid invoice carries, and its caller’s own data once one is paid', async () => {
+    const keysOf = async () =>
+      (await triggerOf(t.owner(), 'core.payment.paid'))?.fields.map((field) => field.key);
+
+    expect(await keysOf()).toEqual([
+      'invoiceId',
+      'amount',
+      'currency',
+      'method',
+      'source',
+      'referenceType',
+      'referenceId',
+      'lines',
+      'paidAmount',
+      'gateway',
+    ]);
+
+    await t.owner().payments.recordPayment({
+      amount: 25_000,
+      currency: 'MNT',
+      description: 'Room 204',
+      referenceType: 'order',
+      referenceId: 'room-204',
+      method: 'cash',
+      taxReceipt: false,
+      metadata: { roomNumber: '204', guest: { name: 'Bat' }, 'Check in': '2026-11-24' },
+      lines: [{ name: 'Room night', quantity: 1, unitPrice: 25_000 }],
+    });
+    await settle();
+
+    expect((await triggerOf(t.owner(), 'core.payment.paid'))?.fields).toEqual(
+      expect.arrayContaining([
+        { key: 'lines', label: 'Lines', type: 'list' },
+        { key: 'metadata.roomNumber', label: 'Metadata room number', type: 'text' },
+        { key: 'metadata.guest.name', label: 'Metadata guest name', type: 'text' },
+        { key: 'metadata.Check in', label: 'Metadata check in', type: 'text' },
+      ]),
+    );
+  });
+
+  it('offers the product a product event is about', async () => {
+    expect((await triggerOf(t.owner(), 'core.product.created'))?.fields).toEqual(
+      expect.arrayContaining([
+        { key: 'name', label: 'Name', type: 'text' },
+        { key: 'price', label: 'Price', type: 'number' },
+        { key: 'changed', label: 'Changed fields', type: 'list' },
+      ]),
+    );
   });
 });

@@ -19,6 +19,7 @@ import {
 import { inList, orgIdColumn, pgTable } from '../table';
 import { type ConditionGroup, createdAt, updatedAt } from './common';
 import { customers } from './customers';
+import { integrationConnections } from './integrations';
 import { organizations } from './organizations';
 import { users } from './users';
 import { views } from './views';
@@ -81,6 +82,16 @@ export const broadcasts = pgTable(
     html: text(),
     /** Email only: the sender's name shown with erxes's sending address. */
     fromName: text(),
+    /**
+     * Email only: an address on a domain the organisation's own provider verified
+     * (`email_settings.verified_domains`); null: the address in Settings › Organization email.
+     */
+    fromEmail: text(),
+    /**
+     * Email only: the Mail service connection (SMTP, Amazon SES, SendGrid) its copies go
+     * through, from that connection's address; null: Organization email.
+     */
+    mailConnectionId: text(),
     replyTo: text(),
     /** Email only: files (`core_files`) attached to every copy. */
     attachmentIds: text()
@@ -125,6 +136,11 @@ export const broadcasts = pgTable(
       columns: [table.viewId],
       foreignColumns: [views.id],
       name: 'core_broadcasts_view_id_fkey',
+    }).onDelete('set null'),
+    foreignKey({
+      columns: [table.mailConnectionId],
+      foreignColumns: [integrationConnections.id],
+      name: 'core_broadcasts_mail_connection_id_fkey',
     }).onDelete('set null'),
     // A deleted recurring broadcast's runs stay, with their numbers.
     foreignKey({
@@ -237,6 +253,43 @@ export const suppressions = pgTable(
       columns: [table.createdBy],
       foreignColumns: [users.id],
       name: 'core_suppressions_created_by_fkey',
+    }).onDelete('set null'),
+  ],
+);
+
+/**
+ * A message saved to start emails from (self-hosted only): the email editor's
+ * document, nothing else. A broadcast copies it, so changing or deleting the
+ * template never reaches one made with it.
+ */
+export const emailTemplates = pgTable(
+  'email_templates',
+  {
+    id: text().primaryKey(),
+    orgId: orgIdColumn(),
+    name: text().notNull(),
+    /** The message as the email editor's document (maily JSON, a `doc` node). */
+    content: jsonb().$type<EmailNode>().notNull(),
+    createdBy: text(),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (table) => [
+    uniqueIndex('core_email_templates_org_name_key').on(table.orgId, sql`lower(${table.name})`),
+    index('core_email_templates_org_created_idx').on(
+      table.orgId,
+      table.createdAt.desc(),
+      table.id.desc(),
+    ),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_email_templates_org_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.createdBy],
+      foreignColumns: [users.id],
+      name: 'core_email_templates_created_by_fkey',
     }).onDelete('set null'),
   ],
 );

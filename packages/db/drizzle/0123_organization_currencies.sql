@@ -1,0 +1,1 @@
+ALTER TABLE "core_organizations" ADD COLUMN "currencies" text[] DEFAULT '{}'::text[] NOT NULL;

@@ -28,7 +28,6 @@
     "@opentelemetry/instrumentation-pg": "^0.78.0",
     "@opentelemetry/instrumentation-pino": "^0.71.0",
     "@opentelemetry/sdk-node": "^0.301.1",
-    "@orpc/openapi": "1.16.2",
     "@orpc/server": "1.16.2",
     "cors": "^2.8.6",
     "drizzle-orm": "0.45.4",

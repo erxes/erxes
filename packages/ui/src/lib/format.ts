@@ -2,6 +2,7 @@ import { format, formatDistance, formatDistanceStrict, parseISO } from 'date-fns
 import { enUS } from 'react-day-picker/locale/en-US';
 import { mn } from 'react-day-picker/locale/mn';
 import { useTranslation } from 'react-i18next';
+import { fixNum } from './numbers';
 
 /*
  * Every date, time and number people read goes through here, in the UI's language. Dates
@@ -40,6 +41,9 @@ type DateInput = Date | string | number;
 /** ISO strings read as written: `2026-11-14` is that day here, not UTC midnight. */
 const toDate = (value: DateInput) => (typeof value === 'string' ? parseISO(value) : value);
 
+/** The decimals `useFormat().number` shows. Exactly `decimals`, or up to `maxDecimals`. */
+export type NumberDigits = { decimals?: number; maxDecimals?: number };
+
 /** The formatters for `language` (an i18next code), for code outside React. */
 export const formatter = (language: string) => {
   const locale =
@@ -63,8 +67,15 @@ export const formatter = (language: string) => {
         ? formatDistance(date, base, { addSuffix: true, locale })
         : formatDistanceStrict(date, base, { addSuffix: true, locale, roundingMethod: 'floor' });
     },
-    /** A count or measure: "1,234". */
-    number: (value: number) => new Intl.NumberFormat(language).format(value),
+    /**
+     * A count or measure: "1,234", with up to 3 decimals. `decimals` shows exactly that many
+     * ("1,234.50" with 2); `maxDecimals` shows up to that many (1.23456 → "1.2346" with 4).
+     */
+    number: (value: number, { decimals, maxDecimals }: NumberDigits = {}) =>
+      new Intl.NumberFormat(language, {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals ?? maxDecimals,
+      }).format(value),
     /** A list's total; when counting stopped there (`capped`), there are more: "10,000+". */
     count: (value: number, capped?: boolean) =>
       `${new Intl.NumberFormat(language).format(value)}${capped ? '+' : ''}`,
@@ -112,4 +123,32 @@ export const zoneOffset = (zone: string) => {
   } catch {
     return '';
   }
+};
+
+/**
+ * A number with separators and exactly `p` decimals (2 by default).
+ * It rounds with `fixNum` first: 1234.5 → "1,234.50", in every language, as 3.x showed it.
+ */
+export const displayNum = (value: number | string | null | undefined, p = 2) =>
+  new Intl.NumberFormat('en-US', { minimumFractionDigits: p, maximumFractionDigits: p }).format(
+    fixNum(value, p),
+  );
+
+/** One decimal, without a trailing ".0". */
+const shortAmount = (value: number) => value.toFixed(1).replace(/\.0$/, '');
+
+/**
+ * An amount to read: 2 decimals, or with `short` "1.2k", "3m", "4b".
+ * The long form uses the browser's separators ("1,234.5"), as 3.x did.
+ */
+export const formatAmount = (amount: number, kind?: 'short' | 'finance') => {
+  if (kind !== 'short') return Number(amount.toFixed(2)).toLocaleString();
+
+  if (amount < 1000) return shortAmount(amount);
+
+  if (amount < 1_000_000) return `${shortAmount(amount / 1000)}k`;
+
+  if (amount < 1_000_000_000) return `${shortAmount(amount / 1_000_000)}m`;
+
+  return `${shortAmount(amount / 1_000_000_000)}b`;
 };

@@ -1,5 +1,5 @@
 import type { WEBHOOK_STATUSES } from '@erxes/core-db/enums';
-import { CORE_EVENT_TYPES, type CoreEventType, type EventTypeInfo } from '@erxes/core-contract';
+import { CORE_EVENT_TYPES, type EventTypeInfo, payloadFields } from '@erxes/core-contract';
 import { caller, type Db, newId, pluginInstallations, plugins, webhooks } from '@erxes/core-db';
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
@@ -7,9 +7,8 @@ import { fail, notFound } from '~/http/errors';
 import { newSigningSecret } from '~/lib/crypto';
 import { assertOutboundUrl, OutboundError } from '~/lib/outbound';
 import { oneRow } from '~/lib/rows';
-import { seal } from '~/lib/secrets';
 import { recordAudit } from '~/modules/audit/audit.service';
-import { integrationEventTypes } from '~/modules/integrations/actions';
+import { saveSecret } from '~/modules/secrets/vault';
 
 /** Core's events and those of the plugins installed here. */
 export const eventTypeCatalog = async (client: Db): Promise<EventTypeInfo[]> => {
@@ -20,14 +19,15 @@ export const eventTypeCatalog = async (client: Db): Promise<EventTypeInfo[]> => 
     .where(and(eq(pluginInstallations.status, 'active'), eq(plugins.status, 'active')));
 
   return [
-    ...CORE_EVENT_TYPES.map((item: CoreEventType) => ({
+    ...CORE_EVENT_TYPES.map((item) => ({
       type: item.type,
       label: item.label,
       description: item.description,
       source: 'core',
       subject: item.subject,
-      record: item.record ?? null,
-      fields: [...(item.fields ?? [])],
+      subjectGone: 'subjectGone' in item,
+      record: 'record' in item ? item.record : null,
+      fields: 'payload' in item ? payloadFields(item.payload) : [],
     })),
     ...installed.flatMap((plugin) =>
       (plugin.manifest?.events ?? []).map((item) => ({
@@ -40,7 +40,6 @@ export const eventTypeCatalog = async (client: Db): Promise<EventTypeInfo[]> => 
         fields: item.fields ?? [],
       })),
     ),
-    ...(await integrationEventTypes(client)),
   ];
 };
 
@@ -91,7 +90,7 @@ export const createWebhook = async (
         url: input.url,
         description: input.description ?? null,
         eventTypes: [...new Set(input.eventTypes)],
-        secretSealed: seal(secret),
+        secretId: await saveSecret(client, secret),
         createdBy: caller('user').userId,
       })
       .returning(),
@@ -182,9 +181,10 @@ export const rotateWebhookSecret = async (client: Db, id: string) => {
   const row = await findWebhook(client, id);
   const secret = newSigningSecret();
 
+  await saveSecret(client, secret, row.secretId);
   await client
     .update(webhooks)
-    .set({ secretSealed: seal(secret), updatedAt: sql`now()` })
+    .set({ updatedAt: sql`now()` })
     .where(eq(webhooks.id, id));
   await recordAudit(client, {
     action: 'webhook.secret_rotated',

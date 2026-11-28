@@ -5,6 +5,14 @@ export const EXAMPLE_COPY_MN: ExampleCopy = {
   plan: { label: 'Багц', options: ['Үнэгүй', 'Про', 'Байгууллага'] },
   renewal: 'Сунгах огноо',
   vipView: 'VIP харилцагчид',
+  catalog: {
+    products: 'Бараанууд',
+    finishedGoods: 'Бэлэн бүтээгдэхүүн',
+    otherGoods: 'Бусад бараа',
+    services: 'Ажил үйлчилгээ',
+    product: 'Жишээ бараа',
+    service: 'Жишээ үйлчилгээ',
+  },
   automation: {
     name: 'Шинэ харилцагчийг угтах (жишээ)',
     description:

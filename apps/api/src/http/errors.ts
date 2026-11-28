@@ -3,7 +3,7 @@ import { caller } from '@erxes/core-db';
 import { ORPCError, type ValidationError } from '@orpc/server';
 import type { NextFunction, Request, Response } from 'express';
 import { DatabaseError } from 'pg';
-import type { z } from 'zod';
+import { z } from 'zod';
 
 type DataOf<C extends ErrorCode> = (typeof ERRORS)[C] extends { data: infer S extends z.ZodType }
   ? z.input<S>
@@ -23,6 +23,9 @@ export const fail = <C extends ErrorCode>(
 ) => new ORPCError(code, { status: ERRORS[code].status, message, data, defined: true });
 
 export const notFound = (what: string) => fail('NOT_FOUND', `${what} not found`);
+
+export const notAllowed = (permission: string, message = "Your role doesn't allow this") =>
+  fail('NOT_ALLOWED', message, { permission });
 
 export const inputIssues = ({ issues }: Pick<ValidationError, 'issues'>) => ({
   issues: issues.map((issue) => ({
@@ -75,9 +78,17 @@ const CONSTRAINTS: Record<string, { field: string; message: string }> = {
     message: 'A company with this name already exists',
   },
   core_tags_org_type_name_key: { field: 'name', message: 'A tag with this name already exists' },
-  core_integrations_org_key_key: {
-    field: 'key',
-    message: 'An integration with this key already exists',
+  core_email_templates_org_name_key: {
+    field: 'name',
+    message: 'A template with this name already exists',
+  },
+  core_exchange_rates_org_pair_date_key: {
+    field: 'date',
+    message: 'This currency already has a rate on this day',
+  },
+  core_integration_connections_org_key_name_key: {
+    field: 'name',
+    message: 'Another connection of this integration has this name',
   },
   core_lead_stages_org_name_key: {
     field: 'name',
@@ -98,6 +109,10 @@ const CONSTRAINTS: Record<string, { field: string; message: string }> = {
   core_product_categories_org_parent_name_key: {
     field: 'name',
     message: 'A category with this name is already there',
+  },
+  core_product_categories_org_code_key: {
+    field: 'code',
+    message: 'Another category has this code',
   },
   core_products_org_code_key: { field: 'code', message: 'Another product has this code' },
   core_products_org_barcode_key: { field: 'barcode', message: 'Another product has this barcode' },
@@ -176,11 +191,24 @@ export const fromDatabase = (error: unknown) => {
  * Express's error handler, for what fails outside oRPC (Express routes, auth,
  * body parsing): the same body oRPC sends, or a logged 500.
  */
+const TooLarge = z.object({ type: z.literal('entity.too.large'), limit: z.number() });
+
+const fromBodyParser = (error: unknown) => {
+  if (error instanceof SyntaxError && 'body' in error) {
+    return fail('INVALID_JSON', 'The request body is not valid JSON');
+  }
+
+  const tooLarge = TooLarge.safeParse(error);
+
+  if (!tooLarge.success) return fromDatabase(error);
+
+  const maxSizeMb = tooLarge.data.limit / (1024 * 1024);
+
+  return fail('REQUEST_TOO_LARGE', `Requests can be up to ${maxSizeMb} MB`, { maxSizeMb });
+};
+
 export const answerError = (error: unknown, req: Request, res: Response, _next: NextFunction) => {
-  const known =
-    error instanceof SyntaxError && 'body' in error
-      ? fail('INVALID_JSON', 'The request body is not valid JSON')
-      : fromDatabase(error);
+  const known = fromBodyParser(error);
 
   if (known instanceof ORPCError) {
     res.status(known.status).json(known.toJSON());

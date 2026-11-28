@@ -1,5 +1,12 @@
 import type { AutomationDefinition } from '@erxes/core-contract';
-import { IconBolt, IconCalendarEvent, IconClock, IconHandFinger } from '@tabler/icons-react';
+import {
+  IconBolt,
+  IconCalendarEvent,
+  IconClock,
+  IconHandFinger,
+  IconPlugConnected,
+  IconWebhook,
+} from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { Dialog } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -11,6 +18,8 @@ export const TRIGGER_ICONS = {
   schedule: IconClock,
   date: IconCalendarEvent,
   manual: IconHandFinger,
+  webhook: IconWebhook,
+  app: IconPlugConnected,
 } as const;
 
 export const TriggerIcon = ({

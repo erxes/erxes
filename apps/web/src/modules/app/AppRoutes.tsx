@@ -1,8 +1,9 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { PageSpinner } from '~/components/PageSpinner';
+import { i18n } from '~/i18n';
 import { lazyNamed } from '~/lib/lazyNamed';
 import { paths } from '~/lib/paths';
-import { pluginBasePath } from '~/modules/plugins/pluginConfig';
+import { pluginApps, pluginBasePath } from '~/modules/plugins/pluginConfig';
 import { usePlugins } from '~/modules/plugins/usePlugins';
 import { OnboardingGuard } from '~/modules/onboarding/OnboardingGuard';
 import { MainLayout } from './MainLayout';
@@ -38,10 +39,19 @@ const ObjectsRoutes = lazyNamed(
   'ObjectsRoutes',
 );
 
-const SettingsRoutes = lazyNamed(
-  () => import('~/modules/settings/SettingsRoutes'),
-  'SettingsRoutes',
-);
+const ConnectAppPage = lazyNamed(() => import('~/modules/auth/ConnectAppPage'), 'ConnectAppPage');
+
+// The settings pages' words load beside their code, so they never show untranslated.
+const SettingsRoutes = lazyNamed(async () => {
+  const [routes] = await Promise.all([
+    import('~/modules/settings/SettingsRoutes'),
+    i18n.loadNamespaces('settings'),
+  ]);
+
+  return routes;
+}, 'SettingsRoutes');
+
+const AssistantPage = lazyNamed(() => import('~/modules/assistant/AssistantPage'), 'AssistantPage');
 
 const NotificationsPage = lazyNamed(
   () => import('~/modules/notifications/NotificationsPage'),
@@ -55,19 +65,25 @@ const MainOnboardingPage = lazyNamed(
 
 const PluginPage = lazyNamed(() => import('~/modules/plugins/PluginPage'), 'PluginPage');
 
-/** Plugin pages mount at `/<CONFIG.path>/*` once their config has loaded. */
+/** Each plugin app's pages mount at its `/<path>/*` once the plugin's config has loaded. */
 const PluginRoutes = () => {
   const { plugins, loading } = usePlugins();
 
   return (
     <Routes>
-      {plugins.map((plugin) => (
-        <Route
-          key={plugin.remote}
-          path={`${pluginBasePath(plugin.config.path)}/*`}
-          element={<PluginPage key={plugin.remote} plugin={plugin} />}
-        />
-      ))}
+      {plugins.flatMap((plugin) =>
+        pluginApps(plugin.config).map((app) => {
+          const key = `${plugin.remote}/${app.name}`;
+
+          return (
+            <Route
+              key={key}
+              path={`${pluginBasePath(app.path)}/*`}
+              element={<PluginPage key={key} plugin={plugin} module={app.name} />}
+            />
+          );
+        }),
+      )}
       <Route path="*" element={loading ? <PageSpinner /> : <NotFoundPage />} />
     </Routes>
   );
@@ -77,6 +93,8 @@ export const AppRoutes = () => (
   <Routes>
     {/* First sign-in steps, full screen. */}
     <Route path="welcome" element={<MainOnboardingPage />} />
+    {/* An app asking to act as the member: full screen, before onboarding too. */}
+    <Route path="connect" element={<ConnectAppPage />} />
     {/* The module's name, so the URL people guess goes there too. */}
     <Route path="onboarding" element={<Navigate to={paths.welcome} replace />} />
     <Route
@@ -94,6 +112,7 @@ export const AppRoutes = () => (
       <Route path="reports/*" element={<ReportsRoutes />} />
       <Route path="objects/*" element={<ObjectsRoutes />} />
       <Route path="settings/*" element={<SettingsRoutes />} />
+      <Route path="assistant" element={<AssistantPage />} />
       <Route path="notifications" element={<NotificationsPage />} />
       <Route path="notifications/:source" element={<NotificationsPage />} />
       <Route path="*" element={<PluginRoutes />} />

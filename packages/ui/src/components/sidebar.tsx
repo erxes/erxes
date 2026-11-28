@@ -21,7 +21,7 @@ import {
   SidebarMenuSkeleton,
 } from './sidebar/menu';
 import { SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem } from './sidebar/menu-sub';
-import { SidebarPanel, SidebarPanelTrigger } from './sidebar/panel';
+import { SidebarPanel, SidebarPanelTrigger, useSidebarPanelOpen } from './sidebar/panel';
 import { SidebarProvider, useOptionalSidebar, useSidebar } from './sidebar/context';
 
 import { SidebarTreeIndicator } from './sidebar-tree-indicator';
@@ -56,4 +56,6 @@ export const Sidebar = Object.assign(SidebarRoot, {
   Trigger: SidebarTrigger,
   useOptionalSidebar,
   useSidebar,
+  /** Whether the app's sidebar panel is open, and `setOpen` (3.x's `sidebarPanelOpenState`). */
+  usePanelOpen: useSidebarPanelOpen,
 });

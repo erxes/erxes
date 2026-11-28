@@ -1,4 +1,5 @@
-import type { ActivityTarget } from '@erxes/core-contract';
+import type { ActivityTarget, coreContract } from '@erxes/core-contract';
+import type { InferContractRouterInputs } from '@orpc/contract';
 import {
   activities,
   actorOf,
@@ -18,6 +19,7 @@ import { unique } from '~/lib/contacts';
 import { assertMembers } from '~/lib/guards';
 import { lockRows } from '~/lib/locks';
 import { oneRow } from '~/lib/rows';
+import { publishCoreEvents } from '~/modules/events/events.service';
 import { notify } from '~/modules/notifications/notifications.service';
 import { assertTimelineAccess, isCoreTarget } from './timelineAccess';
 
@@ -198,6 +200,16 @@ export const addNote = async (
   await client.insert(notes).values({ id, body: input.body, mentions, fileIds });
   await notifyMentions(client, { ...input, id }, mentions);
 
+  if (isCoreTarget(input.targetType))
+    await publishCoreEvents(client, {
+      type: `core.${input.targetType}.note_added`,
+      subjectType: input.targetType,
+      subjectId: input.targetId,
+      entityType: 'note',
+      entityId: id,
+      payload: { noteId: id, body: input.body, authorId: caller('user').userId },
+    });
+
   return entryById(client, id);
 };
 
@@ -205,7 +217,7 @@ export const addNote = async (
 export const editNote = async (
   client: Db,
   id: string,
-  input: { body?: string; mentions?: string[]; fileIds?: string[] },
+  input: Omit<InferContractRouterInputs<typeof coreContract>['activities']['editNote'], 'id'>,
 ) => {
   // One edit at a time: each keeps the wording the one before it left.
   await lockRows(client, 'core_notes', [id]);

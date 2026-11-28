@@ -1,5 +1,6 @@
 import { type PluginManifest } from '@erxes/core-contract';
 import { fail } from '~/http/errors';
+import { INTEGRATIONS } from '~/modules/integrations/registry';
 
 const namespaced = (plugin: string, values: string[] | undefined, what: string) => {
   const wrong = (values ?? []).find((value) => !value.startsWith(`${plugin}.`));
@@ -102,6 +103,30 @@ const ownObjects = (plugin: string, manifest: PluginManifest) => {
   }
 };
 
+/** Its integrations need one of its own permissions; its actions name only its own integrations. */
+const ownIntegrations = (manifest: PluginManifest) => {
+  const declared = new Set(manifest.permissions?.map((item) => item.action));
+  const integration = manifest.integrations?.find((item) => !declared.has(item.permission));
+
+  if (integration) {
+    throw fail(
+      'UNKNOWN_PERMISSION',
+      `Integration "${integration.key}" needs ${integration.permission}, which the manifest's permissions don't declare`,
+      { permissions: [integration.permission] },
+    );
+  }
+
+  const keys = new Set(manifest.integrations?.map((item) => item.key));
+  const action = manifest.actions?.find((item) => item.integration && !keys.has(item.integration));
+
+  if (action) {
+    throw fail(
+      'UNKNOWN_INTEGRATION',
+      `Action "${action.type}" names the integration "${action.integration}", which the manifest's integrations don't declare`,
+    );
+  }
+};
+
 /** Reads name another plugin, with that plugin's permissions only. */
 const othersReads = (plugin: string, manifest: PluginManifest) => {
   for (const read of manifest.pluginReads ?? []) {
@@ -110,6 +135,37 @@ const othersReads = (plugin: string, manifest: PluginManifest) => {
     }
 
     namespaced(read.plugin, read.permissions, `Reads of ${read.plugin}`);
+  }
+};
+
+/** A plugin uses the connections of core's integrations that sign in with OAuth, each once. */
+const usableConnections = (manifest: PluginManifest) => {
+  const uses = manifest.connections ?? [];
+
+  const wrong = uses.find(
+    ({ integration }) => !INTEGRATIONS.some((item) => item.key === integration && item.oauth),
+  );
+
+  if (wrong) {
+    throw fail(
+      'UNKNOWN_INTEGRATION',
+      `connections names "${wrong.integration}", which isn't one of core's integrations that sign in with OAuth`,
+    );
+  }
+
+  if (new Set(uses.map((use) => use.integration)).size !== uses.length) {
+    throw fail('UNKNOWN_INTEGRATION', 'connections names an integration twice');
+  }
+
+  const joined = manifest.integrations?.find(
+    ({ connection }) => connection && !uses.some((use) => use.integration === connection),
+  );
+
+  if (joined) {
+    throw fail(
+      'UNKNOWN_INTEGRATION',
+      `Integration "${joined.key}" connects through "${joined.connection}", which the manifest's connections don't name`,
+    );
   }
 };
 
@@ -138,5 +194,7 @@ export const checkManifest = (plugin: string, manifest: PluginManifest) => {
 
   ownRelations(plugin, manifest);
   ownObjects(plugin, manifest);
+  ownIntegrations(manifest);
   othersReads(plugin, manifest);
+  usableConnections(manifest);
 };

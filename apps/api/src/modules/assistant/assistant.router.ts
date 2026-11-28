@@ -2,33 +2,15 @@ import { db } from '@erxes/core-db';
 import { audited, scoped, unscoped } from '~/orpc';
 import { getAppearance, updateAppearance } from './appearance.service';
 import { deleteThread, sendMessage, stopThread, watchThread } from './chat.service';
-import {
-  listConnections,
-  removeConnection,
-  saveConnection,
-  setDefaultProvider,
-} from './connections.service';
-import { listModels, verifyModel } from './models.service';
+import { listModels, listProviders } from './models.service';
 import { readRecord, UNAVAILABLE } from './records';
 import { findReference } from './references.service';
 import { getSettings, updateSettings } from './settings.service';
 import { findThread, listThreads, updateThread } from './threads.service';
 
 export const assistantRouter = {
-  connections: scoped.assistant.connections.handler(() => listConnections(db())),
-  saveConnection: scoped.assistant.saveConnection.handler(({ input }) =>
-    saveConnection(db(), input.provider, input.apiKey),
-  ),
-  removeConnection: scoped.assistant.removeConnection.handler(({ input }) =>
-    removeConnection(db(), input.provider),
-  ),
-  setDefaultProvider: scoped.assistant.setDefaultProvider.handler(({ input }) =>
-    setDefaultProvider(db(), input.provider),
-  ),
+  providers: scoped.assistant.providers.handler(() => listProviders(db())),
   models: unscoped.assistant.models.handler(() => listModels()),
-  verifyModel: unscoped.assistant.verifyModel.handler(({ input }) =>
-    verifyModel(input.provider, input.model),
-  ),
   threads: scoped.assistant.threads.handler(({ input }) => listThreads(db(), input)),
   thread: scoped.assistant.thread.handler(({ input }) => findThread(db(), input.id)),
   send: unscoped.assistant.send.handler(({ input }) => sendMessage(input)),
@@ -58,11 +40,24 @@ export const assistantRouter = {
     audited(
       (tx) => updateSettings(tx, input),
       () => [
-        {
-          action: 'settings.assistant_code_mode_changed',
-          targetType: 'organization',
-          metadata: { codeMode: input.codeMode },
-        },
+        ...(input.codeMode === undefined
+          ? []
+          : [
+              {
+                action: 'settings.assistant_code_mode_changed',
+                targetType: 'organization',
+                metadata: { codeMode: input.codeMode },
+              },
+            ]),
+        ...(input.defaultProvider === undefined
+          ? []
+          : [
+              {
+                action: 'settings.assistant_default_model_changed',
+                targetType: 'organization',
+                metadata: { provider: input.defaultProvider, model: input.defaultModel },
+              },
+            ]),
       ],
     ),
   ),

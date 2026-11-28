@@ -1,8 +1,14 @@
-import type { Customer, CustomerState } from '@erxes/core-contract';
+import type { CustomerState, CustomerWithValues } from '@erxes/core-contract';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useListFilterParams, useToast } from 'erxes-ui';
 import { messageOf, orpc } from '@erxes/core-contract/client';
-import { patchCachedRecord, removeCachedRecords, useCursorList } from '~/lib/cursorList';
+import {
+  type CursorCache,
+  patchCachedRecord,
+  recordInPages,
+  removeCachedRecords,
+  useCursorList,
+} from '~/lib/cursorList';
 
 /** RecordTable remembers the scroll position per list under this key. */
 const customersSessionKey = (state: CustomerState) => `core_${state}s_cursor`;
@@ -16,7 +22,7 @@ export const useCustomersFilters = (state: CustomerState) => ({
 export const useCustomers = (state: CustomerState) => {
   const filters = useCustomersFilters(state);
 
-  return useCursorList<Customer>({
+  return useCursorList<CustomerWithValues>({
     sessionKey: customersSessionKey(state),
     filters,
     options: (paging) =>
@@ -27,8 +33,25 @@ export const useCustomers = (state: CustomerState) => {
   });
 };
 
-export const useCustomer = (id: string | null) =>
-  useQuery(orpc.customers.get.queryOptions({ input: id ? { id } : skipToken }));
+/** A customer; a row a list already loaded shows at once, until the customer itself arrives. */
+export const useCustomer = (id: string | null) => {
+  const client = useQueryClient();
+
+  return useQuery(
+    orpc.customers.get.queryOptions({
+      input: id ? { id } : skipToken,
+      placeholderData: () =>
+        id
+          ? recordInPages(
+              client.getQueriesData<CursorCache<CustomerWithValues>>({
+                queryKey: orpc.customers.list.key(),
+              }),
+              id,
+            )
+          : undefined,
+    }),
+  );
+};
 
 export const useCustomerEdit = () => {
   const client = useQueryClient();

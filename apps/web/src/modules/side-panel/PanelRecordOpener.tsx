@@ -1,6 +1,7 @@
 import { RecordOpenerProvider } from 'erxes-ui';
 import type { PropsWithChildren } from 'react';
-import { getSidePanelRecordPath, NEW_RECORD_ID } from './sidePanelPaths';
+import { PanelOpenRecordContext } from './recordView';
+import { getSidePanelRecordPath, NEW_RECORD_ID, type TRelationEntity } from './sidePanelPaths';
 import { useSidePanel } from './useSidePanel';
 
 /**
@@ -23,7 +24,9 @@ export const PanelRecordOpener = ({
       current={record?.contentId === NEW_RECORD_ID ? null : record}
       dismiss={(entity) => dismissPath(getSidePanelRecordPath(entity))}
     >
-      {children}
+      <PanelOpenRecordContext value={(entity: TRelationEntity) => openRecord(entity)}>
+        {children}
+      </PanelOpenRecordContext>
     </RecordOpenerProvider>
   );
 };

@@ -5,7 +5,8 @@ interface AgentToolSpec<Input extends z.ZodObject> {
   name: string;
   description: string;
   input: Input;
-  execute: (input: z.output<Input>) => unknown;
+  /** `callId` names this call in its conversation: the same after a restart, so work keyed by it runs once. */
+  execute: (input: z.output<Input>, call: { callId: string }) => unknown;
   /** End the run after this call: the member answers it with their next message. */
   terminate?: boolean;
 }
@@ -16,8 +17,8 @@ export const agentTool = <Input extends z.ZodObject>(spec: AgentToolSpec<Input>)
     name: spec.name,
     description: spec.description,
     parameters: z.toJSONSchema(spec.input),
-    execute: async (args) => {
-      const result: unknown = await spec.execute(spec.input.parse(args));
+    execute: async (args, api) => {
+      const result: unknown = await spec.execute(spec.input.parse(args), { callId: api.callId });
 
       return {
         output: [{ type: 'text', text: JSON.stringify(result) ?? 'null' }],

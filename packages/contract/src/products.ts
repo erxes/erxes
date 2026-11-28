@@ -102,7 +102,14 @@ export const ProductCategory = createSelectSchema(productCategories, {
   id: Id,
   parentId: () => Id,
   createdAt: isoDate,
-}).pick({ id: true, name: true, parentId: true, createdAt: true });
+}).pick({
+  id: true,
+  name: true,
+  /** The organisation's own code, unique when set (3.x's category code). */
+  code: true,
+  parentId: true,
+  createdAt: true,
+});
 
 export type ProductCategory = z.infer<typeof ProductCategory>;
 
@@ -164,44 +171,30 @@ const ProductFields = createUpdateSchema(products, {
 
 const CategoryFields = createUpdateSchema(productCategories, {
   name: (name) => name.trim().min(1).max(100),
+  code: (code) => code.trim().min(1).max(100),
   parentId: () => Id,
-}).pick({ name: true, parentId: true });
+}).pick({ name: true, code: true, parentId: true });
 
 /**
  * The organisation's catalog of goods and services, shared by every plugin.
  * Products are archived, never deleted: orders and invoices keep pointing at
  * them. Plugins read with `products:read` and write with `products:write`.
+ * `base` adds what these procedures answer with besides the common errors.
  */
-const {
-  CATEGORY_HAS_CHILDREN,
-  INVALID_CATEGORY,
-  INVALID_FIELD,
-  INVALID_FIELD_VALUE,
-  INVALID_FILE,
-  INVALID_PRODUCT,
-  INVALID_TAG,
-  LIMIT_EXCEEDED,
-  NOTHING_TO_RETRY,
-  PLUGIN_FIELD,
-  PLUGIN_NOT_INSTALLED,
-  SUBJECT_REQUIRED,
-} = ERRORS;
-
-/** What these procedures answer with besides the common errors. */
 const base = oc.errors({
   ...COMMON_ERRORS,
-  CATEGORY_HAS_CHILDREN,
-  INVALID_CATEGORY,
-  INVALID_FIELD,
-  INVALID_FIELD_VALUE,
-  INVALID_FILE,
-  INVALID_PRODUCT,
-  INVALID_TAG,
-  LIMIT_EXCEEDED,
-  NOTHING_TO_RETRY,
-  PLUGIN_FIELD,
-  PLUGIN_NOT_INSTALLED,
-  SUBJECT_REQUIRED,
+  CATEGORY_HAS_CHILDREN: ERRORS.CATEGORY_HAS_CHILDREN,
+  INVALID_CATEGORY: ERRORS.INVALID_CATEGORY,
+  INVALID_FIELD: ERRORS.INVALID_FIELD,
+  INVALID_FIELD_VALUE: ERRORS.INVALID_FIELD_VALUE,
+  INVALID_FILE: ERRORS.INVALID_FILE,
+  INVALID_PRODUCT: ERRORS.INVALID_PRODUCT,
+  INVALID_TAG: ERRORS.INVALID_TAG,
+  LIMIT_EXCEEDED: ERRORS.LIMIT_EXCEEDED,
+  NOTHING_TO_RETRY: ERRORS.NOTHING_TO_RETRY,
+  PLUGIN_FIELD: ERRORS.PLUGIN_FIELD,
+  PLUGIN_NOT_INSTALLED: ERRORS.PLUGIN_NOT_INSTALLED,
+  SUBJECT_REQUIRED: ERRORS.SUBJECT_REQUIRED,
 });
 
 export const productsContract = {
@@ -209,7 +202,8 @@ export const productsContract = {
     .route({
       method: 'GET',
       path: '/products',
-      summary:
+      summary: 'List products',
+      description:
         'Products, newest first. A plugin gets the products it uses unless `all`; members filter by `plugin`',
     })
     .input(
@@ -227,18 +221,32 @@ export const productsContract = {
         all: QueryBoolean.default(false),
         /** A filter on `views.fields({ recordType: 'product' })`: JSON of a condition group (`RecordFilter`), as views save it. */
         filter: z.string().max(20_000).optional(),
+        /** With `departmentId`, the place `minRemainder` and `maxRemainder` read (either left out for none). */
+        branchId: Id.optional(),
+        departmentId: Id.optional(),
+        /** Stock at least this: in the place named, where its stock is set; else the total over every place. */
+        minRemainder: z.coerce.number().optional(),
+        /** Stock at most this, read as `minRemainder` is. */
+        maxRemainder: z.coerce.number().optional(),
       }).extend(DataSortQuery.shape),
     )
     .output(cursorPageOf(ProductWithValues)),
   get: base
-    .route({ method: 'GET', path: '/products/{id}' })
+    .route({
+      method: 'GET',
+      path: '/products/{id}',
+      summary: 'Get a product',
+      description: 'One product, by id',
+    })
     .input(z.object({ id: Id }))
     .output(ProductWithValues),
   lookup: base
     .route({
       method: 'GET',
       path: '/products/lookup',
-      summary: 'The given products (archived ones too), for order lines: `?ids=a,b`, at most 100',
+      summary: 'Get products by id',
+      description:
+        'The given products (archived ones too), for order lines: `?ids=a,b`, at most 100',
     })
     .input(z.object({ ids: IdList }))
     .output(z.object({ data: z.array(Product).max(100) })),
@@ -247,8 +255,9 @@ export const productsContract = {
       method: 'POST',
       path: '/products',
       successStatus: 201,
-      summary:
-        "Add a product. 409 TAKEN for a code or barcode, with the existing product's id in `data.id` (a plugin can `use` it instead); 400 INVALID_CATEGORY, INVALID_FILE, PLUGIN_NOT_INSTALLED",
+      summary: 'Add a product',
+      description:
+        "409 TAKEN for a code or barcode, with the existing product's id in `data.id` (a plugin can `use` it instead); 400 INVALID_CATEGORY, INVALID_FILE, PLUGIN_NOT_INSTALLED",
     })
     .input(ProductFields.required({ kind: true, name: true }))
     .output(ProductWithValues),
@@ -256,7 +265,8 @@ export const productsContract = {
     .route({
       method: 'PATCH',
       path: '/products/{id}',
-      summary: 'Change a product (`plugins`: members only). Errors as for create',
+      summary: 'Change a product',
+      description: 'Change a product (`plugins`: members only). Errors as for create',
     })
     .input(
       ProductFields.extend({ id: Id }).refine(
@@ -269,7 +279,8 @@ export const productsContract = {
     .route({
       method: 'POST',
       path: '/products/use',
-      summary:
+      summary: 'Use or stop using products in a plugin',
+      description:
         'A plugin starts (`used`) or stops using products, so they appear in its lists (plugins only)',
     })
     .input(z.object({ ids: z.array(Id).min(1).max(100), used: z.boolean() }))
@@ -278,12 +289,18 @@ export const productsContract = {
     .route({
       method: 'POST',
       path: '/products/{id}/archive',
-      summary: 'Take a product out of lists and pickers; orders and invoices keep it',
+      summary: 'Archive a product',
+      description: 'Take a product out of lists and pickers; orders and invoices keep it',
     })
     .input(z.object({ id: Id }))
     .output(ProductWithValues),
   restore: base
-    .route({ method: 'POST', path: '/products/{id}/restore' })
+    .route({
+      method: 'POST',
+      path: '/products/{id}/restore',
+      summary: 'Restore an archived product',
+      description: 'Make an archived product active again',
+    })
     .input(z.object({ id: Id }))
     .output(ProductWithValues),
 };
@@ -291,14 +308,21 @@ export const productsContract = {
 /** Groups of products, nested by `parentId`. */
 export const productCategoriesContract = {
   list: base
-    .route({ method: 'GET', path: '/product-categories', summary: 'Every category, by name' })
+    .route({
+      method: 'GET',
+      path: '/product-categories',
+      summary: 'List product categories',
+      description: 'Every category, by name',
+    })
     .output(listOf(ProductCategory)),
   create: base
     .route({
       method: 'POST',
       path: '/product-categories',
       successStatus: 201,
-      summary: '409 TAKEN (same name under the same parent); 400 INVALID_CATEGORY',
+      summary: 'Add a product category',
+      description:
+        '409 TAKEN (same name under the same parent, or a code another category has); 400 INVALID_CATEGORY',
     })
     .input(CategoryFields.required({ name: true }))
     .output(ProductCategory),
@@ -306,7 +330,8 @@ export const productCategoriesContract = {
     .route({
       method: 'PATCH',
       path: '/product-categories/{id}',
-      summary: '409 TAKEN; 400 INVALID_CATEGORY (unknown parent, or one of its own)',
+      summary: 'Change a product category',
+      description: '409 TAKEN; 400 INVALID_CATEGORY (unknown parent, or one of its own)',
     })
     .input(
       CategoryFields.extend({ id: Id }).refine(
@@ -319,7 +344,8 @@ export const productCategoriesContract = {
     .route({
       method: 'DELETE',
       path: '/product-categories/{id}',
-      summary:
+      summary: 'Delete a product category',
+      description:
         'Delete an empty category; its products lose it. 409 CATEGORY_HAS_CHILDREN while it has subcategories',
     })
     .input(z.object({ id: Id }))

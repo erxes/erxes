@@ -48,15 +48,17 @@ export const dataPluginsContract = {
     .route({
       method: 'GET',
       path: '/data-plugins',
-      summary: 'Installed plugins whose manifests declare objects, connected or not, by title',
+      summary: 'List plugins with extendable objects',
+      description: 'Installed plugins whose manifests declare objects, connected or not, by title.',
     })
     .output(listOf(DataExtensionPlugin)),
   connect: base
     .route({
       method: 'POST',
       path: '/data-plugins/{plugin}/connect',
-      summary:
-        'Connect a plugin: its objects take fields here. 400 PLUGIN_NOT_INSTALLED when it is not installed or declares no objects',
+      summary: 'Connect a plugin',
+      description:
+        'Lets members add fields to the plugin’s objects. 400 PLUGIN_NOT_INSTALLED when it is not installed or declares no objects.',
     })
     .input(PluginInput)
     .output(DataExtensionPlugin),
@@ -64,7 +66,9 @@ export const dataPluginsContract = {
     .route({
       method: 'POST',
       path: '/data-plugins/{plugin}/disconnect',
-      summary: 'Disconnect a plugin. 409 ARCHIVE_FIRST while its record types have active fields',
+      summary: 'Disconnect a plugin',
+      description:
+        'Stops members adding fields to the plugin’s objects. 409 ARCHIVE_FIRST while its record types have active fields.',
     })
     .input(PluginInput)
     .output(DataExtensionPlugin),

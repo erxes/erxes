@@ -115,7 +115,7 @@ const compileCustom = (spec: FieldSpec, custom: CustomSpec, rule: ConditionRule)
     custom.storage === 'number'
       ? compare && sql`${v.numberValue} ${sql.raw(compare)} ${number(rule.value)}`
       : custom.storage === 'date'
-        ? compileDate(sql`${v.dateValue}`, op, rule.value, true)
+        ? compileDate(sql`${v.dateValue}`, op, rule.value, true, sql`${v.monthDay}`)
         : custom.storage === 'text'
           ? customText(sql`${v.textValue}`, spec, rule)
           : undefined;

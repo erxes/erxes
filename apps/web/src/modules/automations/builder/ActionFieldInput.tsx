@@ -1,29 +1,23 @@
 import { IconAt, IconBuilding, IconCalendar, IconClockPlus, IconUser } from '@tabler/icons-react';
-import {
-  DatePicker,
-  InputGroup,
-  jsonOf,
-  Select,
-  Switch,
-  Textarea,
-  textOf,
-  toIsoDay,
-} from 'erxes-ui';
-import { useState } from 'react';
+import { DatePicker, InputGroup, Select, Switch, textOf, toIsoDay } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { z } from 'zod';
+import { MailConnectionSelect } from '~/components/MailConnectionSelect';
 import { ReplyToSelect } from '~/components/ReplyToSelect';
 import {
   type ActionInputProps,
+  AutomationSelect,
+  ConnectionSelect,
   CustomFieldSelect,
   customFieldsOf,
   fieldIdOf,
   LeadStageSelect,
   LookupMultiSelect,
   OptionSelect,
-  PluginRecordSelect,
 } from './actionFieldSelects';
-import { Segmented } from './Segmented';
+import { FromAddressField } from './FromAddressField';
+import { PluginRecordSelect } from './recordSelects';
+import { JsonEditor } from './JsonEditor';
+import { Segmented } from '~/components/Segmented';
 import { TemplateInput } from './TemplateInput';
 
 const TextField = ({
@@ -186,46 +180,17 @@ const RecipientsInput = (props: ActionInputProps) => {
   );
 };
 
-/** Saved when it parses; until then the text stays and says it isn't JSON yet. */
-const JsonInput = ({ field, value, onChange, disabled }: ActionInputProps) => {
-  const { t } = useTranslation('automations');
-  const [invalid, setInvalid] = useState(false);
-
-  return (
-    <>
-      <Textarea
-        aria-label={field.label}
-        rows={4}
-        text="code"
-        disabled={disabled}
-        placeholder={field.placeholder}
-        aria-invalid={invalid}
-        defaultValue={value === undefined ? '' : JSON.stringify(value, null, 2)}
-        onBlur={(event) => {
-          const text = event.target.value.trim();
-
-          if (!text) {
-            onChange(undefined);
-            setInvalid(false);
-
-            return;
-          }
-
-          const parsed = jsonOf(z.json()).safeParse(text);
-
-          if (parsed.success) onChange(parsed.data);
-
-          setInvalid(!parsed.success);
-        }}
-      />
-      {invalid && (
-        <p className="text-xs text-destructive-text">
-          {t('invalid-json', 'Not valid JSON, not saved.')}
-        </p>
-      )}
-    </>
-  );
-};
+const JsonInput = ({ field, value, onChange, disabled, subject, dataFields }: ActionInputProps) => (
+  <JsonEditor
+    label={field.label}
+    value={value}
+    fields={dataFields}
+    subject={subject}
+    disabled={disabled}
+    flat={field.type === 'key_values'}
+    onChange={onChange}
+  />
+);
 
 /** One input of an action, by its declared type. Text takes data from the run through "Insert data". */
 export const ActionFieldInput = (props: ActionInputProps) => {
@@ -248,16 +213,31 @@ export const ActionFieldInput = (props: ActionInputProps) => {
       return <LeadStageSelect {...props} />;
     case 'plugin_record':
       return <PluginRecordSelect {...props} />;
+    case 'automation':
+      return <AutomationSelect {...props} />;
     case 'select':
       return <OptionSelect {...props} />;
+    case 'connection':
+      return <ConnectionSelect {...props} />;
     case 'members':
     case 'tags':
       return <LookupMultiSelect {...props} />;
     case 'json':
+    case 'key_values':
       return <JsonInput {...props} />;
     case 'reply_to':
       return (
         <ReplyToSelect
+          value={typeof value === 'string' ? value : null}
+          onChange={(next) => onChange(next ?? undefined)}
+          disabled={disabled}
+        />
+      );
+    case 'from_address':
+      return <FromAddressField value={value} onChange={onChange} disabled={disabled} />;
+    case 'mail_connection':
+      return (
+        <MailConnectionSelect
           value={typeof value === 'string' ? value : null}
           onChange={(next) => onChange(next ?? undefined)}
           disabled={disabled}

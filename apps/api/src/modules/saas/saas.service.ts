@@ -134,7 +134,7 @@ const planOf = async (
 
   return {
     saas: true,
-    pluginsManaged: false,
+    pluginsManaged: true,
     organizationStatus: row?.orgStatus ?? 'active',
     plugins: codes.map((code) => {
       const entry = row?.plugins.find((plugin) => plugin.code === code);

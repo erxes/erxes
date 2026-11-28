@@ -1,148 +1,138 @@
-import type { PaymentGateway, PluginPaymentSettings } from '@erxes/core-contract';
-import { IconCash, IconPlug } from '@tabler/icons-react';
+import { IconCash, IconPlugConnected } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Badge, Button, Checkbox, Empty, Select, useToast } from 'erxes-ui';
-import { useId } from 'react';
+import { Badge, Button, Empty, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { QueryState } from '~/components/QueryState';
+import { Link } from 'react-router-dom';
+import type { PaymentGateway } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
-import { EditGateway } from './EditGateway';
-import { GATEWAY_NAMES, GATEWAY_PAYS } from './gatewayCatalog';
+import { paths } from '~/lib/paths';
+import { logoUrlOf } from '../integrations/logos';
 
-const useSaveFailed = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'payments' });
-  const { toast } = useToast();
+type Gateway = PaymentGateway;
 
-  return (error: Error) =>
-    toast({
-      variant: 'destructive',
-      title: t('save-failed', 'Could not save'),
-      description: messageOf(error),
-    });
-};
+/** A gateway's logo, as Settings › Integrations shows it; its first letter when core has none. */
+const GatewayLogo = ({ gateway }: { gateway: Gateway }) => {
+  const url = logoUrlOf(gateway.key);
 
-/** Gateways a plugin may use; none checked means any. */
-const AllowedGateways = ({
-  allowed,
-  gateways,
-  onToggle,
-}: {
-  allowed: string[];
-  gateways: PaymentGateway[];
-  onToggle: (id: string, on: boolean) => void;
-}) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'payments' });
-  const id = useId();
+  if (url) return <img src={url} alt="" className="size-8 shrink-0 rounded-sm object-contain" />;
 
   return (
-    <div className="flex flex-wrap items-center gap-3 pl-7 text-xs text-muted-foreground">
-      <span>
-        {allowed.length
-          ? t('allowed-some', 'May use:')
-          : t('allowed-all', 'May use any gateway; limit to:')}
-      </span>
-      {gateways.map((gateway) => (
-        <span key={gateway.id} className="flex items-center gap-1.5">
-          <Checkbox
-            id={`${id}-${gateway.id}`}
-            checked={allowed.includes(gateway.id)}
-            onCheckedChange={(on) => onToggle(gateway.id, on)}
-          />
-          <label htmlFor={`${id}-${gateway.id}`}>{gateway.name}</label>
-        </span>
-      ))}
-    </div>
+    <span
+      aria-hidden
+      className="flex size-8 shrink-0 items-center justify-center rounded-sm border font-semibold"
+    >
+      {gateway.integrationName.charAt(0).toUpperCase()}
+    </span>
   );
 };
 
-/** Which gateway each payment-taking plugin uses, and which it may use. */
-const PluginSettingsRow = ({
-  settings,
-  gateways,
+/**
+ * One connected gateway: its service, its own name, whether it's on, and whether invoices that
+ * name no gateway go through it. Its keys are set up on its Integrations page.
+ */
+const GatewayRow = ({
+  gateway,
+  isDefault,
+  onDefault,
+  pending,
 }: {
-  settings: PluginPaymentSettings;
-  gateways: PaymentGateway[];
+  gateway: Gateway;
+  isDefault: boolean;
+  onDefault: () => void;
+  pending: boolean;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
-  const client = useQueryClient();
-  const onError = useSaveFailed();
-  const allowed = settings.allowedGatewayIds;
-
-  const save = useMutation(
-    orpc.payments.updatePluginSettings.mutationOptions({
-      onSuccess: () => client.invalidateQueries({ queryKey: orpc.payments.pluginSettings.key() }),
-      onError,
-    }),
-  );
-
-  const toggleAllowed = (id: string, on: boolean) => {
-    const next = on ? [...allowed, id] : allowed.filter((item) => item !== id);
-
-    const defaultGatewayId =
-      settings.defaultGatewayId && next.length && !next.includes(settings.defaultGatewayId)
-        ? null
-        : settings.defaultGatewayId;
-
-    save.mutate({ plugin: settings.plugin, allowedGatewayIds: next, defaultGatewayId });
-  };
+  const { t: tc } = useTranslation('settings', { keyPrefix: 'integrations.connection' });
+  const active = gateway.status === 'active';
 
   return (
-    <li className="space-y-2 p-3 text-sm">
-      <div className="flex items-center gap-3">
-        <IconPlug className="size-4 text-muted-foreground" />
-        <span className="font-medium">{settings.title}</span>
-        <div className="ml-auto w-56">
-          <Select
-            value={settings.defaultGatewayId ?? 'auto'}
-            onValueChange={(value) =>
-              save.mutate({
-                plugin: settings.plugin,
-                allowedGatewayIds: allowed,
-                defaultGatewayId: value === 'auto' ? null : value,
-              })
-            }
-          >
-            <Select.Trigger aria-label={t('default-gateway-label', 'Default gateway')}>
-              <Select.Value />
-            </Select.Trigger>
-            <Select.Content>
-              <Select.Item value="auto">
-                {t('default-auto', 'Default: first active gateway')}
-              </Select.Item>
-              {gateways
-                .filter((gateway) => !allowed.length || allowed.includes(gateway.id))
-                .map((gateway) => (
-                  <Select.Item key={gateway.id} value={gateway.id}>
-                    {t('default-gateway', 'Default: {{name}}', { name: gateway.name })}
-                  </Select.Item>
-                ))}
-            </Select.Content>
-          </Select>
-        </div>
+    <li className="flex flex-wrap items-center gap-3 px-4 py-3">
+      <GatewayLogo gateway={gateway} />
+      <div className="min-w-0 flex-1">
+        <p className="flex items-center gap-2 text-sm font-medium">
+          {gateway.name}
+          {isDefault && <Badge variant="secondary">{t('default', 'Default')}</Badge>}
+          {!active && <Badge variant="muted">{t('off', 'Off')}</Badge>}
+        </p>
+        <p className="truncate text-xs text-muted-foreground">
+          {gateway.integrationName} · {tc(`pays.${gateway.pays}`, gateway.pays)}
+        </p>
       </div>
-      <AllowedGateways allowed={allowed} gateways={gateways} onToggle={toggleAllowed} />
+      {!isDefault && active && (
+        <Button size="sm" variant="ghost" disabled={pending} onClick={onDefault}>
+          {t('make-default', 'Make default')}
+        </Button>
+      )}
+      <Button
+        size="sm"
+        variant="outline"
+        nativeButton={false}
+        render={<Link to={paths.settings.integration(gateway.key)} />}
+      >
+        {t('set-up', 'Set up')}
+      </Button>
     </li>
   );
 };
 
-/** Shown once there are gateways and plugins that take payments. */
-export const PluginGatewaySettings = ({ gateways }: { gateways: PaymentGateway[] }) => {
+/**
+ * The connected gateways, the default marked. Invoices from core and every plugin go through the
+ * default unless they name a gateway or it doesn't take their currency; with none, the oldest.
+ */
+export const Gateways = ({ gateways }: { gateways: Gateway[] }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
-  const pluginSettings = useQuery(orpc.payments.pluginSettings.queryOptions());
+  const { toast } = useToast();
+  const client = useQueryClient();
+  const settings = useQuery(orpc.payments.settings.queryOptions());
+
+  const save = useMutation(
+    orpc.payments.saveSettings.mutationOptions({
+      onSuccess: (saved) => client.setQueryData(orpc.payments.settings.queryKey(), saved),
+      onError: (error) =>
+        toast({
+          variant: 'destructive',
+          title: t('save-failed', 'Could not save'),
+          description: messageOf(error),
+        }),
+    }),
+  );
+
+  const chosen = settings.data?.defaultGatewayId ?? null;
+  // No default picked: the oldest one that's on takes the invoices.
+  const defaultId = chosen ?? gateways.find((gateway) => gateway.status === 'active')?.id ?? null;
 
   return (
-    <QueryState query={pluginSettings} isEmpty={({ data }) => !data.length}>
-      {({ data }) => (
-        <section className="space-y-2">
-          <h2 className="text-sm font-medium">{t('plugins', 'Plugins taking payments')}</h2>
-          <ul className="divide-y rounded-lg border">
-            {data.map((settings) => (
-              <PluginSettingsRow key={settings.plugin} settings={settings} gateways={gateways} />
-            ))}
-          </ul>
-        </section>
-      )}
-    </QueryState>
+    <section className="space-y-2">
+      <h2 className="text-sm font-medium">{t('gateways', 'Gateways')}</h2>
+      <p className="text-sm text-muted-foreground">
+        {t(
+          'default-gateway-description',
+          'Invoices from core and every plugin go through the default, unless they name a gateway or it doesn’t take their currency.',
+        )}
+      </p>
+      <ul className="divide-y rounded-lg border">
+        {gateways.map((gateway) => (
+          <GatewayRow
+            key={gateway.id}
+            gateway={gateway}
+            isDefault={gateway.id === defaultId}
+            pending={save.isPending}
+            onDefault={() => save.mutate({ defaultGatewayId: gateway.id })}
+          />
+        ))}
+      </ul>
+    </section>
+  );
+};
+
+export const ConnectGateways = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'payments' });
+
+  return (
+    <Button nativeButton={false} render={<Link to={paths.settings.paymentIntegrations} />}>
+      <IconPlugConnected />
+      {t('add', 'Connect a gateway')}
+    </Button>
   );
 };
 
@@ -159,67 +149,13 @@ export const NoGateways = () => {
         <Empty.Description>
           {t(
             'empty-description',
-            'Connect a payment gateway so plugins can take payments for orders, bookings and more.',
+            'Connect a payment gateway in Settings › Integrations so plugins can take payments for orders, bookings and more.',
           )}
         </Empty.Description>
       </Empty.Header>
+      <Empty.Content>
+        <ConnectGateways />
+      </Empty.Content>
     </Empty>
-  );
-};
-
-export const GatewayList = ({ gateways }: { gateways: PaymentGateway[] }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'payments' });
-  const client = useQueryClient();
-  const onError = useSaveFailed();
-
-  const toggle = useMutation(
-    orpc.payments.updateGateway.mutationOptions({
-      onSuccess: () => client.invalidateQueries({ queryKey: orpc.payments.key() }),
-      onError,
-    }),
-  );
-
-  return (
-    <ul className="divide-y rounded-lg border">
-      {gateways.map((gateway) => (
-        <li key={gateway.id} className="flex items-center gap-3 p-3">
-          <span className="min-w-0 space-y-0.5">
-            <span className="flex flex-wrap items-center gap-2">
-              <span
-                className={
-                  gateway.status === 'active' ? 'font-medium' : 'font-medium text-muted-foreground'
-                }
-              >
-                {gateway.name}
-              </span>
-              <Badge variant="secondary">{GATEWAY_NAMES[gateway.kind]}</Badge>
-              {gateway.status !== 'active' && <Badge>{t('off-badge', 'off')}</Badge>}
-              {gateway.settings.sandbox === true && (
-                <Badge variant="warning">{t('sandbox-badge', 'sandbox')}</Badge>
-              )}
-            </span>
-            <span className="block truncate text-xs text-muted-foreground">
-              {t(`pays-${GATEWAY_PAYS[gateway.kind]}`)}
-            </span>
-          </span>
-          <span className="ml-auto flex shrink-0 items-center gap-1">
-            <EditGateway gateway={gateway} />
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={toggle.isPending}
-              onClick={() =>
-                toggle.mutate({
-                  id: gateway.id,
-                  status: gateway.status === 'active' ? 'disabled' : 'active',
-                })
-              }
-            >
-              {gateway.status === 'active' ? t('turn-off', 'Turn off') : t('turn-on', 'Turn on')}
-            </Button>
-          </span>
-        </li>
-      ))}
-    </ul>
   );
 };

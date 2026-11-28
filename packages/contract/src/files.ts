@@ -151,7 +151,8 @@ export const filesContract = {
       method: 'POST',
       path: '/files',
       successStatus: 201,
-      summary:
+      summary: 'Start a file upload',
+      description:
         'Start an upload: checks the name, type and size against the organisation settings and returns where to PUT the bytes. 400 FILE_TOO_LARGE / FILE_TYPE_NOT_ALLOWED',
     })
     .input(
@@ -177,7 +178,8 @@ export const filesContract = {
     .route({
       method: 'POST',
       path: '/files/{id}/complete',
-      summary:
+      summary: 'Finish a file upload',
+      description:
         'Finish an upload once the bytes are sent: core checks the stored object. 409 UPLOAD_INCOMPLETE if it is missing or the size differs',
     })
     .input(z.object({ id: Id }))
@@ -186,7 +188,8 @@ export const filesContract = {
     .route({
       method: 'GET',
       path: '/files/{id}',
-      summary: 'A file, with a short-lived `downloadUrl`',
+      summary: 'Get a file',
+      description: 'A file, with a short-lived `downloadUrl`',
     })
     .input(z.object({ id: Id }))
     .output(FileInfo.extend({ downloadUrl: z.string().nullable() })),
@@ -194,7 +197,8 @@ export const filesContract = {
     .route({
       method: 'GET',
       path: '/files',
-      summary: 'Files by id (ready ones only), e.g. a record’s attachments',
+      summary: 'List files',
+      description: 'Files by id (ready ones only), e.g. a record’s attachments',
     })
     .input(z.object({ ids: IdList }))
     .output(z.object({ data: z.array(FileInfo).max(100) })),
@@ -202,7 +206,8 @@ export const filesContract = {
     .route({
       method: 'DELETE',
       path: '/files/{id}',
-      summary: 'Delete a file and its stored bytes (the uploader, or owners and admins)',
+      summary: 'Delete a file',
+      description: 'Delete a file and its stored bytes (the uploader, or owners and admins)',
     })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
@@ -210,14 +215,16 @@ export const filesContract = {
     .route({
       method: 'GET',
       path: '/settings/files',
-      summary: 'What the organisation accepts as uploads',
+      summary: 'Get upload settings',
+      description: 'What the organisation accepts as uploads',
     })
     .output(FileSettings),
   updateSettings: base
     .route({
       method: 'PUT',
       path: '/settings/files',
-      summary: 'Change upload limits (owners and admins)',
+      summary: 'Change upload settings',
+      description: 'Change upload limits (owners and admins)',
     })
     .input(
       z.object({
@@ -230,7 +237,8 @@ export const filesContract = {
     .route({
       method: 'PUT',
       path: '/settings/files/bucket',
-      summary:
+      summary: 'Use our own storage bucket',
+      description:
         'Store new uploads in the organisation’s own bucket, once a test file goes in and out (owners and admins). 403 BUCKET_NOT_ALLOWED on erxes.io or when the server sets the storage, 400 BUCKET_REFUSED when the test fails, 409 BUCKET_IN_USE to move to another bucket while files are in this one',
     })
     .input(FileBucketInput)
@@ -239,7 +247,8 @@ export const filesContract = {
     .route({
       method: 'DELETE',
       path: '/settings/files/bucket',
-      summary:
+      summary: 'Stop using our own bucket',
+      description:
         'Store new uploads on the server again (owners and admins). 409 BUCKET_IN_USE while files are in the bucket',
     })
     .output(FileSettings),

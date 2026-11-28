@@ -1,7 +1,8 @@
-import type { SearchHit, SearchType } from '@erxes/core-contract';
+import type { SearchHit, SearchQuery, SearchType } from '@erxes/core-contract';
 import { companies, customers, type Db, orgUnits, products, users } from '@erxes/core-db';
-import { and, desc, eq, ilike, or, type SQL, sql } from 'drizzle-orm';
+import { and, eq, ilike, or, type SQL, sql } from 'drizzle-orm';
 import { callerCan } from '~/http/access';
+import { newestFirst } from '~/lib/keyset';
 import { matchEveryWord } from '~/lib/search';
 import { inOrder } from '~/lib/sequence';
 import { companyListWhere } from '~/modules/companies/companyList';
@@ -36,7 +37,7 @@ const people: Finder = async (client, q, limit) =>
     })
     .from(customers)
     .where(await customerListWhere(client, { search: q }))
-    .orderBy(desc(customers.createdAt))
+    .orderBy(...newestFirst(customers.createdAt, customers.id))
     .limit(limit);
 
 const companyHits: Finder = async (client, q, limit) =>
@@ -51,7 +52,7 @@ const companyHits: Finder = async (client, q, limit) =>
     })
     .from(companies)
     .where(await companyListWhere(client, { search: q }))
-    .orderBy(desc(companies.createdAt))
+    .orderBy(...newestFirst(companies.createdAt, companies.id))
     .limit(limit);
 
 const productHits: Finder = (client, q, limit) =>
@@ -64,7 +65,7 @@ const productHits: Finder = (client, q, limit) =>
     })
     .from(products)
     .where(and(eq(products.status, 'active'), productSearch(q)))
-    .orderBy(desc(products.createdAt))
+    .orderBy(...newestFirst(products.createdAt, products.id))
     .limit(limit);
 
 const memberHits: Finder = (client, q, limit) =>
@@ -77,7 +78,7 @@ const memberHits: Finder = (client, q, limit) =>
     })
     .from(users)
     .where(userSearch(q))
-    .orderBy(desc(users.createdAt))
+    .orderBy(...newestFirst(users.createdAt, users.id))
     .limit(limit);
 
 const unitHits: Finder = (client, q, limit) =>
@@ -115,10 +116,7 @@ const visibleTypes = (type?: SearchType) =>
   );
 
 /** The first `limit` matches of each type, in the order of `SEARCH_RECORD_TYPES`. */
-export const searchRecords = async (
-  client: Db,
-  input: { q: string; type?: SearchType; limit: number },
-) => {
+export const searchRecords = async (client: Db, input: SearchQuery) => {
   const data: SearchHit[] = [];
 
   // The request's one transaction runs one query at a time.

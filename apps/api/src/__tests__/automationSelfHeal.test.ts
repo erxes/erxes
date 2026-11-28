@@ -63,6 +63,10 @@ describe('automation contracts healed by real data', { timeout: 240_000 }, () =>
 
     const { triggers } = await catalog();
 
+    expect(triggers.filter((item) => item.source === 'hr').map((item) => item.type)).toEqual([
+      'hr.leave.approved',
+      'hr.badge.scanned',
+    ]);
     expect(triggers.find((item) => item.type === 'hr.leave.approved')?.fields).toEqual([
       { key: 'days', label: 'Days', type: 'text' },
       { key: 'approved', label: 'Approved', type: 'list' },
@@ -113,8 +117,12 @@ describe('automation contracts healed by real data', { timeout: 240_000 }, () =>
     expect((await t.runsOf(id)).map((run) => run.status)).toEqual(['succeeded']);
     expect(await outputsOf()).toEqual([
       { key: 'number', label: 'Ticket number', type: 'text' },
+      { key: 'nested.a', label: 'Nested a', type: 'number' },
       { key: 'ticketId', label: 'Ticket id', type: 'text' },
       { key: 'urgent', label: 'Urgent', type: 'boolean' },
     ]);
+    expect(
+      (await catalog()).triggers.filter((item) => item.source === 'hr').map((item) => item.type),
+    ).toEqual(['hr.leave.approved', 'hr.badge.scanned']);
   });
 });

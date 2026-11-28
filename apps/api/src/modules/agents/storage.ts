@@ -220,3 +220,19 @@ class AgentDatabase implements PostgresDatabase {
  */
 export const openAgentStorage = (orgId: string, storageKey: string, { readOnly = false } = {}) =>
   PostgresStorage.open(new AgentDatabase(orgId, storageKey, readOnly));
+
+/** A conversation's storage to read, or none before its first run: until then it has nothing. */
+export const readAgentStorage = async (orgId: string, storageKey: string) => {
+  const database = new AgentDatabase(orgId, storageKey, true);
+
+  const ran = await database.get(
+    'select 1 from core_agent_durable_metadata where singleton = 1',
+    [],
+  );
+
+  if (ran) return PostgresStorage.open(database);
+
+  await database.close();
+
+  return undefined;
+};

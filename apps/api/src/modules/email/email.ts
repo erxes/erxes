@@ -6,8 +6,9 @@ import { logger } from '~/logger';
 import { defineJob, describeError } from '~/modules/jobs/jobs';
 import { AttachmentMissing, type FileAttachment, readAttachments } from './attachments';
 import { type EmailOrigin, queueDeliveries, settleDelivery } from './deliveries';
+import { MailConnectionOff, openMailConnection } from './mailConnections';
 import { decideAtSend } from './sendGate';
-import { ownFrom, serverFrom } from './sender';
+import { connectionFrom, ownFrom, serverFrom } from './sender';
 import { EmailPayload, type InlineImage, renderEmail } from './templates';
 import { type DeliveryProvider, orgTransport, serverProvider } from './transport';
 
@@ -21,6 +22,11 @@ interface Message {
   replyTo?: string;
   /** The sender's label: on SaaS it follows the organisation's name, self-hosted it is the name. */
   fromName?: string;
+  /**
+   * Self-hosted, through its own provider: an address on a domain the provider verified
+   * (`requireFromAddress`). The server's sending has none to offer, so it never gets one.
+   */
+  fromEmail?: string;
   subject: string;
   html: string;
   text: string;
@@ -119,16 +125,47 @@ const logEmail = ({ deliveryId: _delivery, ...message }: Message, fromName: stri
   );
 };
 
+/** How an email goes out through a Mail service connection: from its address, on SaaS too. */
+const connectionRoute = async (orgId: string, connectionId: string) => {
+  const { mail, transport } = await openMailConnection(orgId, connectionId);
+  const { provider } = mail.server;
+
+  return {
+    provider: provider satisfies DeliveryProvider,
+    send: async ({
+      fromName,
+      fromEmail: _fromEmail,
+      attachments,
+      files,
+      deliveryId,
+      headers,
+      ...rest
+    }: Message) => {
+      const tag = { orgId, deliveryId, configurationSet: mail.configurationSet };
+
+      await transport.sendMail({
+        from: await connectionFrom(orgId, mail.from, fromName),
+        ...rest,
+        headers: { ...headers, ...tagHeaders(provider, tag) },
+        attachments: attachmentsOf(attachments, files),
+      });
+    },
+  };
+};
+
 /**
  * How the organisation's emails go out now: its `provider` (for the delivery
  * log, known before a try fails) and `send`, which sends one email or throws
- * the server's refusal (nodemailer's `responseCode`). Self-hosted, an
- * organisation with its own settings (Settings › Integrations › Email sending)
- * sends from its address through its provider; the others, and every
- * organisation on SaaS, through the server's from `EMAIL_FROM`'s address under
- * the organisation's name (`sender.ts`).
+ * the server's refusal (nodemailer's `responseCode`). With `connectionId`,
+ * through that Mail service connection (`MailConnectionOff` while it isn't
+ * active). Else Organization email: self-hosted, an organisation with its own
+ * settings (Settings › Organization email) sends from its address through its
+ * provider; the others, and every organisation on SaaS, through the server's
+ * from `EMAIL_FROM`'s address under the organisation's name (`sender.ts`).
  */
-export const routeFor = async (orgId: string) => {
+export const routeFor = async (orgId: string, connectionId?: string | null) => {
+  if (connectionId) return connectionRoute(orgId, connectionId);
+
   const own = config.saas.enabled ? null : await orgTransport(orgId);
 
   if (own) {
@@ -136,9 +173,17 @@ export const routeFor = async (orgId: string) => {
 
     return {
       provider: provider satisfies DeliveryProvider,
-      send: async ({ fromName, attachments, files, deliveryId, headers, ...mail }: Message) => {
+      send: async ({
+        fromName,
+        fromEmail,
+        attachments,
+        files,
+        deliveryId,
+        headers,
+        ...mail
+      }: Message) => {
         await own.transport.sendMail({
-          from: await ownFrom(orgId, own.settings, fromName),
+          from: await ownFrom(orgId, own.settings, fromName, fromEmail),
           ...mail,
           headers: { ...headers, ...tagHeaders(provider, { orgId, deliveryId, configurationSet }) },
           attachments: attachmentsOf(attachments, files),
@@ -152,7 +197,16 @@ export const routeFor = async (orgId: string) => {
   return {
     provider,
     send: async (message: Message) => {
-      const { fromName, attachments, files, deliveryId, headers, ...mail } = message;
+      const {
+        fromName,
+        fromEmail: _fromEmail,
+        attachments,
+        files,
+        deliveryId,
+        headers,
+        ...mail
+      } = message;
+
       const from = await serverFrom(orgId, fromName);
 
       if (config.email.driver === 'log') return logEmail(message, from.name);
@@ -183,8 +237,10 @@ export const appLink = async (client: Db, path: string) => {
   return `${config.app.url.replace('{subdomain}', organization?.subdomain ?? '')}${path}`;
 };
 
-/** A queued email and its row in the delivery log. */
-const EmailJobPayload = EmailPayload.and(z.object({ deliveryId: z.string() }));
+/** A queued email, its row in the delivery log, and the Mail service connection it goes through. */
+const EmailJobPayload = EmailPayload.and(
+  z.object({ deliveryId: z.string(), connectionId: z.string().optional() }),
+);
 
 /** The log row of a try; the email went already when it fails, so it is logged, not retried. */
 const settle = async (...args: Parameters<typeof settleDelivery>) => {
@@ -217,35 +273,36 @@ export const emailJob = defineJob({
     if (!go) return;
 
     const rendered = payload.template === 'rendered';
-    const sent = payload.template === 'message' || rendered ? payload : null;
     // Unknown when the route itself can't be found (the settings, the server's address).
     let provider: DeliveryProvider | null = null;
 
     try {
-      const route = await routeFor(job.orgId);
+      const route = await routeFor(job.orgId, payload.connectionId);
 
       provider = route.provider;
       await route.send({
         to: payload.to,
         cc: payload.template === 'message' ? payload.cc : undefined,
-        replyTo: sent?.replyTo,
-        fromName: sent?.fromName,
+        replyTo: 'replyTo' in payload ? payload.replyTo : undefined,
+        fromName: 'fromName' in payload ? payload.fromName : undefined,
+        fromEmail: 'fromEmail' in payload ? payload.fromEmail : undefined,
         attachments: rendered ? payload.attachments : undefined,
         files: rendered ? await readAttachments(job.orgId, payload.fileIds ?? []) : undefined,
         deliveryId: payload.deliveryId,
         ...renderEmail(payload),
       });
     } catch (error) {
-      const missing = error instanceof AttachmentMissing;
+      // A missing file or a connection that is off doesn't come back by trying again.
+      const hopeless = error instanceof AttachmentMissing || error instanceof MailConnectionOff;
 
       await settle(job.orgId, payload.deliveryId, {
         sent: false,
         provider,
         error: describeError(error),
-        final: job.lastAttempt || missing,
+        final: job.lastAttempt || hopeless,
       });
 
-      if (missing) return;
+      if (hopeless) return;
 
       throw error;
     }
@@ -301,7 +358,7 @@ export const sendEmail = async (
     client,
     jobs.map(({ id, payload }) => ({
       orgId,
-      payload: { ...payload, deliveryId: id },
+      payload: { ...payload, deliveryId: id, connectionId: origin.connectionId ?? undefined },
       runAt: untilOf(id),
     })),
   );

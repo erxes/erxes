@@ -1,4 +1,4 @@
-import type { CustomerInput } from '@erxes/core-contract';
+import type { CustomerInput, TagChange } from '@erxes/core-contract';
 import type { Db } from '@erxes/core-db';
 import { callerUserId, customerCompanies, customers, newId, savepoint } from '@erxes/core-db';
 import { and, eq, inArray, sql } from 'drizzle-orm';
@@ -152,10 +152,7 @@ const tagsByCustomer = async (client: Db, ids: string[]) => {
 };
 
 /** Adds and removes tags on many customers at once. */
-export const tagCustomers = async (
-  client: Db,
-  input: { ids: string[]; add: string[]; remove: string[] },
-) => {
+export const tagCustomers = async (client: Db, input: TagChange) => {
   const add = await checkTagIds(client, 'customer', input.add);
 
   const before = await tagsByCustomer(client, input.ids);
