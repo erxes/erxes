@@ -9,9 +9,13 @@ RUN npm install -g pnpm@11.5.2
 # The root `prepare` script installs git hooks; the image has no git and never commits.
 ENV VP_GIT_HOOKS=0
 WORKDIR /repo
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+# Every dependency into pnpm's store, from the lockfile alone: a manifest change (a release's
+# version bump) keeps this layer, so the install below links offline instead of downloading.
+COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 # pnpm applies these to dependencies on install (patchedDependencies).
 COPY patches patches
+RUN pnpm fetch
+COPY package.json ./
 # Every workspace manifest, so the frozen lockfile matches.
 COPY apps/api/package.json apps/api/
 COPY apps/web/package.json apps/web/
@@ -22,7 +26,7 @@ COPY packages/integrations/package.json packages/integrations/
 COPY packages/lint/package.json packages/lint/
 COPY packages/plugin-sdk/package.json packages/plugin-sdk/
 COPY packages/ui/package.json packages/ui/
-RUN pnpm install --frozen-lockfile --filter @erxes/web...
+RUN pnpm install --frozen-lockfile --offline --filter @erxes/web...
 COPY tsconfig.base.json ./
 COPY packages/assistant-catalog packages/assistant-catalog
 COPY packages/contract packages/contract
