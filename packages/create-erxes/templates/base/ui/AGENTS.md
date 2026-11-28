@@ -69,7 +69,7 @@ and renders `./__id__` (the `__Pascal__` export) under `/__id__/*`.
   settings. Core's settings show one link per plugin, to its first page. Fields members
   add to a record type (Data Extensions) are its `dataFields` (`type: '__id__.item'`,
   `values(id)` of the record's `custom_fields` by field id, `save(id, patch)`, and
-  `limits` with `appliesTo(id)` for groups shown on some records only): core keeps the
+  `limits` for groups shown on some records only, with what each record is in): core keeps the
   fields (`dataFields.list`, `dataFieldGroups.list`) and draws them under their groups in
   the Fields tab; they are set up in Settings › Data model,
   `/settings/data-model/fields/__id__.item`, which the plugin's own settings link when it
