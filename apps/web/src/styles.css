@@ -62,3 +62,39 @@
     background-position: 0% 0;
   }
 }
+
+/* The broadcast email editor (maily) in dark mode: its palette mapped to the app's. Selectors
+   outrank maily's own `:root` and `[data-mly-editor-root]`, which load later. */
+:root.dark {
+  --mly-color-white: var(--background);
+  --mly-color-soft-gray: var(--muted);
+  --mly-color-gray-50: var(--muted);
+  --mly-color-gray-100: var(--accent);
+  --mly-color-gray-200: var(--border);
+  --mly-color-gray-300: var(--border);
+  --mly-color-gray-400: var(--muted-foreground);
+  --mly-color-gray-500: var(--muted-foreground);
+  --mly-color-gray-900: var(--foreground);
+  --mly-color-gray-950: var(--foreground);
+  --mly-color-midnight-gray: var(--foreground);
+  --mly-bubble-border-color: var(--border);
+  --mly-placeholder-color: var(--muted-foreground);
+}
+
+.dark [data-mly-editor-root] {
+  --mly-editor-border: var(--border);
+  --mly-editor-focus: var(--muted-foreground);
+}
+
+/* The few colours maily writes out instead of taking from its palette. */
+.dark :is([data-mly-image-handle], [data-mly-spacer-handle]) {
+  background: var(--background);
+}
+
+.dark [data-mly-image-state] {
+  background: var(--muted);
+}
+
+.dark [data-mly-slash-command-description] {
+  color: var(--muted-foreground);
+}

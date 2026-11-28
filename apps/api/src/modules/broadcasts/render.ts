@@ -75,7 +75,8 @@ const emailCopy = (
 
   const before = preheader ? `<div style="${STYLE.hidden}">${preheader}</div>` : '';
 
-  const after = `<p style="${STYLE.footer}">You get this from ${organization}. ${unsubscribe}</p>${
+  // `data-footer` lets the app's preview give the footer its theme's grey; mail clients ignore it.
+  const after = `<p data-footer style="${STYLE.footer}">You get this from ${organization}. ${unsubscribe}</p>${
     urls.open
       ? `<img src="${escapeHtml(urls.open)}" width="1" height="1" alt="" style="display:block">`
       : ''
