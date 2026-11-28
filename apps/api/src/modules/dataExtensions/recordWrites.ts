@@ -1,5 +1,7 @@
+import type { DataExtensionRecordCreate } from '@erxes/core-contract';
 import { callerUserId, type Db, dataFields, newId } from '@erxes/core-db';
 import { inArray, sql } from 'drizzle-orm';
+import type { z } from 'zod';
 import { inOrder } from '~/lib/sequence';
 import { columnParam, searchText } from './codec';
 import { qualified } from './definitions';
@@ -87,7 +89,7 @@ const finish = async (
 
 export const createRecord = async (
   client: Db,
-  input: { objectKey: string; values: Record<string, unknown>; position?: number },
+  input: z.infer<typeof DataExtensionRecordCreate>,
 ) => {
   const source = await recordSource(client, input.objectKey, true);
   const prepared = await prepareValues(client, source.fields, source.sides, input.values, true);

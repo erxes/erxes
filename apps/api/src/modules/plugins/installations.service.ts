@@ -1,4 +1,4 @@
-import { PLUGIN_SCOPES, pluginReadScope } from '@erxes/core-contract';
+import { connectionUseScope, PLUGIN_SCOPES, pluginReadScope } from '@erxes/core-contract';
 import { caller, type Db, db, pluginInstallations, plugins, requestOrgId } from '@erxes/core-db';
 import { and, eq, type SQL, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
@@ -10,12 +10,13 @@ import { signJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { syncPluginFields } from '~/modules/fields/pluginFields';
 import { grantDefaultPermissions } from '~/modules/roles/defaultGrants';
+import { licenseAccess, stricter } from '~/modules/license/license';
 import { accessOf, planOfPlugin } from '~/modules/saas/access';
 import { assertPluginInPlan, entitlementsOf } from '~/modules/saas/entitlements';
 import { textArray } from '@erxes/plugin-sdk/filter';
 import { installedPlugin } from './installedPlugin';
 import { queueInstallJobs } from './pluginJobs';
-import { requestedScopes } from './plugins.service';
+import { requestedScopes } from './requestedScopes';
 
 /** Plugin UI tokens: a member's session for one plugin's API. */
 const PLUGIN_SESSION_TTL_SECONDS = 5 * 60;
@@ -27,6 +28,8 @@ const requested = sql<string[]>`case when ${plugins.manifest} ? 'scopes'
     || array(select ${pluginReadScope('')} || permission
       from jsonb_array_elements(coalesce(${plugins.manifest} -> 'pluginReads', '[]')) as entry,
         jsonb_array_elements_text(entry -> 'permissions') as permission)
+    || array(select ${connectionUseScope('')} || (entry ->> 'integration')
+      from jsonb_array_elements(coalesce(${plugins.manifest} -> 'connections', '[]')) as entry)
   else ${textArray([...PLUGIN_SCOPES])} end`;
 
 /** Active plugins with this organisation's installation, as members see them. */
@@ -175,7 +178,13 @@ export const pluginSession = async (name: string) => {
 
   if (planAccess === 'off') throw fail('NOT_IN_PLAN', `${name} is not in your plan`);
 
-  const access = me.key?.plugins[name] === 'read' ? 'read_only' : planAccess;
+  // Self-hosted: a plugin that needs an erxes license runs only where it names the plugin.
+  const licensed = await licenseAccess(name, plugin.manifest);
+
+  if (licensed === 'off')
+    throw fail('NOT_IN_PLAN', `${name} needs an erxes license for this server`);
+
+  const access = me.key?.plugins[name] === 'read' ? 'read_only' : stricter(planAccess, licensed);
 
   // The member's permissions within this plugin (`hr.leave.approve`, …), for its API to check.
   const permissions = (plugin.manifest?.permissions ?? [])
@@ -183,7 +192,14 @@ export const pluginSession = async (name: string) => {
     .filter((action) => can(me, action));
 
   const token = await signJwt(
-    { org: orgId, role: me.role, permissions, ...planOfPlugin(plan, name), access },
+    {
+      org: orgId,
+      role: me.role,
+      permissions,
+      ...planOfPlugin(plan, name),
+      access,
+      support: me.support === true,
+    },
     {
       typ: PLUGIN_SESSION_TYP,
       audience: name,

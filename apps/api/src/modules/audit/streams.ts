@@ -14,9 +14,9 @@ import { fail, notFound } from '~/http/errors';
 import { newSigningSecret } from '~/lib/crypto';
 import { assertOutboundUrl, OutboundError } from '~/lib/outbound';
 import { oneRow } from '~/lib/rows';
-import { seal } from '~/lib/secrets';
+import { saveSecret } from '~/modules/secrets/vault';
 import { recordAudit } from './audit.service';
-import { organizationOf, sendBatch, queueStreamRound } from './streamDelivery';
+import { organizationOf, sendBatch, queueStreamRound, streamToSend } from './streamDelivery';
 import { formatBatch, type StreamEntry } from './streamFormat';
 
 type StreamRow = typeof auditStreams.$inferSelect;
@@ -81,9 +81,11 @@ export const createStream = async (
         name: input.name,
         url: input.url,
         format: input.format,
-        secretSealed: seal(secret),
+        secretId: await saveSecret(client, secret),
         authHeaderName: input.authHeader?.name ?? null,
-        authHeaderValueSealed: input.authHeader ? seal(input.authHeader.value) : null,
+        authHeaderSecretId: input.authHeader
+          ? await saveSecret(client, input.authHeader.value)
+          : null,
         cursorSeq: input.from === 'now' ? latest : 0,
         createdBy: caller('user').userId,
       })
@@ -134,8 +136,10 @@ export const updateStream = async (
         ...changes,
         // null removes the header; undefined leaves it.
         authHeaderName: authHeader === undefined ? undefined : (authHeader?.name ?? null),
-        authHeaderValueSealed:
-          authHeader === undefined ? undefined : authHeader && seal(authHeader.value),
+        authHeaderSecretId:
+          authHeader === undefined
+            ? undefined
+            : authHeader && (await saveSecret(client, authHeader.value, before.authHeaderSecretId)),
         // A new address or a resume starts over the failure count.
         ...(input.url || input.status === 'active'
           ? { consecutiveFailures: 0, lastError: null }
@@ -191,10 +195,12 @@ export const removeStream = async (client: Db, id: string) => {
  * credentials. Reads in a short scope and calls out after it.
  */
 export const testStream = async (id: string) => {
-  const { row, organization } = await withOrg(requestOrgId(), async (tx) => ({
-    row: await streamOrThrow(tx, id),
+  const { stream, organization } = await withOrg(requestOrgId(), async (tx) => ({
+    stream: await streamToSend(tx, id),
     organization: await organizationOf(tx),
   }));
+
+  if (!stream) throw notFound('Stream');
 
   const sample: StreamEntry = {
     id: 'test',
@@ -216,7 +222,7 @@ export const testStream = async (id: string) => {
   };
 
   return sendBatch(
-    row,
-    formatBatch(row.format, { streamId: row.id, organization }, [sample], null),
+    stream,
+    formatBatch(stream.row.format, { streamId: id, organization }, [sample], null),
   );
 };

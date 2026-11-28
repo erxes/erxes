@@ -11,6 +11,7 @@ import { z } from 'zod';
 import { isApiError, messageOf, orpc } from '@erxes/core-contract/client';
 import { useSignedIn } from '~/modules/auth/session';
 import { AuthForm, AuthShell } from './components/AuthParts';
+import { type Provider, ProviderButtons, ProviderSignInForm } from './ProviderSignIn';
 import { TwoFactorStep } from './TwoFactorStep';
 
 const PASSWORD_REVEAL_MS = 10_000;
@@ -181,18 +182,38 @@ const SignInForm = ({ onChallenge }: { onChallenge: (challenge: string) => void 
   );
 };
 
-/** Sign-in beside the banner; a second step when two-step sign-in is on. */
+/** The step the member is on: email and password (or a sign-in provider's form), then two-step sign-in's code. */
+const SignInSteps = () => {
+  const [challenge, setChallenge] = useState<string | null>(null);
+  const [provider, setProvider] = useState<Provider | null>(null);
+
+  if (challenge) return <TwoFactorStep challenge={challenge} onBack={() => setChallenge(null)} />;
+
+  if (provider) {
+    return (
+      <ProviderSignInForm
+        provider={provider}
+        onBack={() => setProvider(null)}
+        onChallenge={setChallenge}
+      />
+    );
+  }
+
+  return (
+    <>
+      <SignInForm onChallenge={setChallenge} />
+      <ProviderButtons onPick={setProvider} />
+    </>
+  );
+};
+
+/** Sign-in beside the banner. */
 export const SignInPage = () => {
   const { t } = useTranslation('common', { keyPrefix: 'auth' });
-  const [challenge, setChallenge] = useState<string | null>(null);
 
   return (
     <AuthShell title={t('welcome')} subtitle={t('sign-in-to-continue')}>
-      {challenge ? (
-        <TwoFactorStep challenge={challenge} onBack={() => setChallenge(null)} />
-      ) : (
-        <SignInForm onChallenge={setChallenge} />
-      )}
+      <SignInSteps />
     </AuthShell>
   );
 };

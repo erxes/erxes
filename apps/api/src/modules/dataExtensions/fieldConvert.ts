@@ -1,3 +1,4 @@
+import type { DataExtensionFieldConvert } from '@erxes/core-contract';
 import type { DataFieldOption, DataFieldSettings, Db } from '@erxes/core-db';
 import type { DATA_EXTENSION_CONVERTIBLE_TYPES } from '@erxes/core-db/dataExtensionEnums';
 import { DATA_EXTENSION_OPTION_COLORS } from '@erxes/core-db/dataExtensionEnums';
@@ -163,13 +164,7 @@ const keptSettings = (settings: DataFieldSettings, to: Convertible): DataFieldSe
  */
 export const convertField = async (
   client: Db,
-  input: {
-    id: string;
-    type: Convertible;
-    options?: DataFieldOption[];
-    apply: boolean;
-    clearUnconvertible: boolean;
-  },
+  input: z.infer<typeof DataExtensionFieldConvert>,
 ) => {
   const field = await findField(client, input.id);
   const [from] = columnsOf(field);

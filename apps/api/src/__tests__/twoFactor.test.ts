@@ -1,4 +1,4 @@
-import { rateLimits } from '@erxes/core-db';
+import { rateLimits, secrets } from '@erxes/core-db';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { hashPassword } from '~/lib/crypto';
 import { inOrder } from '~/lib/sequence';
@@ -38,6 +38,11 @@ describe('two-factor sign-in', { timeout: 240_000 }, () => {
     const setup = await owner.api.auth.twoFactorSetup({});
 
     expect(setup.uri).toMatch(/^otpauth:\/\/totp\/erxes%3Ao%40acme\.mn\?secret=/);
+
+    const pending = await adminDb().select().from(secrets);
+
+    expect(pending).toHaveLength(1);
+    expect(JSON.stringify(pending)).not.toContain(setup.secret);
     await expect(owner.api.auth.twoFactorEnable({ code: '000000' })).rejects.toMatchObject({
       code: 'WRONG_CODE',
     });
@@ -47,6 +52,7 @@ describe('two-factor sign-in', { timeout: 240_000 }, () => {
     });
 
     expect(enabled.recoveryCodes).toHaveLength(10);
+    expect((await adminDb().select().from(secrets)).map((row) => row.id)).toEqual([pending[0]?.id]);
     expect((await owner.api.auth.me({})).user.totpEnabledAt).not.toBeNull();
 
     // The password alone no longer signs in, and no session is set.
@@ -87,6 +93,7 @@ describe('two-factor sign-in', { timeout: 240_000 }, () => {
       code: 'WRONG_PASSWORD',
     });
     await recovered.api.auth.twoFactorDisable({ password: credentials.password });
+    expect(await adminDb().select().from(secrets)).toEqual([]);
     expect(await server.browser().api.auth.signIn(credentials)).toMatchObject({
       user: { totpEnabledAt: null },
     });

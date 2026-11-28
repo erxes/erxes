@@ -1,4 +1,4 @@
-import type { Activity, StreamTopic } from '@erxes/core-contract';
+import type { Activity, PageInfo, StreamTopic } from '@erxes/core-contract';
 import {
   type InfiniteData,
   type UseInfiniteQueryResult,
@@ -9,7 +9,16 @@ import {
 } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import { messageOf, orpc } from '@erxes/core-contract/client';
+import { firstPageOnReturn } from '~/lib/cursorList';
 import { liveOptions } from '~/lib/live';
+
+/**
+ * The cursor after a timeline page. A timeline nothing shows keeps only its first page, so
+ * opening a record again refetches 20 entries, not every page read before.
+ */
+const nextTimelinePage = firstPageOnReturn((last: { pageInfo: PageInfo }) =>
+  last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? undefined) : undefined,
+);
 
 export type TimelineKind = 'all' | 'notes' | 'changes' | 'plugins';
 
@@ -48,8 +57,7 @@ export const useActivities = (
         cursorMode: 'exclusive',
       }),
       initialPageParam: undefined,
-      getNextPageParam: (last) =>
-        last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? undefined) : undefined,
+      getNextPageParam: nextTimelinePage,
       ...pageOptions([`timeline:${targetType}:${targetId}`]),
     }),
   );
@@ -80,8 +88,7 @@ export const useMemberActivities = (
         cursorMode: 'exclusive',
       }),
       initialPageParam: undefined,
-      getNextPageParam: (last) =>
-        last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? undefined) : undefined,
+      getNextPageParam: nextTimelinePage,
       ...pageOptions([]),
     }),
   );

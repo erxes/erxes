@@ -38,7 +38,8 @@ export const activitiesContract = {
     .route({
       method: 'GET',
       path: '/activities',
-      summary: 'A customer’s or company’s timeline, newest first',
+      summary: 'List a contact’s timeline',
+      description: 'A customer’s or company’s timeline, newest first',
     })
     .input(
       CursorQuery.extend({
@@ -63,7 +64,8 @@ export const activitiesContract = {
     .route({
       method: 'GET',
       path: '/activities/members/{actorId}',
-      summary:
+      summary: 'List a team member’s activity',
+      description:
         'What a team member did on the timelines the caller may read, newest first. Timelines whose plugin checks each record (`recordAccess`) are left out',
     })
     .input(
@@ -84,6 +86,8 @@ export const activitiesContract = {
       path: '/activities/notes',
       successStatus: 201,
       summary: 'Add a note to a timeline',
+      description:
+        "Post a note on the record's timeline. `mentions` are member ids and `fileIds` uploaded files; the caller must be able to see the record",
     })
     .input(NoteInput.extend({ targetType: TimelineTarget, targetId: Id }))
     .output(Activity),
@@ -92,7 +96,8 @@ export const activitiesContract = {
       method: 'POST',
       path: '/activities/notes/import',
       successStatus: 201,
-      summary:
+      summary: 'Import a note from old erxes',
+      description:
         'Bring a note over from old erxes, with its author and time (plugins only). Nobody is notified; a retried `dedupeKey` returns the note made the first time',
     })
     .input(
@@ -111,7 +116,8 @@ export const activitiesContract = {
     .route({
       method: 'POST',
       path: '/activities/{id}/reactions',
-      summary: 'Add or take back a reaction (an emoji) on an entry',
+      summary: 'React to a timeline entry',
+      description: 'Add or take back a reaction (an emoji) on an entry',
     })
     .input(z.object({ id: Id, emoji: z.string().trim().min(1).max(16) }))
     .output(Activity),
@@ -119,7 +125,9 @@ export const activitiesContract = {
     .route({
       method: 'GET',
       path: '/activities/types',
-      summary: "Timeline entry types and plugin record timelines: core's and installed plugins'",
+      summary: 'List timeline entry types',
+      description:
+        "Timeline entry types and plugin record timelines: core's and installed plugins'",
     })
     .output(
       z.object({
@@ -146,7 +154,8 @@ export const activitiesContract = {
     .route({
       method: 'PATCH',
       path: '/activities/notes/{id}',
-      summary:
+      summary: 'Edit a note',
+      description:
         'Edit a note (its author only). A new wording keeps the old one in `noteVersions`; newly mentioned members are notified',
     })
     .input(
@@ -168,7 +177,8 @@ export const activitiesContract = {
     .route({
       method: 'PUT',
       path: '/activities/notes/{id}/pinned',
-      summary: 'Pin a note to the top of its timeline, or unpin it (any member)',
+      summary: 'Pin or unpin a note',
+      description: 'Pin a note to the top of its timeline, or unpin it (any member)',
     })
     .input(z.object({ id: Id, pinned: z.boolean() }))
     .output(Activity),
@@ -176,7 +186,8 @@ export const activitiesContract = {
     .route({
       method: 'GET',
       path: '/activities/notes/{id}/versions',
-      summary: "A note's earlier wordings, newest first (the latest 100)",
+      summary: 'List a note’s earlier versions',
+      description: "A note's earlier wordings, newest first (the latest 100)",
     })
     .input(z.object({ id: Id }))
     .output(z.object({ data: z.array(NoteVersion).max(100) })),
@@ -184,7 +195,8 @@ export const activitiesContract = {
     .route({
       method: 'DELETE',
       path: '/activities/notes/{id}',
-      summary: 'Delete a note (its author, owners and admins)',
+      summary: 'Delete a note',
+      description: 'Delete a note (its author, owners and admins)',
     })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
@@ -193,7 +205,8 @@ export const activitiesContract = {
       method: 'POST',
       path: '/activities',
       successStatus: 201,
-      summary:
+      summary: 'Add a plugin entry to a timeline',
+      description:
         'Add to a customer’s or company’s timeline (plugins only). 404 when the record does not exist',
     })
     .input(ActivityInput)
@@ -202,7 +215,8 @@ export const activitiesContract = {
     .route({
       method: 'PATCH',
       path: '/activities/{id}',
-      summary:
+      summary: 'Change a plugin timeline entry',
+      description:
         "Change a plugin's own entry (by id, or by its dedupe key with id `key:<dedupeKey>`) — the order was refunded, the line changes",
     })
     .input(
@@ -224,7 +238,8 @@ export const activitiesContract = {
     .route({
       method: 'DELETE',
       path: '/activities/{id}',
-      summary: "Remove a plugin's own entry (by id or `key:<dedupeKey>`)",
+      summary: 'Remove a plugin timeline entry',
+      description: "Remove a plugin's own entry (by id or `key:<dedupeKey>`)",
     })
     .input(z.object({ id: z.string().min(1).max(260) }))
     .output(z.object({ ok: z.literal(true) })),

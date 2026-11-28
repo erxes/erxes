@@ -20,7 +20,7 @@ export const AuthShell = ({
     <AuthBanner />
     <AuthenticationLayout>
       <div className="flex flex-col items-center gap-3">
-        <h1 className="text-xl font-semibold leading-none">{title}</h1>
+        <h1 className="text-center text-xl font-semibold leading-tight">{title}</h1>
         {subtitle && <p className="text-center text-muted-foreground">{subtitle}</p>}
       </div>
       {children}

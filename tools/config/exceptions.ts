@@ -13,6 +13,7 @@ export const exceptions = [
     // children), and an email chip inside triggers that are buttons already.
     files: [
       'apps/web/src/modules/activity/NoteComposer.tsx',
+      'apps/web/src/modules/automations/builder/TemplateInput.tsx',
       'apps/web/src/modules/side-panel/RecordSidePanelResizeHandle.tsx',
       'packages/ui/src/modules/display/components/EmailDisplay.tsx',
     ],
@@ -111,5 +112,13 @@ export const exceptions = [
       'max-lines': 'off',
       'max-lines-per-function': 'off',
     },
+  },
+  {
+    // erxes-ui's public API: one export statement per module, and nothing else. It can't be
+    // split by responsibility: plugins share only the `erxes-ui` root through Module
+    // Federation, `export *` is a barrel file (oxc/no-barrel-file), and tools/ui-exports.ts
+    // reads every name from this file into exports.txt and CATALOG.md.
+    files: ['packages/ui/src/index.ts'],
+    rules: { 'max-lines': 'off' },
   },
 ] satisfies OxlintConfig['overrides'];

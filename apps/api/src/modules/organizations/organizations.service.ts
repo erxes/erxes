@@ -1,6 +1,7 @@
 import { seedLeadStages } from '~/modules/leads/leadStages.service';
 import { seedUnitTypes } from '~/modules/units/unitTypes.service';
-import type { Db } from '@erxes/core-db';
+import type { Db, MemberRestrictions } from '@erxes/core-db';
+import { assertTeam } from '~/modules/units/unitRows';
 import { newId, organizations, users, withSystem } from '@erxes/core-db';
 import { currencyOfCountry } from '@erxes/core-contract';
 import { sql } from 'drizzle-orm';
@@ -115,9 +116,24 @@ const assertKnownZone = async (tx: Db, timezone: string) => {
  */
 export const updateOrganization = async (
   tx: Db,
-  input: Region & { name?: string; timezone?: string },
+  input: Region & {
+    name?: string;
+    timezone?: string;
+    currencies?: string[];
+    /** null clears it. */
+    phone?: string | null;
+    email?: string | null;
+    memberRestrictions?: MemberRestrictions;
+  },
 ) => {
   const before = await getOrganization(tx);
+
+  if (input.memberRestrictions) {
+    const { allBranchesUserIds, allDepartmentsUserIds } = input.memberRestrictions;
+
+    await assertTeam(tx, 'memberRestrictions', [...allBranchesUserIds, ...allDepartmentsUserIds]);
+  }
+
   const timezone = input.timezone ?? before.timezone;
 
   if (timezone !== before.timezone) await assertKnownZone(tx, timezone);
@@ -129,7 +145,11 @@ export const updateOrganization = async (
         name: input.name ?? before.name,
         country: input.country ?? before.country,
         currency: currencyFor(input, before),
+        currencies: input.currencies ?? before.currencies,
         timezone,
+        phone: input.phone === undefined ? before.phone : input.phone,
+        email: input.email === undefined ? before.email : input.email,
+        memberRestrictions: input.memberRestrictions ?? before.memberRestrictions,
         updatedAt: sql`now()`,
       })
       .returning(),

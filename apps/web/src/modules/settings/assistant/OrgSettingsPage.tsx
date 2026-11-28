@@ -1,9 +1,8 @@
 import { orpc } from '@erxes/core-contract/client';
 import { skipToken, useQuery } from '@tanstack/react-query';
-import { PageContainer, PageHeader, ScrollArea } from 'erxes-ui';
+import { PageContainer, PageHeader, ScrollArea, AppBreadcrumb, type Crumb } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
-import { AppBreadcrumb, type Crumb } from '~/components/AppBreadcrumb';
 import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';
 

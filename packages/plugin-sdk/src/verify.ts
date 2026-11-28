@@ -1,14 +1,14 @@
 import {
-  CORE_API_PREFIX,
   CoreEvent,
   PluginAccess,
   PluginJobDelivery,
   PluginTier,
   PluginTransferRequest,
+  PORTAL_TOKEN_KINDS,
   RecordAccessCheck,
 } from '@erxes/core-contract';
-import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { z } from 'zod';
+import { bodyDigest, verifyCoreToken, type VerifyOptions } from './coreToken';
 
 /** The signed-in member a plugin UI calls the plugin's API for. */
 export interface PluginMember {
@@ -40,6 +40,12 @@ export interface PluginMember {
    * live on Stripe, one per bundle bought. Empty on self-hosted.
    */
   bundles: string[];
+  /**
+   * erxes support on a visit (SaaS): an owner for a few hours. Refuse what would
+   * outlast the visit (credentials, webhooks, forwarding to an address) when it
+   * is `true`. Verified tokens always set it; members made by hand (tests) may not.
+   */
+  support?: boolean;
 }
 
 /**
@@ -73,52 +79,6 @@ export const DeliveredEvent = z.object({
 
 export type DeliveredEvent = z.infer<typeof DeliveredEvent>;
 
-interface VerifyOptions {
-  coreUrl: string;
-  plugin: string;
-}
-
-const jwksByCore = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
-
-/**
- * The plugin's server clock may run a little ahead of core's: a token core
- * just issued, or one a member's browser renews 30 s before it ends, still passes.
- */
-const CLOCK_TOLERANCE_SECONDS = 60;
-
-/** A token core signed (its public keys), for this plugin (or `audience`), of this kind, unexpired; its claims parsed. */
-const verifyCoreToken = async <T>(
-  token: string,
-  options: Pick<VerifyOptions, 'coreUrl'> & { plugin?: string },
-  typ: string,
-  claims: z.ZodType<T>,
-  audience = options.plugin,
-) => {
-  const base = options.coreUrl.replace(/\/+$/, '');
-  let jwks = jwksByCore.get(base);
-
-  if (!jwks) {
-    jwks = createRemoteJWKSet(new URL(`${base}${CORE_API_PREFIX}/.well-known/jwks.json`));
-    jwksByCore.set(base, jwks);
-  }
-
-  if (!audience) throw new Error('no audience to check the token for');
-
-  const { payload } = await jwtVerify(token, jwks, {
-    issuer: 'erxes-core',
-    audience,
-    typ,
-    algorithms: ['ES256'],
-    clockTolerance: CLOCK_TOLERANCE_SECONDS,
-  });
-
-  const parsed = claims.safeParse(payload);
-
-  if (!parsed.success) throw new Error(`not an erxes ${typ} token`);
-
-  return parsed.data;
-};
-
 // A claim of the wrong type or an unknown value fails verification: it never grants access.
 const Tier = PluginTier.nullable();
 
@@ -131,6 +91,7 @@ const member = (claims: {
   access: PluginMember['access'];
   saas: boolean;
   bundles: string[];
+  support?: boolean;
 }): PluginMember => ({
   userId: claims.sub,
   orgId: claims.org,
@@ -142,6 +103,7 @@ const member = (claims: {
   canChange: () => claims.access === 'full' || claims.access === 'warning',
   saas: claims.saas,
   bundles: claims.bundles,
+  support: claims.support ?? false,
 });
 
 /** The plan core signs into session and plugin-call tokens (self-hosted: `pro`, `full`, no bundles). */
@@ -153,11 +115,15 @@ const PlanClaims = {
   bundles: z.array(z.string()),
 };
 
+// Tokens from before core signed it are a team member's.
+const SupportClaim = z.boolean().default(false);
+
 const SessionClaims = z.object({
   sub: z.string().min(1),
   org: z.string(),
   role: z.string(),
   permissions: z.array(z.string()),
+  support: SupportClaim,
   ...PlanClaims,
 });
 
@@ -233,27 +199,6 @@ const CallClaims = z
 export const verifyCoreCall = (token: string, options: VerifyOptions): Promise<CoreCall> =>
   verifyCoreToken(token, options, 'erxes-core-call+jwt', CallClaims);
 
-/** Who is calling a plugin's procedure as an agent's tool: core, running one of its conversations. */
-export interface AgentCall {
-  orgId: string;
-  /** The plugin's agent, `<plugin>.<name>` from its manifest's `agents`. */
-  agent: string;
-  /** The conversation's key, as the plugin sent it to `agents.submit`. */
-  key: string;
-}
-
-const AgentCallClaims = z
-  .object({ org: z.string().min(1), agent: z.string().min(1), key: z.string().min(1) })
-  .transform((claims): AgentCall => ({ orgId: claims.org, agent: claims.agent, key: claims.key }));
-
-/**
- * Verifies the token core sends when one of the plugin's agents calls its tool
- * (`<api.url>/rpc/<procedure>`): issued by core, for this plugin, unexpired (5 minutes). The
- * call acts for the plugin, not for a member.
- */
-export const verifyAgentCall = (token: string, options: VerifyOptions): Promise<AgentCall> =>
-  verifyCoreToken(token, options, 'erxes-agent-call+jwt', AgentCallClaims);
-
 const AccessTokenClaims = z.object({
   sub: z.string().min(1),
   org: z.string(),
@@ -265,6 +210,7 @@ const AccessTokenClaims = z.object({
   access: PluginAccess.default('off'),
   saas: z.boolean().default(false),
   bundles: z.array(z.string()).default([]),
+  support: SupportClaim,
   scope: z.string().transform((scope) => scope.split(' ')),
 });
 
@@ -282,28 +228,45 @@ export const verifyErxesAccessToken = async (
   return { ...member(claims), scope: claims.scope };
 };
 
-/** A customer signed in through core (`/customer-auth`), calling a plugin's `/customer/*` routes. */
+/** A customer signed in through core (`/portal/auth`), calling a plugin's `/portal/v1/me` routes. */
 export interface CustomerSignIn {
   orgId: string;
   customerId: string;
-  /** The plugin whose app the customer signed in to (any app of the organisation may call). */
-  clientId: string;
+  /**
+   * The portal the customer signed in to. Serve your record on it (the one you attached with
+   * `portals.attach` or `portals.save`), and refuse a portal you're not on.
+   */
+  portalId: string;
+  /**
+   * The core agent talking to the customer for that portal, when core minted the token for
+   * one; null for the customer's own sign-in.
+   */
+  agentId: string | null;
 }
 
+/** The `sid` prefix of a token core mints for its agent talking to a customer. */
+const AGENT_SESSION = 'agent:';
+
 const CustomerClaims = z
-  .object({ sub: z.string().min(1), org: z.string().min(1), client_id: z.string() })
+  .object({
+    sub: z.string().min(1),
+    org: z.string().min(1),
+    pid: z.string().min(1),
+    sid: z.string().optional(),
+  })
   .transform((claims): CustomerSignIn => ({
     orgId: claims.org,
     customerId: claims.sub,
-    clientId: claims.client_id,
+    portalId: claims.pid,
+    agentId: claims.sid?.startsWith(AGENT_SESSION) ? claims.sid.slice(AGENT_SESSION.length) : null,
   }));
 
 /**
  * Verifies a customer's access token from the `Authorization` header with
  * core's public keys: issued by core for customers, unexpired. Key the
  * customer's data by `orgId` and `customerId`. Signing out reaches plugins
- * when the token expires (15 minutes); ask core (`GET /customer/me` with the
- * same token) where that matters. Throws if not valid.
+ * when the token expires (15 minutes); ask core (`GET /portal/me` with this
+ * token and the portal's) where that matters. Throws if not valid.
  */
 export const verifyCustomerToken = async (
   authorization: string | undefined | null,
@@ -316,19 +279,55 @@ export const verifyCustomerToken = async (
   return verifyCoreToken(token, options, 'customer+jwt', CustomerClaims, 'erxes-customer');
 };
 
-/** A body's SHA-256, base64url: text as UTF-8, or its bytes as they came. */
-const sha256 = async (body: string | Uint8Array<ArrayBuffer>) => {
-  const digest = new Uint8Array(
-    await crypto.subtle.digest(
-      'SHA-256',
-      typeof body === 'string' ? new TextEncoder().encode(body) : body,
-    ),
-  );
+/**
+ * Who traded the portal token: the portal's server with a `secret` portal key, its web or
+ * mobile app with a `publishable` one, or core's `agent` talking to the portal's customers.
+ */
+export type PortalKeyKind = (typeof PORTAL_TOKEN_KINDS)[number];
 
-  return btoa(String.fromCharCode(...digest))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
+/** A portal's server or app calling a plugin, with a token core gave it for a portal key. */
+export interface PortalCall {
+  orgId: string;
+  /** Serve your record on this portal; refuse a portal you're not on. */
+  portalId: string;
+  /** The portal key it traded (`agent:<id>` for core's agent). */
+  keyId: string;
+  kind: PortalKeyKind;
+  /** The web address a browser traded a publishable key from; null from apps and servers. */
+  origin: string | null;
+}
+
+const PortalClaims = z
+  .object({
+    org: z.string().min(1),
+    sub: z.string().min(1),
+    kid: z.string().min(1),
+    knd: z.enum(PORTAL_TOKEN_KINDS).optional(),
+    ori: z.string().optional(),
+  })
+  .transform((claims): PortalCall => ({
+    orgId: claims.org,
+    portalId: claims.sub,
+    keyId: claims.kid,
+    // Tokens from before keys had kinds: a secret key's, or core's agent's.
+    kind: claims.knd ?? (claims.kid.startsWith(AGENT_SESSION) ? 'agent' : 'secret'),
+    origin: claims.ori ?? null,
+  }));
+
+/**
+ * Verifies a portal token from the `X-Portal-Token` header with core's public keys: core
+ * issued it for one of the portal's keys (`POST /core/v1/portal-auth/token`), and it
+ * is unexpired. A revoked key's tokens stop within 15 minutes. Throws if not valid. For a
+ * plugin's `/portal/v1` routes use `verifyPortalRequest`, which also checks the browser's
+ * address and the customer.
+ */
+export const verifyPortalToken = async (
+  token: string | undefined | null,
+  options: { coreUrl: string },
+): Promise<PortalCall> => {
+  if (!token) throw new Error('no portal token');
+
+  return verifyCoreToken(token, options, 'portal+jwt', PortalClaims, 'erxes-portal');
 };
 
 const EventClaims = z.object({ sha: z.string(), event: z.string(), org: z.string() });
@@ -351,7 +350,8 @@ export const verifyCoreEvent = async (
 
   const claims = await verifyCoreToken(token, options, 'erxes-core-event+jwt', EventClaims);
 
-  if (claims.sha !== (await sha256(rawBody))) throw new Error('the body does not match the token');
+  if (claims.sha !== (await bodyDigest(rawBody)))
+    throw new Error('the body does not match the token');
 
   const event = DeliveredEvent.parse(JSON.parse(rawBody));
 
@@ -389,7 +389,8 @@ export const verifyPublicCall = async (
 
   const claims = await verifyCoreToken(token, options, 'erxes-core-public+jwt', PublicClaims);
 
-  if (claims.sha !== (await sha256(rawBody))) throw new Error('the body does not match the token');
+  if (claims.sha !== (await bodyDigest(rawBody)))
+    throw new Error('the body does not match the token');
 
   return { orgId: claims.org, callId: claims.public };
 };
@@ -414,7 +415,8 @@ export const verifyCoreJob = async (
 
   const claims = await verifyCoreToken(token, options, 'erxes-core-job+jwt', JobClaims);
 
-  if (claims.sha !== (await sha256(rawBody))) throw new Error('the body does not match the token');
+  if (claims.sha !== (await bodyDigest(rawBody)))
+    throw new Error('the body does not match the token');
 
   const job = PluginJobDelivery.parse(JSON.parse(rawBody));
 
@@ -443,7 +445,8 @@ export const verifyCoreAccessCheck = async (
 
   const claims = await verifyCoreToken(token, options, 'erxes-core-access+jwt', AccessClaims);
 
-  if (claims.sha !== (await sha256(rawBody))) throw new Error('the body does not match the token');
+  if (claims.sha !== (await bodyDigest(rawBody)))
+    throw new Error('the body does not match the token');
 
   const check = RecordAccessCheck.parse(JSON.parse(rawBody));
 
@@ -475,7 +478,8 @@ export const verifyCoreTransfer = async (
 
   const claims = await verifyCoreToken(token, options, 'erxes-core-transfer+jwt', TransferClaims);
 
-  if (claims.sha !== (await sha256(rawBody))) throw new Error('the body does not match the token');
+  if (claims.sha !== (await bodyDigest(rawBody)))
+    throw new Error('the body does not match the token');
 
   const request = PluginTransferRequest.parse(JSON.parse(rawBody));
 

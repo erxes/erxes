@@ -6,7 +6,7 @@ import { useFieldUsage, usePropertyArchive } from '../usePropertyMutations';
 
 /** Remove a field or group: delete it when nothing holds a value, otherwise archive it. */
 export const PropertyArchiveDialog = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'properties' });
   const [target, setTarget] = useAtom(archiveTargetState);
   const { usage, loading: checking, failed } = useFieldUsage(target);
   const { archive, remove, loading } = usePropertyArchive();

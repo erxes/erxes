@@ -2,7 +2,7 @@ import { ebarimtPrintTemplates } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { Id, isoDate, listOf } from './common';
+import { Id, isoDate, listOf, readsByPost } from './common';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { EbarimtPaperSize, EbarimtPrintBlockType } from './values';
 
@@ -61,7 +61,8 @@ export const ebarimtPrintContract = {
     .route({
       method: 'GET',
       path: '/ebarimt/print-templates',
-      summary:
+      summary: 'List receipt print templates',
+      description:
         'How each plugin eBarimt issues receipts for prints them, its default until it is changed',
     })
     .output(listOf(EbarimtPrintTemplate)),
@@ -69,7 +70,8 @@ export const ebarimtPrintContract = {
     .route({
       method: 'PUT',
       path: '/ebarimt/print-templates/{plugin}',
-      summary:
+      summary: 'Change a receipt print template',
+      description:
         'Change how a plugin’s receipts print. 409 EBARIMT_NOT_SET_UP, INVALID_INPUT for a plugin eBarimt doesn’t issue receipts for',
     })
     .input(PluginRef.extend(EbarimtPrintTemplateInput.shape))
@@ -78,7 +80,8 @@ export const ebarimtPrintContract = {
     .route({
       method: 'DELETE',
       path: '/ebarimt/print-templates/{plugin}',
-      summary: 'Print a plugin’s receipts the default way again',
+      summary: 'Reset a receipt print template',
+      description: 'Print a plugin’s receipts the default way again',
     })
     .input(PluginRef)
     .output(EbarimtPrintTemplate),
@@ -86,7 +89,9 @@ export const ebarimtPrintContract = {
     .route({
       method: 'POST',
       path: '/ebarimt/print-templates/preview',
-      summary:
+      spec: readsByPost,
+      summary: 'Preview a receipt print',
+      description:
         'A sample receipt printed with this template, before saving it. 409 EBARIMT_NOT_SET_UP',
     })
     .input(EbarimtPrintTemplateInput.required({ paperSize: true, blocks: true }))
@@ -95,7 +100,8 @@ export const ebarimtPrintContract = {
     .route({
       method: 'GET',
       path: '/ebarimt/receipts/{id}/print',
-      summary:
+      summary: 'Print a receipt',
+      description:
         'An issued receipt as a page to print, with its plugin’s template; a plugin prints its own invoices’ only. 409 RECEIPT_NOT_PRINTABLE for a failed, pending, returned or replaced one',
     })
     .input(z.object({ id: Id }))
@@ -105,7 +111,8 @@ export const ebarimtPrintContract = {
     .route({
       method: 'POST',
       path: '/ebarimt/receipts/{id}/email',
-      summary:
+      summary: 'Email a receipt',
+      description:
         'Email an issued receipt as its plugin’s template prints it, with its QR code; a plugin emails its own invoices’ only. 409 RECEIPT_NOT_PRINTABLE for a failed, pending, returned or replaced one, EMAIL_NOT_CONFIGURED when email can’t be delivered',
     })
     .input(z.object({ id: Id, to: z.email().max(254) }))

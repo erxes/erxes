@@ -6,6 +6,7 @@ import { Button, Checkbox, Input, Label, Select, Spinner, useToast } from 'erxes
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EventsFields } from './EmailEvents';
+import { useCheckDomains } from './VerifiedDomains';
 import { FormSection } from '../integrations/FormSection';
 
 type Provider = EmailSettings['provider'];
@@ -102,12 +103,16 @@ const useSave = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.email' });
   const { toast } = useToast();
   const client = useQueryClient();
+  const checkDomains = useCheckDomains();
 
   return useMutation(
     orpc.emails.saveSettings.mutationOptions({
-      onSuccess: () => {
+      onSuccess: (saved) => {
         void client.invalidateQueries({ queryKey: orpc.emails.settings.key() });
         toast({ title: t('saved', 'Email settings saved') });
+
+        // New settings may reach another account: ask it which domains it sends from.
+        if (saved.provider !== 'smtp') checkDomains.mutate({});
       },
       onError: (error) =>
         toast({
@@ -275,7 +280,7 @@ export const EmailForm = ({ saved }: { saved: EmailSettings | null }) => {
           ) : saved ? (
             t('save', 'Save changes')
           ) : (
-            t('set-up', 'Set up email sending')
+            t('set-up', 'Set up organization email')
           )}
         </Button>
       </div>

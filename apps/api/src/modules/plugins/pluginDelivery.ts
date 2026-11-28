@@ -38,6 +38,8 @@ interface Delivery {
   typ: string;
   headers: Record<string, string>;
   timeoutMs?: number;
+  /** Read the whole answer up to this size (an answer over it fails); else its first 2 KB. */
+  maxBytes?: number;
 }
 
 /**
@@ -65,7 +67,7 @@ export const deliverToPlugin = async (delivery: Delivery) => {
       'Idempotency-Key': delivery.id,
       ...delivery.headers,
     },
-    delivery.timeoutMs,
+    { timeoutMs: delivery.timeoutMs, maxBytes: delivery.maxBytes },
   );
 
   if (response.status < 200 || response.status >= 300) {

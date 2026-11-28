@@ -1,5 +1,10 @@
-import type { ActionField, ActionInfo, AutomationStep, DataField } from '@erxes/core-contract';
-import { isIntegrationType } from '@erxes/core-contract/integrationValues';
+import {
+  type ActionField,
+  type ActionInfo,
+  type AutomationStep,
+  type DataField,
+  isAppEvent,
+} from '@erxes/core-contract';
 import type { StartingEvent } from './BuilderContext';
 import { armsOf } from './flowModel';
 import type { FieldInfo } from './useAutomationFields';
@@ -20,15 +25,18 @@ const NEEDS = {
   any: 'a customer or company',
 } as const;
 
+export const REPLY_ACTION = 'core.webhook.reply';
+
 const missingAction = (type: string, known: ActionInfo[]) => {
   const elsewhere = known.find((item) => item.type === type);
+
+  if (elsewhere && type === REPLY_ACTION)
+    return `“${elsewhere.label}” works only when a webhook starts the automation`;
 
   if (elsewhere?.subject)
     return `“${elsewhere.label}” needs ${NEEDS[elsewhere.subject]}, and this trigger is not about one`;
 
-  return isIntegrationType(type)
-    ? 'This action is not available (its integration or program may be deleted)'
-    : 'This action is not available (its plugin may be uninstalled)';
+  return 'This action is not available (its plugin may be uninstalled)';
 };
 
 /** What keeps a step from working, before the server says so. */
@@ -52,6 +60,23 @@ const stepProblems = (
       return step.cases.some((item) => !item.conditions.rules.length)
         ? ['Every case needs a condition']
         : [];
+    case 'delay':
+      return step.until === '' ? ['Choose the date to wait until'] : [];
+    case 'decide': {
+      const problems: string[] = [];
+
+      if (!step.question.trim()) problems.push('Ask the model a question');
+
+      if (step.paths.some((path) => !path.label.trim())) problems.push('Name every path');
+
+      const labels = step.paths.map((path) => path.label.trim().toLowerCase()).filter(Boolean);
+
+      if (new Set(['otherwise', ...labels]).size !== labels.length + 1)
+        problems.push('Give each path its own name, other than “otherwise”');
+
+      return problems;
+    }
+
     default:
       return [];
   }
@@ -81,13 +106,16 @@ export const countSteps = (steps: AutomationStep[]): number =>
     0,
   );
 
+type EventFields = { type?: string; label: string; source?: string; fields?: DataField[] };
+
+const pickedFrom = (event: EventFields | undefined) =>
+  event?.type && isAppEvent(event.type) ? { integration: event.source } : { source: event?.source };
+
 /**
  * An event's own values as fields (`event.payload.<key>`), under the event's name. One that holds
- * a plugin's record id (`recordType`) is picked from that plugin's records.
+ * a record id (`recordType`) is picked from its plugin's records, or an app event's from the app's.
  */
-export const eventDataFields = (
-  event: { label: string; source?: string; fields?: DataField[] } | undefined,
-): FieldInfo[] =>
+export const eventDataFields = (event: EventFields | undefined): FieldInfo[] =>
   (event?.fields ?? []).map((field) => ({
     path: `event.payload.${field.key}`,
     label: field.label,
@@ -95,8 +123,109 @@ export const eventDataFields = (
     group: 'event',
     groupLabel: event?.label,
     recordType: field.recordType,
-    source: event?.source,
+    refersTo: field.refersTo,
+    ...pickedFrom(event),
   }));
+
+type OutputContext = {
+  events: (EventFields & { type: string })[];
+  actions: ActionInfo[];
+  /** The trigger event's own values, as its plugin declares them. */
+  trigger?: StartingEvent;
+  learned?: Map<string, DataField[]>;
+};
+
+const withLearned = (declared: DataField[], learned: DataField[] = []) => {
+  const listed = new Set(declared.map((output) => output.key));
+
+  return [...declared, ...learned.filter((output) => !listed.has(output.key))];
+};
+
+const outputsOfStep = (step: AutomationStep, context: OutputContext): FieldInfo[] => {
+  if (step.type === 'action') {
+    const action = context.actions.find((item) => item.type === step.action);
+    const title = step.label || action?.label || step.action;
+
+    const learned = context.learned?.get(`${step.id}:${step.action}`);
+
+    return withLearned(action?.outputs ?? [], learned).map((output) => ({
+      path: `steps.${step.id}.output.${output.key}`,
+      label: `${title}: ${output.label}`,
+      type: output.type,
+      refersTo: output.refersTo,
+      ...(output.recordType && action
+        ? {
+            recordType: output.recordType,
+            ...(action.source === 'core' && action.integration
+              ? { integration: action.integration }
+              : { source: action.source }),
+          }
+        : {}),
+    }));
+  }
+
+  if (step.type === 'wait_for') {
+    const event = context.events.find((item) => item.type === step.event);
+    const label = step.label || (event?.label ?? step.event);
+
+    return [
+      {
+        path: `steps.${step.id}.output.matched`,
+        label: `${label} within the wait`,
+        type: 'boolean',
+      },
+      ...(event?.fields ?? []).map((field) => ({
+        path: `steps.${step.id}.output.event.payload.${field.key}`,
+        label: `${label}: ${field.label}`,
+        type: field.type,
+        recordType: field.recordType,
+        refersTo: field.refersTo,
+        ...pickedFrom(event),
+      })),
+    ];
+  }
+
+  if (step.type === 'decide') {
+    const title = step.label || 'Decision model';
+
+    return [
+      { path: `steps.${step.id}.output.path`, label: `${title}: Path`, type: 'text' },
+      { path: `steps.${step.id}.output.choice`, label: `${title}: Choice`, type: 'text' },
+      { path: `steps.${step.id}.output.confidence`, label: `${title}: Confidence`, type: 'number' },
+      { path: `steps.${step.id}.output.model`, label: `${title}: Model`, type: 'text' },
+    ];
+  }
+
+  return [];
+};
+
+const collectOutputsBefore = (
+  list: AutomationStep[],
+  id: string | null,
+  context: OutputContext,
+): { found: boolean; fields: FieldInfo[] } => {
+  const fields: FieldInfo[] = [];
+
+  for (const step of list) {
+    if (step.id === id) return { found: true, fields };
+
+    fields.push(...outputsOfStep(step, context));
+
+    const branchOutputs: FieldInfo[] = [];
+
+    for (const arm of armsOf(step)) {
+      const inside = collectOutputsBefore(arm.steps, id, context);
+
+      if (inside.found) return { found: true, fields: [...fields, ...inside.fields] };
+
+      branchOutputs.push(...inside.fields);
+    }
+
+    fields.push(...branchOutputs);
+  }
+
+  return { found: false, fields };
+};
 
 /**
  * What the steps before `id` can use besides the record: the trigger event's values
@@ -106,54 +235,8 @@ export const eventDataFields = (
 export const stepOutputFields = (
   steps: AutomationStep[],
   id: string | null,
-  context: {
-    events: { type: string; label: string }[];
-    actions: ActionInfo[];
-    /** The trigger event's own values, as its plugin declares them. */
-    trigger?: StartingEvent;
-  },
-): FieldInfo[] => {
-  const out: FieldInfo[] = eventDataFields(context.trigger);
-
-  const walk = (list: AutomationStep[]): boolean => {
-    for (const step of list) {
-      if (step.id === id) return true;
-
-      if (step.type === 'action') {
-        const action = context.actions.find((item) => item.type === step.action);
-        const title = step.label || action?.label || step.action;
-
-        for (const output of action?.outputs ?? []) {
-          out.push({
-            path: `steps.${step.id}.output.${output.key}`,
-            label: `${title}: ${output.label}`,
-            type: output.type,
-            ...(output.recordType && action
-              ? { recordType: output.recordType, source: action.source }
-              : {}),
-          });
-        }
-      }
-
-      if (step.type === 'wait_for') {
-        const label =
-          step.label ||
-          (context.events.find((item) => item.type === step.event)?.label ?? step.event);
-
-        out.push({
-          path: `steps.${step.id}.output.matched`,
-          label: `${label} within the wait`,
-          type: 'boolean',
-        });
-      }
-
-      for (const arm of armsOf(step)) if (walk(arm.steps)) return true;
-    }
-
-    return false;
-  };
-
-  walk(steps);
-
-  return out;
-};
+  context: OutputContext,
+): FieldInfo[] => [
+  ...eventDataFields(context.trigger),
+  ...collectOutputsBefore(steps, id, context).fields,
+];

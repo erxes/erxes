@@ -5,7 +5,8 @@ import { readMigrationFiles } from 'drizzle-orm/migrator';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { PgBoss } from 'pg-boss';
-import { connectionSettings, getPool } from './client';
+import { connectionSettings, getPool, rootDb } from './client';
+import type { Transaction } from './types';
 
 /**
  * The job queue's schema: pg-boss's tables (`apps/api/src/modules/jobs`).
@@ -82,12 +83,58 @@ BEGIN
 END $lock$;
 `;
 
+/**
+ * Under row level security Postgres checks the policies before a query's own conditions,
+ * unless their functions are LEAKPROOF, so no index can serve `lower(email) = …`, `LIKE` or
+ * `ILIKE`: an email lookup, the search box and a "contains" filter read every row of the
+ * organisation. These functions reveal nothing but their result (a malformed pattern's error
+ * depends on the pattern alone).
+ */
+export const LEAKPROOF_FUNCTIONS = ['lower(text)', 'textlike(text,text)', 'texticlike(text,text)'];
+
+const leakproofList = `ARRAY[${LEAKPROOF_FUNCTIONS.map((fn) => `'${fn}'`).join(', ')}]::regprocedure[]`;
+
+/**
+ * Marks `LEAKPROOF_FUNCTIONS` on every run, since a restore or a major upgrade resets
+ * built-in functions. Only a superuser may; a host without one keeps them as they are
+ * (`blockedIndexFunctions` names them).
+ */
+const MARK_LEAKPROOF = `
+DO $leak$
+DECLARE
+  f regprocedure;
+BEGIN
+  IF NOT (SELECT rolsuper FROM pg_roles WHERE rolname = current_user) THEN
+    RETURN;
+  END IF;
+  FOREACH f IN ARRAY ${leakproofList} LOOP
+    IF NOT (SELECT proleakproof FROM pg_proc WHERE oid = f) THEN
+      EXECUTE format('ALTER FUNCTION %s LEAKPROOF', f);
+    END IF;
+  END LOOP;
+END $leak$;
+`;
+
+/** The `LEAKPROOF_FUNCTIONS` this server has not marked: searches on them can't use an index. */
+export const blockedIndexFunctions = async (): Promise<string[]> => {
+  const { rows } = await drizzle(getPool()).execute<{ fn: string }>(
+    sql.raw(
+      `SELECT f::text AS fn FROM unnest(${leakproofList}) f JOIN pg_proc p ON p.oid = f WHERE NOT p.proleakproof`,
+    ),
+  );
+
+  return rows.map((row) => row.fn);
+};
+
 /** drizzle-kit's `meta/_journal.json`: the migrations in the order they apply. */
 export const Journal = z.object({ entries: z.array(z.object({ tag: z.string() })) });
 
+export type MigrationSteps = Record<string, (tx: Transaction) => Promise<void>>;
+
 /**
  * Applies pending migrations and returns their tags. pg-boss's schema comes
- * first, so a migration can move rows into its tables.
+ * first, so a migration can move rows into its tables. Marks
+ * `LEAKPROOF_FUNCTIONS` on every run.
  *
  * One transaction under a transaction-scoped advisory lock: safe with several
  * replicas starting at once and through transaction poolers (PgBouncer,
@@ -95,7 +142,10 @@ export const Journal = z.object({ entries: z.array(z.object({ tag: z.string() })
  * `migrate()` is not used: it opens its own transaction. Bookkeeping matches
  * Drizzle's (hash + timestamp), so drizzle-kit keeps working.
  */
-export const runMigrations = async (folder = migrationsFolder()): Promise<string[]> => {
+export const runMigrations = async (
+  steps: MigrationSteps,
+  folder = migrationsFolder(),
+): Promise<string[]> => {
   const migrations = readMigrationFiles({
     migrationsFolder: folder,
     migrationsTable: MIGRATIONS_TABLE,
@@ -107,7 +157,7 @@ export const runMigrations = async (folder = migrationsFolder()): Promise<string
 
   await migrateQueue();
 
-  return drizzle(getPool()).transaction(async (tx) => {
+  return rootDb().transaction(async (tx) => {
     await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext('core:migrate'))`);
     await tx.execute(sql`
       CREATE TABLE IF NOT EXISTS ${migrationsTable} (
@@ -131,15 +181,21 @@ export const runMigrations = async (folder = migrationsFolder()): Promise<string
         : [],
     );
 
+    await tx.execute(sql.raw(MARK_LEAKPROOF));
+
     if (!pending.length) return [];
 
     // One parameterless string runs as a simple query: every statement in order, in this
     // transaction. A newline before each `;` ends a trailing `--` comment first.
-    const script = pending
-      .flatMap(({ migration }) => migration.sql.filter((statement) => statement.trim()))
-      .join('\n;\n');
+    await pending.reduce<Promise<void>>(async (previous, { migration, tag }) => {
+      await previous;
 
-    if (script) await tx.execute(sql.raw(script));
+      const script = migration.sql.filter((statement) => statement.trim()).join('\n;\n');
+
+      if (script) await tx.execute(sql.raw(script));
+
+      await steps[tag]?.(tx);
+    }, Promise.resolve());
 
     await tx.execute(
       sql`INSERT INTO ${migrationsTable} (hash, created_at) VALUES ${sql.join(

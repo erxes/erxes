@@ -6,6 +6,8 @@ import { withRunCause } from '~/lib/causation';
 import { coreAction } from './actions/catalog';
 import type { ActionContext } from './actions/context';
 import { type Cursor, enterArm, nextCursor, splitPath } from './cursor';
+import { rememberStepOutput } from './eventData';
+import { loadReferences } from './references';
 import { automationMember, type RunContext, type RunRow, subjectRefOf } from './runs';
 import { render } from './templates';
 
@@ -17,8 +19,28 @@ export type StepOutcome =
   /** The step can't succeed on a retry: the run fails now. */
   | { kind: 'failed'; error: string };
 
-/** Errors a retry can't fix: email that would only reach the log stays so until an admin acts. */
-const FINAL_ERRORS: ReadonlySet<string> = new Set(['EMAIL_NOT_CONFIGURED']);
+/**
+ * Errors a retry can't fix: email that would only reach the log stays so until an admin acts,
+ * an integration that isn't connected stays so, a service's refusal is its answer, a step's
+ * wrong input or a receipt that can't print stays wrong, and an automation that is off or over
+ * its limit, or turned on by a member who lost the permission, stays so until a member changes it.
+ */
+const FINAL_ERRORS: ReadonlySet<string> = new Set([
+  'EMAIL_NOT_CONFIGURED',
+  'NOT_CONNECTED',
+  'GATEWAY_REFUSED',
+  'INVALID_STEP_INPUT',
+  'RECEIPT_NOT_PRINTABLE',
+  'LIMIT_EXCEEDED',
+  'NOT_ACTIVE',
+  'NOT_ALLOWED',
+]);
+
+/** The message of an error a retry can't fix, else null. */
+export const finalError = (error: unknown) =>
+  error instanceof ORPCError && typeof error.code === 'string' && FINAL_ERRORS.has(error.code)
+    ? error.message
+    : null;
 
 export interface StepState {
   tx: Db;
@@ -42,8 +64,13 @@ export const armConditions = (step: AutomationStep) => {
 const SECONDS = { minutes: 60, hours: 3600, days: 86_400 } as const;
 
 /** An action step's input with its placeholders filled from the run's context. */
-export const renderInput = (input: Record<string, unknown>, context: RunContext) =>
-  Object.fromEntries(Object.entries(input).map(([key, value]) => [key, render(value, context)]));
+export const renderInput = async (tx: Db, input: Record<string, unknown>, context: RunContext) => {
+  const filled = { ...context, refs: await loadReferences(tx, input, context) };
+
+  return Object.fromEntries(
+    Object.entries(input).map(([key, value]) => [key, render(value, filled)]),
+  );
+};
 
 const delayUntil = (step: Extract<AutomationStep, { type: 'delay' }>, context: RunContext) => {
   if (step.until) {
@@ -73,7 +100,7 @@ const runLocalAction = async (
   run: (ctx: ActionContext) => Promise<unknown>,
 ): Promise<StepOutcome> => {
   const { tx, automation, context } = state;
-  const input = renderInput(step.input, context);
+  const input = await renderInput(tx, step.input, context);
 
   const member = await automationMember(state.run.orgId, automation.activatedBy);
 
@@ -81,7 +108,7 @@ const runLocalAction = async (
     tx,
     orgId: state.run.orgId,
     automation: { id: automation.id, name: automation.name },
-    run: { id: state.run.id },
+    run: { id: state.run.id, depth: state.run.depth },
     step: { id: step.id },
     subject: subjectRefOf(state.run),
     input,
@@ -106,14 +133,13 @@ const runLocalAction = async (
       ),
     );
 
+    await rememberStepOutput(tx, automation.id, step, output);
+
     return { kind: 'done', input, output, next: nextCursor(state.steps, state.run.cursor) };
   } catch (error) {
-    if (
-      error instanceof ORPCError &&
-      typeof error.code === 'string' &&
-      FINAL_ERRORS.has(error.code)
-    )
-      return { kind: 'failed', error: error.message };
+    const final = finalError(error);
+
+    if (final) return { kind: 'failed', error: final };
 
     throw error;
   }
@@ -143,6 +169,9 @@ export const runStep = async (state: StepState, step: AutomationStep): Promise<S
 
       return done({ case: chosen, label }, enterArm(steps, cursor, `case:${chosen}`));
     }
+
+    case 'decide':
+      return { kind: 'call' };
 
     case 'split': {
       const path = splitPath(run.id, step);

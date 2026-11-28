@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vite-plus/test';
 import { countSteps, flowProblems, stepOutputFields } from '../flowChecks';
 import {
   actionDefaults,
+  armsOf,
   cloneStep,
   findStep,
   insertStep,
@@ -44,6 +45,8 @@ const actions: ActionInfo[] = [
     label: 'Assign an owner',
     description: null,
     source: 'core',
+    integration: null,
+    integrationName: null,
     subject: null,
     fields: [
       { key: 'userIds', label: 'Members to rotate through', type: 'members', required: true },
@@ -55,6 +58,8 @@ const actions: ActionInfo[] = [
     label: 'Notify team members',
     description: null,
     source: 'core',
+    integration: null,
+    integrationName: null,
     subject: null,
     fields: [{ key: 'title', label: 'Title', type: 'text', required: true }],
     outputs: [],
@@ -66,6 +71,8 @@ const needing = (type: string, label: string, subject: ActionInfo['subject']): A
   label,
   description: null,
   source: 'core',
+  integration: null,
+  integrationName: null,
   subject,
   fields: [],
   outputs: [],
@@ -82,6 +89,22 @@ describe('flow model', () => {
       length: 1,
     });
     expect(countSteps(flow)).toBe(4);
+  });
+
+  it('names a split path by its share of the runs, not its raw weight', () => {
+    const split: AutomationStep = {
+      id: 's',
+      type: 'split',
+      paths: [
+        { weight: 50, steps: [] },
+        { label: 'Offer', weight: 25, steps: [] },
+      ],
+    };
+
+    expect(armsOf(split).map((arm) => arm.label)).toEqual(['A · 67%', 'Offer · 33%']);
+    expect(describeStep(split, { actions: [], events, fields: [] }).title).toBe(
+      'A 67% · Offer 33%',
+    );
   });
 
   it('inserts into an empty arm, moves, replaces and removes without touching other steps', () => {
@@ -237,6 +260,8 @@ describe('action inputs', () => {
     label: 'Send an email',
     description: null,
     source: 'core',
+    integration: null,
+    integrationName: null,
     subject: null,
     fields: [
       { key: 'to', label: 'To', type: 'recipients', required: true },
@@ -250,6 +275,8 @@ describe('action inputs', () => {
     label: 'Move the lead to a stage',
     description: null,
     source: 'core',
+    integration: null,
+    integrationName: null,
     subject: 'customer',
     fields: [{ key: 'stage', label: 'Stage', type: 'lead_stage', required: true }],
     outputs: [],
@@ -260,6 +287,8 @@ describe('action inputs', () => {
     label: 'Set a custom field',
     description: null,
     source: 'core',
+    integration: null,
+    integrationName: null,
     subject: 'customer',
     fields: [{ key: 'fieldId', label: 'Field', type: 'custom_field', required: true }],
     outputs: [],

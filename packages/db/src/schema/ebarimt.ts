@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import {
   bigint,
+  boolean,
   check,
   doublePrecision,
   foreignKey,
@@ -26,8 +27,8 @@ import { paymentInvoices } from './payments';
 
 // eBarimt, Mongolia's tax receipts. An organisation turns it on in Settings ›
 // Integrations; core then sends a receipt to the merchant's PosAPI (a service
-// the tax office gives each merchant) for every paid invoice of the plugins it
-// picks, and returns or replaces it when the invoice is refunded.
+// the tax office gives each merchant) for every paid invoice, except a plugin's
+// that sends its own, and returns or replaces it when the invoice is refunded.
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
@@ -41,10 +42,19 @@ export interface EbarimtTaxRule {
 }
 
 /** The organisation's eBarimt integration; none: not installed. */
+/**
+ * One eBarimt config: a merchant's PosAPI and how its receipts are taxed. An organisation may
+ * keep several (a branch, another merchant TIN); its default issues an invoice's receipt unless
+ * the invoice names another (`ebarimtId`).
+ */
 export const ebarimtSettings = pgTable(
   'ebarimt_settings',
   {
-    orgId: orgIdColumn().primaryKey(),
+    id: text().primaryKey(),
+    orgId: orgIdColumn(),
+    /** What staff call it: `Main shop`, `Airport branch`. */
+    name: text().notNull(),
+    isDefault: boolean().default(false).notNull(),
     status: text({ enum: EBARIMT_STATUSES }).default('active').notNull(),
     /** The merchant's PosAPI 3.0, for example `https://posapi.example.mn`. */
     posApiUrl: text().notNull(),
@@ -58,17 +68,16 @@ export const ebarimtSettings = pgTable(
     cityTaxPercent: doublePrecision().default(0).notNull(),
     /** The product classification code sent on every line. */
     classificationCode: text().default('').notNull(),
-    /** The plugins whose paid invoices get receipts (`core` for core's own). */
-    plugins: text()
-      .array()
-      .default(sql`'{}'::text[]`)
-      .notNull(),
     rules: jsonb().$type<EbarimtTaxRule[]>().default([]).notNull(),
     updatedBy: text(),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
   (table) => [
+    uniqueIndex('core_ebarimt_settings_org_id_id_key').on(table.orgId, table.id),
+    uniqueIndex('core_ebarimt_settings_default_key')
+      .on(table.orgId)
+      .where(sql`${table.isDefault}`),
     check('core_ebarimt_settings_status_check', inList(table.status, EBARIMT_STATUSES)),
     check(
       'core_ebarimt_settings_percent_check',
@@ -83,18 +92,33 @@ export const ebarimtSettings = pgTable(
 );
 
 /**
- * What core sent PosAPI for an invoice. A `put` issues a receipt, or replaces
- * `previousId`'s after a partial refund or a new buyer; a `return` cancels
- * `previousId`'s. A put that was returned or replaced has `inactiveAt`.
- * Amounts are in the smallest unit, as the invoice's. One pending receipt per
- * invoice at a time: it is the lock while PosAPI is asked.
+ * The organisation's eBarimt receipts: what core sent PosAPI for an invoice, and what a plugin
+ * that sends its own (`taxReceipts: 'own'`) sent and recorded here (`source`), with or without an
+ * invoice. A `put` issues a receipt, or replaces `previousId`'s after a partial refund or a new
+ * buyer; a `return` cancels `previousId`'s. A put that was returned or replaced has `inactiveAt`.
+ * Amounts are in the smallest unit, as the invoice's. One pending receipt per invoice at a time:
+ * it is the lock while PosAPI is asked. Core never sends a recorded receipt.
  */
 export const ebarimtReceipts = pgTable(
   'ebarimt_receipts',
   {
     id: text().primaryKey(),
     orgId: orgIdColumn(),
-    invoiceId: text().notNull(),
+    /** Null only for a receipt a plugin recorded for a sale with no invoice (a POS cash sale). */
+    invoiceId: text(),
+    /**
+     * The plugin that sent it to its own PosAPI and recorded it, with its record and its key for
+     * the receipt (one row per key); null: core sent it, for the invoice's record.
+     */
+    source: text(),
+    referenceType: text(),
+    referenceId: text(),
+    dedupeKey: text(),
+    /**
+     * The config that sent it; a return or replacement goes through the same PosAPI. Null for
+     * receipts of a setup removed before configs; a config with receipts can't be removed.
+     */
+    settingsId: text(),
     kind: text({ enum: EBARIMT_RECEIPT_KINDS }).notNull(),
     status: text({ enum: EBARIMT_RECEIPT_STATUSES }).default('pending').notNull(),
     previousId: text(),
@@ -124,6 +148,17 @@ export const ebarimtReceipts = pgTable(
     uniqueIndex('core_ebarimt_receipts_pending_key')
       .on(table.orgId, table.invoiceId)
       .where(sql`${table.status} = 'pending'`),
+    uniqueIndex('core_ebarimt_receipts_dedupe_key')
+      .on(table.orgId, table.source, table.dedupeKey)
+      .where(sql`${table.source} is not null`),
+    index('core_ebarimt_receipts_reference_idx')
+      .on(table.orgId, table.source, table.referenceId)
+      .where(sql`${table.source} is not null`),
+    // Core's receipts belong to an invoice; a recorded one names its plugin, record and key.
+    check(
+      'core_ebarimt_receipts_recorded_check',
+      sql`(${table.source} is null and ${table.invoiceId} is not null and ${table.referenceType} is null and ${table.referenceId} is null and ${table.dedupeKey} is null) or (${table.source} is not null and ${table.referenceType} is not null and ${table.referenceId} is not null and ${table.dedupeKey} is not null)`,
+    ),
     check('core_ebarimt_receipts_kind_check', inList(table.kind, EBARIMT_RECEIPT_KINDS)),
     check('core_ebarimt_receipts_status_check', inList(table.status, EBARIMT_RECEIPT_STATUSES)),
     check('core_ebarimt_receipts_buyer_type_check', inList(table.buyerType, EBARIMT_BUYER_TYPES)),

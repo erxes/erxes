@@ -228,7 +228,7 @@ const LimitsView = ({ limits }: { limits: EmailLimits }) => {
 };
 
 /**
- * Email sending's Limits: the daily limit that grows with a clean bounce
+ * Organization email's Limits: the daily limit that grows with a clean bounce
  * rate, today's count, the rates against their lines, and the halt.
  */
 export const EmailLimitsTab = () => {

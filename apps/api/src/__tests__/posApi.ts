@@ -3,6 +3,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from 'node:ht
 import { z } from 'zod';
 import { afterAll, beforeAll } from 'vite-plus/test';
 import { config } from '~/config';
+import type { CoreClient } from './support';
 
 const Body = z.record(z.string(), z.unknown());
 
@@ -22,7 +23,7 @@ const answer = (res: ServerResponse, status: number, body: unknown) => {
 /**
  * A merchant's PosAPI and the tax office's lookup on one local server, for
  * the file's tests: `fake` is what PosAPI received (and `refuse` makes it
- * refuse receipts), `settings()` eBarimt settings that point at it for `hr`.
+ * refuse receipts), `settings()` eBarimt settings that point at it.
  * The tax office knows one company, registration 1234567.
  */
 export const usePosApi = () => {
@@ -95,12 +96,23 @@ export const usePosApi = () => {
     fake,
     base: () => base,
     settings: () => ({
+      name: 'Main shop',
       posApiUrl: `${base}/posapi`,
       companyName: 'Acme Shop',
       merchantTin: '37900846788',
       districtCode: '3505',
       posNo: '10001',
-      plugins: ['hr'],
     }),
   };
+};
+
+type ConfigInput = Parameters<CoreClient['ebarimt']['createConfig']>[0];
+
+/** Sets the organisation's default eBarimt config up, or changes it, as staff do on its page. */
+export const saveEbarimt = async (client: CoreClient, input: ConfigInput) => {
+  const current = (await client.ebarimt.configs()).data.find((row) => row.isDefault);
+
+  return current
+    ? client.ebarimt.updateConfig({ ...input, id: current.id })
+    : client.ebarimt.createConfig(input);
 };

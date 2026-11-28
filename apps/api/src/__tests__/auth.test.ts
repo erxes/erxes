@@ -132,6 +132,32 @@ describe('sign-in (/core/v1/auth)', () => {
       (await api.views.list({ recordType: 'customer' })).data.map((view) => view.name),
     ).toEqual(['VIP харилцагчид']);
     expect((await api.automations.list({})).data).toHaveLength(1);
+    // Created without a country, so the example's region is taken.
+    expect(await api.organizations.current()).toMatchObject({
+      country: 'MN',
+      currency: 'MNT',
+      currencies: ['USD', 'CNY'],
+      timezone: 'Asia/Ulaanbaatar',
+    });
+    expect(
+      (await api.productCategories.list()).data.map(({ code, name }) => `${code ?? ''} ${name}`),
+    ).toEqual(['7 Ажил үйлчилгээ', '0 Бараанууд', '9 Бусад бараа', '1 Бэлэн бүтээгдэхүүн']);
+    expect(
+      (await api.products.list({ limit: 50 })).data
+        .map(({ code, name }) => `${code ?? ''} ${name}`)
+        .toSorted(),
+    ).toEqual([
+      '101 Жишээ бараа 1',
+      '102 Жишээ бараа 2',
+      '103 Жишээ бараа 3',
+      '104 Жишээ бараа 4',
+      '105 Жишээ бараа 5',
+      '701 Жишээ үйлчилгээ 1',
+      '702 Жишээ үйлчилгээ 2',
+      '901 Жишээ бараа 6',
+      '902 Жишээ бараа 7',
+      '903 Жишээ бараа 8',
+    ]);
 
     // Again (another browser, a second click): nothing more.
     await (await signedIn(umbrella)).api.auth.onboarded({ exampleData: true, language: 'mn' });

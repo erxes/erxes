@@ -16,8 +16,10 @@ export type KeyKind = 'regular' | 'management';
 
 export type Preset = 'read' | 'write' | 'custom';
 
-/** Which contacts a regular key sees. */
-export type ContactScope = 'all' | 'own' | 'units';
+/** Which contacts a regular key sees: all, the maker's, or a branch's or department's. */
+export const CONTACT_SCOPES = ['all', 'own', 'units'] as const;
+
+export type ContactScope = (typeof CONTACT_SCOPES)[number];
 
 export type Lifetime = (typeof API_KEY_LIFETIMES)[number] | null;
 

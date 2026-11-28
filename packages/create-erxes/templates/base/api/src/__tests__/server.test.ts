@@ -1,8 +1,21 @@
 import { once } from 'node:events';
+import { PERMISSIONS_EXTENSION, READS_EXTENSION } from '@erxes/core-contract';
 import { pino } from 'pino';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
+import { z } from 'zod';
 import { loggerOptions } from '#/logger.ts';
 import { createApp } from '#/server.ts';
+
+const Route = z.object({
+  operationId: z.string(),
+  summary: z.string().optional(),
+  [READS_EXTENSION]: z.literal(true).optional(),
+  [PERMISSIONS_EXTENSION]: z.array(z.string()).optional(),
+});
+
+const MemberDoc = z.object({
+  paths: z.record(z.string(), z.object({ post: Route.optional() })),
+});
 
 let base = '';
 let server: ReturnType<ReturnType<typeof createApp>['listen']>;
@@ -82,5 +95,19 @@ describe('server', () => {
     expect(response.headers.get('access-control-allow-origin')).toBe('https://acme.app.erxes.io');
     expect(response.headers.get('access-control-allow-credentials')).toBeNull();
     expect(response.headers.get('access-control-allow-headers')).toContain('authorization');
+  });
+
+  it('tells the assistant what each route does, which only read, and who may call them', async () => {
+    const doc = MemberDoc.parse(await (await fetch(`${base}/api/openapi/member.json`)).json());
+    const routes = Object.values(doc.paths).flatMap((item) => (item.post ? [item.post] : []));
+
+    expect(routes.filter((route) => !route.summary?.trim())).toEqual([]);
+    expect(routes.filter((route) => !route[PERMISSIONS_EXTENSION]?.length)).toEqual([]);
+    expect(
+      routes
+        .filter((route) => route[READS_EXTENSION])
+        .map((route) => route.operationId)
+        .toSorted(),
+    ).toEqual(['items.get', 'items.list']);
   });
 });

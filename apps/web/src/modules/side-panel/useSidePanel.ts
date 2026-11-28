@@ -13,6 +13,7 @@ import {
 } from './panelNavigation';
 import {
   type IOpenRecordOptions,
+  PanelOpenRecordContext,
   SidePanelNavigatorContext,
   SidePanelRecordPathContext,
 } from './recordView';
@@ -32,6 +33,21 @@ export const sidePanelWidthState = stored({
   initial: SIDE_PANEL_WIDTH.default,
 });
 
+/** Where a record opens from a list or board: beside the page, or on its own page. */
+const RECORD_OPEN_MODES = ['panel', 'page'] as const;
+
+export const RecordOpenMode = z.enum(RECORD_OPEN_MODES);
+
+export type TRecordOpenMode = z.infer<typeof RecordOpenMode>;
+
+// The member's choice, kept across reloads like the theme.
+export const recordOpenModeState = stored({
+  key: 'erxes:side-panel:open-mode',
+  schema: RecordOpenMode,
+  initial: 'panel',
+});
+
+// Counts top-level opens; records opened from inside one (stacked) leave it as is.
 export const sidePanelSessionState = atom(0);
 
 /** What a draft starts with, from its opener (a contact's lead stage, a plugin's stage). */
@@ -85,6 +101,21 @@ const useLatestPanel = (now: PanelNow) => {
     ),
     dismissPath: useCallback((targetPath: string) => dismissPathIn(latest.current, targetPath), []),
   };
+};
+
+/**
+ * `useSidePanel().openRecord(entity)` for list rows and board cards. It follows no route, so a
+ * list's rows don't render again each time the panel or the page's URL changes.
+ */
+export const useOpenPanelRecord = () => {
+  const navigator = useContext(SidePanelNavigatorContext);
+  const open = useContext(PanelOpenRecordContext);
+
+  if (navigator) return (entity: TRelationEntity) => navigator.openRecord(entity);
+
+  if (!open) throw new Error('useOpenPanelRecord must be used within a PanelRecordOpener.');
+
+  return open;
 };
 
 /**

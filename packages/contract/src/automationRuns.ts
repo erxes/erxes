@@ -4,18 +4,25 @@ import {
   AUTOMATION_FIELD_TYPES,
   AUTOMATION_PATH_TYPES,
   AUTOMATION_SUBJECTS,
+  CORE_RECORD_REFERENCES,
   RUN_STATUSES,
 } from '@erxes/core-db/enums';
+import { dataPath } from '@erxes/core-db/automationDefinition';
 import { automationRunSteps, automationRuns } from '@erxes/core-db/schema';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { Id, isoDate } from './common';
+import { EventType } from './platform';
+import { IntegrationKey } from './values';
 import { FilterField } from './views';
 
 // ─── Catalog ────────────────────────────────────────────────────────────────
 
-/** A kind of a plugin's own records (`pipeline`, `stage`) its API lists for the builder's pickers. */
-const RecordType = z
+/**
+ * A kind of a plugin's own records (`pipeline`, `stage`) its API lists for the builder's pickers,
+ * or of an app's (`page`, `repository`), which core lists with the step's connection.
+ */
+export const RecordType = z
   .string()
   .regex(/^[a-z][a-z0-9_-]{0,59}$/, 'lower case letters, digits, _ and -');
 
@@ -25,9 +32,7 @@ const RecordType = z
  * "Insert data" and in conditions, by `label`.
  */
 export const DataField = z.object({
-  key: z
-    .string()
-    .regex(/^[A-Za-z][A-Za-z0-9_]{0,59}$/, 'letters, digits and _, starting with a letter'),
+  key: z.string().regex(dataPath(3), 'no braces or |; a dot reaches inside an object'),
   label: z.string().trim().min(1).max(100),
   type: z.enum(AUTOMATION_FIELD_TYPES),
   /**
@@ -37,6 +42,7 @@ export const DataField = z.object({
    * ("Task created: Task").
    */
   recordType: RecordType.optional(),
+  refersTo: z.enum(CORE_RECORD_REFERENCES).optional(),
 });
 
 export type DataField = z.infer<typeof DataField>;
@@ -59,7 +65,9 @@ export type AutomationFieldPath = z.infer<typeof AutomationFieldPath>;
  * One input of an action. Besides plain values: `custom_field` (one of the
  * subject's custom fields, by id), `lead_stage` (a lead stage, by id),
  * `recipients` (`subject` = the record's own email, or addresses),
- * `plugin_record` (one of the plugin's own records of `recordType`, by id).
+ * `plugin_record` (one of the plugin's own records of `recordType`, by id),
+ * `connection` (one of the action's integration's active connections, by id, from `options`;
+ * empty: the default one). Only core's integration actions take a `connection`.
  */
 export const ActionField = z
   .object({
@@ -123,6 +131,10 @@ export const ActionFields = z
   .array(ActionField)
   .max(50)
   .refine(
+    (fields) => fields.every((field) => field.type !== 'connection'),
+    "connection inputs are core's own",
+  )
+  .refine(
     (fields) =>
       fields.every(
         (field) =>
@@ -143,11 +155,37 @@ export const ActionFields = z
     'dependsOn inputs depend on each other in a circle',
   );
 
+/**
+ * An action a plugin's manifest declares for automations (`hr.leave.create`): core POSTs
+ * `{ input, context }` to `<api.url>/automations/actions/<type>` with a core token and an
+ * `Idempotency-Key`; the JSON answer is the step's output. A `plugin_record` field's choices
+ * come from `GET <api.url>/automations/records/<recordType>?parent=<its dependsOn value>`,
+ * called with the member's session token, answering `[{ value, label }]`.
+ */
+export const PluginAction = z.object({
+  type: EventType,
+  label: z.string().trim().min(1).max(100),
+  description: z.string().trim().max(300).optional(),
+  subject: z.enum(AUTOMATION_SUBJECTS).optional(),
+  /** One of the manifest's `integrations` it acts through, else 400 UNKNOWN_INTEGRATION. */
+  integration: IntegrationKey.optional(),
+  fields: ActionFields.default([]),
+  /** What its JSON answer holds that later steps can insert (`dealId` as "Deal"). */
+  outputs: z.array(DataField).max(50).optional(),
+});
+
 export const ActionInfo = z.object({
   type: z.string(),
   label: z.string(),
   description: z.string().nullable(),
   source: z.string(),
+  /**
+   * The integration it belongs to: core's (`qpay`, listed only while connected here) or a
+   * plugin's (`frontline.facebook`); null for an action of no integration.
+   */
+  integration: z.string().nullable(),
+  /** That integration's name (`QPay`), for the builder's group. */
+  integrationName: z.string().nullable(),
   /** Needs a customer or company as the run's subject. */
   subject: z.enum(AUTOMATION_SUBJECTS).nullable(),
   fields: z.array(ActionField),
@@ -233,5 +271,6 @@ export type DryRunStep = z.infer<typeof DryRunStep>;
 export const DryRun = z.object({
   triggerMatches: z.boolean(),
   goalMetAtStart: z.boolean(),
+  problems: z.array(z.string()),
   trace: z.array(DryRunStep),
 });

@@ -4,15 +4,15 @@ import { and, arrayOverlaps, eq, isNull } from 'drizzle-orm';
 import { config } from '~/config';
 import { orgTimezone } from '~/lib/orgTime';
 import { defineJob } from '~/modules/jobs/jobs';
-import { notify } from '~/modules/notifications/notifications.service';
+import { notify, type NotifyInput } from '~/modules/notifications/notifications.service';
 import { RAMP_NOTICE_QUEUE, RAMP_RULES, RampNotice, rampOf } from './ramp';
 
-/** Settings › Integrations › Email sending: its Limits tab, and its Overview. */
+/** Settings › Organization email: its Limits tab, and its Overview. */
 const LIMITS_LINK = '/settings/email?tab=limits';
 
 const OVERVIEW_LINK = '/settings/email';
 
-/** Active members who manage integrations (the owner's `*` among them). */
+/** Active members on the team who manage integrations (the owner's `*` among them). */
 const adminIds = async (client: Db) =>
   (
     await client
@@ -22,19 +22,15 @@ const adminIds = async (client: Db) =>
       .where(
         and(
           eq(users.status, 'active'),
+          eq(users.isSupport, false),
           arrayOverlaps(roles.permissions, ['*', 'integrations.manage']),
         ),
       )
   ).map((row) => row.id);
 
-interface Notice {
+type Notice = Pick<NotifyInput, 'title' | 'body' | 'data' | 'link'> & {
   kind: (typeof EMAIL_NOTIFICATION_KINDS)[number];
-  title: string;
-  body: string;
-  /** Fills the web's translated title and body. */
-  data: Record<string, string | number>;
-  link?: string;
-}
+};
 
 /**
  * A notice members can't mute to those who can act on it, important but for

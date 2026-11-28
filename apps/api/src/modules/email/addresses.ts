@@ -174,7 +174,7 @@ const standings = (client: Db) => {
     .as('standing');
 };
 
-/** Addresses and their standing, newest first (Settings › Integrations › Email sending › Addresses). */
+/** Addresses and their standing, newest first (Settings › Organization email › Addresses). */
 export const listAddresses = (
   client: Db,
   query: CursorQuery & { lane?: EmailLane; search?: string },

@@ -17,6 +17,8 @@ export type BroadcastDraft = Pick<
   | 'body'
   | 'content'
   | 'fromName'
+  | 'fromEmail'
+  | 'mailConnectionId'
   | 'replyTo'
   | 'attachmentIds'
 >;
@@ -30,6 +32,8 @@ const draftOf = ({
   body,
   content,
   fromName,
+  fromEmail,
+  mailConnectionId,
   replyTo,
   attachmentIds,
 }: Broadcast): BroadcastDraft => ({
@@ -41,6 +45,8 @@ const draftOf = ({
   body,
   content,
   fromName,
+  fromEmail,
+  mailConnectionId,
   replyTo,
   attachmentIds,
 });
@@ -100,6 +106,8 @@ export const useBroadcastDraft = (broadcast: Broadcast) => {
       subject: blankToNull(draft.subject),
       preheader: blankToNull(draft.preheader),
       fromName: blankToNull(draft.fromName),
+      // Through a Mail service connection the email comes from its address.
+      fromEmail: draft.mailConnectionId ? null : blankToNull(draft.fromEmail),
       replyTo: blankToNull(draft.replyTo),
     });
 

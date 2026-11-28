@@ -1,6 +1,8 @@
 import { useAtom } from 'jotai';
-import { stored } from 'erxes-ui';
+import { stored, useConfirm } from 'erxes-ui';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { hasUnsavedChanges } from '~/lib/useLeaveWarning';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { paths } from '~/lib/paths';
@@ -20,6 +22,24 @@ const lastLocationState = stored({
   initial: {},
 });
 
+/** Closing the open page's tab (`leaving`) with unsaved changes on it asks first. */
+const useLeaveConfirm = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+  const { confirm } = useConfirm();
+
+  return (leaving: boolean, then: () => void) => {
+    if (!leaving || !hasUnsavedChanges()) return then();
+
+    void confirm({
+      message: t('close-unsaved', 'Close with unsaved changes?'),
+      options: {
+        description: t('close-unsaved-description', 'This page has changes that aren’t saved yet.'),
+        okLabel: t('close-unsaved-ok', 'Close'),
+      },
+    }).then(then);
+  };
+};
+
 /**
  * Browser-like app tabs: opening an app adds a tab, a tab
  * remembers where it was, closing the active tab moves to its neighbour.
@@ -27,6 +47,7 @@ const lastLocationState = stored({
 export const useAppTabs = (apps: NavApp[]) => {
   const { pathname, search } = useLocation();
   const navigate = useNavigate();
+  const confirmLeave = useLeaveConfirm();
   const [openIds, setOpenIds] = useAtom(openTabsState);
   const [lastLocation, setLastLocation] = useAtom(lastLocationState);
   const routeApp = appOfPath([...apps, SETTINGS_APP], pathname);
@@ -53,35 +74,39 @@ export const useAppTabs = (apps: NavApp[]) => {
 
   const open = (app: NavApp) => go(lastLocation[app.id] ?? paths.app(app.path));
 
+  const leave = (rest: string[], then: () => void) =>
+    confirmLeave(Boolean(routeApp) && !rest.includes(routeApp?.id ?? ''), then);
+
   const close = (id: string) => {
     const index = openIds.indexOf(id);
     const rest = openIds.filter((openId) => openId !== id);
 
-    setOpenIds(rest);
+    leave(rest, () => {
+      setOpenIds(rest);
 
-    if (routeApp?.id === id) {
+      if (routeApp?.id !== id) return;
+
       const neighbour = apps.find((app) => app.id === (rest[index] ?? rest[index - 1]));
 
-      if (neighbour) {
-        open(neighbour);
-      } else {
-        go(paths.home);
-      }
-    }
+      if (neighbour) open(neighbour);
+      else go(paths.home);
+    });
   };
 
   /** Closes tabs and, if the active one went, moves to the first that is left. */
   const keepOnly = (keep: (id: string, index: number) => boolean) => {
     const rest = openIds.filter(keep);
 
-    setOpenIds(rest);
+    leave(rest, () => {
+      setOpenIds(rest);
 
-    if (routeApp && !rest.includes(routeApp.id) && routeApp.id !== SETTINGS_APP.id) {
-      const next = apps.find((app) => app.id === rest[0]);
+      if (routeApp && !rest.includes(routeApp.id) && routeApp.id !== SETTINGS_APP.id) {
+        const next = apps.find((app) => app.id === rest[0]);
 
-      if (next) open(next);
-      else go(paths.home);
-    }
+        if (next) open(next);
+        else go(paths.home);
+      }
+    });
   };
 
   const closeOthers = (id: string) => keepOnly((openId) => openId === id);

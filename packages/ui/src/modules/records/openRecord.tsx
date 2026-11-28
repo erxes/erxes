@@ -1,4 +1,11 @@
-import { createContext, type PropsWithChildren, use, useMemo } from 'react';
+import {
+  createContext,
+  type PropsWithChildren,
+  use,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import { hostComponent } from '../../utils/host-component';
 
 /**
@@ -24,11 +31,12 @@ type DismissRecord = (record: RecordRef) => void;
 interface RecordOpener {
   open: OpenRecord;
   openNew: OpenNewRecord;
-  current: RecordRef | null;
   dismiss: DismissRecord;
 }
 
 const RecordOpenerContext = createContext<RecordOpener | null>(null);
+
+const CurrentRecordContext = createContext<RecordRef | null>(null);
 
 const ignore = () => undefined;
 
@@ -36,7 +44,8 @@ const ignore = () => undefined;
  * The host app's way to open records, which `useOpenRecord` calls.
  * Web provides it: beside the page in its side panel, or, inside a record, on top of that
  * record so Back returns to it. erxes-ui is a Module Federation singleton, so every plugin
- * reads the host's.
+ * reads the host's. The functions `useOpenRecord` gives keep their identity while the host's
+ * change, so a list's rows don't re-render when the panel shows another record.
  */
 export const RecordOpenerProvider = ({
   open,
@@ -50,12 +59,26 @@ export const RecordOpenerProvider = ({
   current?: RecordRef | null;
   dismiss?: DismissRecord;
 }>) => {
-  const opener = useMemo(
-    () => ({ open, openNew, current, dismiss }),
-    [open, openNew, current, dismiss],
+  const latest = useRef({ open, openNew, dismiss });
+
+  useLayoutEffect(() => {
+    latest.current = { open, openNew, dismiss };
+  });
+
+  const opener = useMemo<RecordOpener>(
+    () => ({
+      open: (record) => latest.current.open(record),
+      openNew: (contentType, defaults) => latest.current.openNew(contentType, defaults),
+      dismiss: (record) => latest.current.dismiss(record),
+    }),
+    [],
   );
 
-  return <RecordOpenerContext value={opener}>{children}</RecordOpenerContext>;
+  return (
+    <RecordOpenerContext value={opener}>
+      <CurrentRecordContext value={current}>{children}</CurrentRecordContext>
+    </RecordOpenerContext>
+  );
 };
 
 /**
@@ -67,9 +90,9 @@ export const RecordOpenerProvider = ({
  * type core or an installed plugin registers opens (`IUIConfig.recordTypes`). `canOpen` is
  * false outside erxes (a plugin page rendered on its own), where both do nothing.
  *
- * `current` is the record the panel shows now (null when it shows none or a draft), for a list
- * that marks it or steps to the next (j/k). `dismiss(record)` takes a record out of the panel,
- * shown or behind Back, e.g. one the list just deleted. Inside a record, `useRecordPanel`.
+ * `dismiss(record)` takes a record out of the panel, shown or behind Back, e.g. one the list
+ * just deleted. The functions keep their identity, so a row that calls this re-renders only for
+ * its own data. The record shown now is `useCurrentRecord`; inside a record, `useRecordPanel`.
  */
 export const useOpenRecord = () => {
   const opener = use(RecordOpenerContext);
@@ -77,11 +100,17 @@ export const useOpenRecord = () => {
   return {
     open: opener?.open ?? ignore,
     openNew: opener?.openNew ?? ignore,
-    current: opener?.current ?? null,
     dismiss: opener?.dismiss ?? ignore,
     canOpen: opener !== null,
   };
 };
+
+/**
+ * The record core's panel shows now: null when it shows none or a draft. For a list that marks
+ * it or steps to the next (j/k); the component that calls it re-renders each time the panel
+ * shows another record, so call it once per list, not per row.
+ */
+export const useCurrentRecord = () => use(CurrentRecordContext);
 
 /**
  * What a record shown in core's panel, or on its own page, can do to it. Core's own tabs are

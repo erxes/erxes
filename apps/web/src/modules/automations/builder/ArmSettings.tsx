@@ -1,10 +1,11 @@
 import type { AutomationStep, ConditionGroup } from '@erxes/core-contract';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { Button, Input, useItemKeys } from 'erxes-ui';
+import { Badge, Button, Input, useItemKeys } from 'erxes-ui';
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BuilderContext } from './BuilderContext';
 import { ConditionsEditor } from './ConditionsEditor';
+import { pathShare } from './flowModel';
 import type { FieldInfo } from './useAutomationFields';
 
 type SwitchStep = Extract<AutomationStep, { type: 'switch' }>;
@@ -39,12 +40,12 @@ export const SwitchCases = ({
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-muted-foreground">
-        {t('switch-hint', 'The first case that holds is taken; none: Otherwise.')}
-      </p>
       {step.cases.map((item, index) => (
         <div key={keys.keyAt(index)} className="space-y-2 rounded-md border p-3">
           <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="shrink-0">
+              {index + 1}
+            </Badge>
             <Input
               className="h-8"
               value={item.label ?? ''}
@@ -118,11 +119,6 @@ export const SplitPaths = ({
 
   return (
     <div className="space-y-2">
-      <p className="text-xs text-muted-foreground">
-        {t('split-hint', 'Each run takes one path at random, by weight ({{total}} in all).', {
-          total: step.paths.reduce((sum, path) => sum + path.weight, 0),
-        })}
-      </p>
       {step.paths.map((path, index) => (
         <div key={keys.keyAt(index)} className="flex items-center gap-2">
           <Input
@@ -148,7 +144,9 @@ export const SplitPaths = ({
               })
             }
           />
-          <span className="text-sm text-muted-foreground">%</span>
+          <Badge variant="secondary" className="w-12 shrink-0 justify-center">
+            {pathShare(step.paths, index)}%
+          </Badge>
           {step.paths.length > 2 && (
             <Button
               size="icon"

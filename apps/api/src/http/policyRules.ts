@@ -16,7 +16,7 @@ type MemberRule = 'any' | CorePermission;
  * `plugin` for plugin tokens with that scope (`manifest`: the plugin's own
  * deployment-wide token, no organisation; `installed`: any token for an
  * organisation that has it, no scope needed), `customer` for a signed-in
- * customer on `/customer/*` (`authenticate` lets nobody else in there).
+ * customer on `/portal/me/*` (`authenticate` lets nobody else in there).
  * Services may check more (a member's own note, an owner's account).
  */
 export type Policy =

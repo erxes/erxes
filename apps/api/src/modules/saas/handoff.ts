@@ -87,6 +87,8 @@ export const redeemHandoff = async (token: string, host: string | undefined) => 
           eq(sql`lower(${users.email})`, email.toLowerCase()),
           ne(users.status, 'disabled'),
           eq(users.canSignIn, true),
+          // erxes support comes in through its own link (`supportLogin`).
+          eq(users.isSupport, false),
         ),
       )
       .limit(1),

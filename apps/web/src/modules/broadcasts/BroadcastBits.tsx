@@ -1,9 +1,8 @@
-import type { Broadcast } from '@erxes/core-contract';
+import type { Broadcast, CursorPage } from '@erxes/core-contract';
 import { IconMail, IconMessage, IconRepeat, IconSearch } from '@tabler/icons-react';
 import { Badge, Button, cn, InputGroup, Select, Spinner, useFormat } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { CursorPage } from '~/lib/cursorList';
 
 /** Pasted addresses, split on spaces, commas, semicolons and lines, each once. */
 export const splitAddresses = (text: string) => [

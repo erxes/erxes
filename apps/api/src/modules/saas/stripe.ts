@@ -21,6 +21,12 @@ import { config } from '~/config';
 
 const LIVE_STATUSES = new Set(['active', 'trialing', 'past_due']);
 
+/**
+ * Bundle prices and products: `bundle` from erxes.io, `xos_bundle` from new.erxes.io, which shares
+ * erxes.io's Stripe account and tags its own catalog apart so neither site reads the other's.
+ */
+const BUNDLE_KINDS = new Set(['bundle', 'xos_bundle']);
+
 /** Catalog codes erxes.io sells that core knows by other plugin names. */
 const CORE_PLUGINS: Record<string, string[]> = { tourism: ['tms', 'pms'] };
 
@@ -162,7 +168,7 @@ const entitlementsFrom = (
       const metadata = metadataOf(item, products);
       const bundle = metadata.bundle_code;
 
-      if (metadata.kind === 'bundle') {
+      if (BUNDLE_KINDS.has(metadata.kind ?? '')) {
         const tiers = tiersOf(metadata.plugin_tiers);
 
         for (const code of list(metadata.plugins))

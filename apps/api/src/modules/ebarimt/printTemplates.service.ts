@@ -10,8 +10,8 @@ import { eq, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
-import { settingsOf } from './plan';
-import { receiptPlugins } from './plugins';
+import { configOf } from './plan';
+import { receiptSources } from './plugins';
 import { allBlocks, defaultBlocks, linesOfRequest, type PrintData, renderReceipt } from './print';
 
 type TemplateRow = typeof ebarimtPrintTemplates.$inferSelect;
@@ -25,9 +25,9 @@ interface TemplateInput {
 
 const toTugrik = (minor: number) => minor / 100;
 
-/** eBarimt's settings. 409 EBARIMT_NOT_SET_UP. */
-const setUp = async (client: Db) => {
-  const settings = await settingsOf(client);
+/** The config with this id, else the default. 409 EBARIMT_NOT_SET_UP. */
+const setUp = async (client: Db, id?: string | null) => {
+  const settings = await configOf(client, id);
 
   if (!settings) throw fail('EBARIMT_NOT_SET_UP', 'Set up eBarimt first (Settings › Integrations)');
 
@@ -47,39 +47,35 @@ const defaultTemplate = (plugin: string) => ({
 const templateOf = (plugin: string, saved: TemplateRow | undefined) =>
   saved ? { ...saved, blocks: allBlocks(saved.blocks) } : defaultTemplate(plugin);
 
-const titles = async (client: Db) =>
-  new Map((await receiptPlugins(client)).data.map((row) => [row.plugin, row.title]));
-
 const withTitle = async <T extends { plugin: string }>(client: Db, template: T) => ({
   ...template,
-  title: (await titles(client)).get(template.plugin) ?? template.plugin,
+  title:
+    (await receiptSources(client)).find((source) => source.plugin === template.plugin)?.title ??
+    template.plugin,
 });
 
-/** One template for each plugin eBarimt issues receipts for, in the settings' order. */
+/** One template for core and each plugin eBarimt issues receipts for. */
 export const listPrintTemplates = async (client: Db) => {
-  const settings = await settingsOf(client);
-
-  if (!settings) return { data: [] };
+  if (!(await configOf(client))) return { data: [] };
 
   const saved = await client.select().from(ebarimtPrintTemplates);
-  const named = await titles(client);
 
   return {
-    data: settings.plugins.map((plugin) => ({
+    data: (await receiptSources(client)).map(({ plugin, title }) => ({
       ...templateOf(
         plugin,
         saved.find((row) => row.plugin === plugin),
       ),
-      title: named.get(plugin) ?? plugin,
+      title,
     })),
   };
 };
 
-/** A plugin eBarimt issues receipts for. 409 EBARIMT_NOT_SET_UP, 400 INVALID_INPUT. */
+/** Core or a plugin eBarimt issues receipts for. 409 EBARIMT_NOT_SET_UP, 400 INVALID_INPUT. */
 const pickedPlugin = async (client: Db, plugin: string) => {
-  const settings = await setUp(client);
+  await setUp(client);
 
-  if (settings.plugins.includes(plugin)) return;
+  if ((await receiptSources(client)).some((source) => source.plugin === plugin)) return;
 
   const message = `eBarimt doesn't issue receipts for ${plugin}`;
 
@@ -171,14 +167,17 @@ export const previewPrint = async (
 
 /**
  * An issued receipt still in force, with its plugin's template and what it
- * prints. A plugin reaches only its own invoices' receipts. 404, 409
+ * prints. A plugin reaches only its own invoices' receipts and those it recorded. 404, 409
  * RECEIPT_NOT_PRINTABLE, 409 EBARIMT_NOT_SET_UP.
  */
 export const printableReceipt = async (client: Db, id: string) => {
   const [receipt] = await client
-    .select({ receipt: ebarimtReceipts, source: paymentInvoices.source })
+    .select({
+      receipt: ebarimtReceipts,
+      source: sql<string>`coalesce(${ebarimtReceipts.source}, ${paymentInvoices.source})`,
+    })
     .from(ebarimtReceipts)
-    .innerJoin(paymentInvoices, eq(paymentInvoices.id, ebarimtReceipts.invoiceId))
+    .leftJoin(paymentInvoices, eq(paymentInvoices.id, ebarimtReceipts.invoiceId))
     .where(eq(ebarimtReceipts.id, id))
     .limit(1);
 
@@ -194,7 +193,9 @@ export const printableReceipt = async (client: Db, id: string) => {
     throw fail('RECEIPT_NOT_PRINTABLE', 'Only an issued receipt that is still in force prints');
   }
 
-  const settings = await setUp(client);
+  // The config that sent it: its merchant is on the receipt. One a plugin recorded without a
+  // config prints with the default's.
+  const settings = await setUp(client, row.settingsId);
 
   const [saved] = await client
     .select()

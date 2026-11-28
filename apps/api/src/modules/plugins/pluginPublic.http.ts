@@ -1,6 +1,7 @@
 import { newId, withOrg } from '@erxes/core-db';
 import express, { type Request, type RequestHandler, Router } from 'express';
 import { fail } from '~/http/errors';
+import { forwardedHeaders, SANDBOXED_ANSWER } from '~/http/forwarded';
 import { sha256 } from '~/lib/crypto';
 import { requestOutbound } from '~/lib/outbound';
 import { signJwt } from '~/lib/signing';
@@ -12,52 +13,11 @@ const PUBLIC_CALL_TYP = 'erxes-core-public+jwt';
 /** The most a public call or its answer may carry. */
 const MAX_BYTES = 1024 * 1024;
 
-/**
- * Request headers core doesn't pass on: hop-by-hop, the caller's credentials for core, encodings
- * (core reads the body inflated and passes the answer's bytes on as they come), and the client
- * addresses proxies set, which the caller could make up. Core sets `x-forwarded-for` itself.
- */
-const DROPPED = new Set([
-  'accept-encoding',
-  'authorization',
-  'cf-connecting-ip',
-  'connection',
-  'content-encoding',
-  'content-length',
-  'cookie',
-  'expect',
-  'fastly-client-ip',
-  'forwarded',
-  'host',
-  'keep-alive',
-  'proxy-authorization',
-  'proxy-connection',
-  'te',
-  'trailer',
-  'transfer-encoding',
-  'true-client-ip',
-  'upgrade',
-  'x-client-ip',
-  'x-cluster-client-ip',
-  'x-real-ip',
-]);
-
-const isDropped = (name: string) => DROPPED.has(name) || name.startsWith('x-forwarded-');
-
 /** Answer headers passed back; any other, cookies above all, stays with the plugin. */
 const KEPT = ['content-type', 'location', 'retry-after'] as const;
 
 /** A path segment core forwards: letters, digits and `_ . ~ -`, never `.` or `..` alone. */
 const SEGMENT = /^[\w.~-]+$/;
-
-const forwardedHeaders = (req: Request) =>
-  Object.fromEntries(
-    Object.entries(req.headers).flatMap(([name, value]) =>
-      isDropped(name) || value === undefined
-        ? []
-        : [[name, Array.isArray(value) ? value.join(', ') : value]],
-    ),
-  );
 
 /** The path, or null when a segment could leave the path it names or carries a slash. */
 const pathOf = (segments: unknown) => {
@@ -137,11 +97,7 @@ const forward: RequestHandler = async (req, res) => {
 
   // The answer comes from core's address, beside the member's session: it can't run script, be
   // sniffed into HTML, or be kept by a shared cache.
-  res.set({
-    'X-Content-Type-Options': 'nosniff',
-    'Content-Security-Policy': "default-src 'none'; sandbox",
-    'Cache-Control': 'no-store',
-  });
+  res.set(SANDBOXED_ANSWER);
   res.status(answer.status).send(answer.body);
 };
 

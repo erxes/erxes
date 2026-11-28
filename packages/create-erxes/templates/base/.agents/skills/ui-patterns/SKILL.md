@@ -15,10 +15,13 @@ what erxes-ui already has, and the screen each kind of page copies.
 
 ## Page
 
-- `PageContainer`, then `PageHeader`. `PageHeader.Start` holds the breadcrumb:
-  the app's icon and name, then each level, as core's `AppBreadcrumb` draws it
-  (ghost buttons, last one not a link). `PageHeader.End` holds the page's one
+- `PageContainer`, then `PageHeader`. `PageHeader.Start` holds erxes-ui's
+  `AppBreadcrumb`: the app's icon and name, then each level; the last is the page.
+  Don't build a breadcrumb of your own. `PageHeader.End` holds the page's one
   primary action ("Add item") and nothing else.
+- erxes-ui sizes the icons inside its components (buttons, tabs, selects, badges,
+  input addons, the header). Don't add `size-*` or `[&_svg]` classes to make them
+  fit; if one draws wrong, fix it in erxes-ui.
 - No titles, descriptions or stat cards between the header and the list. A
   dashboard is its own page.
 - Several lists under one sidebar item are separate routes in the sidebar, not

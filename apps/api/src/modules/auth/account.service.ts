@@ -26,7 +26,10 @@ export const changeOwnPassword = async (input: {
   currentPassword?: string;
   newPassword: string;
 }) => {
-  const { userId } = caller('user');
+  const { userId, support } = caller('user');
+
+  // A password would let erxes support in after the visit.
+  if (support) throw fail('NOT_ALLOWED', 'erxes support signs in only through erxes.io');
 
   const [user] = await db()
     .select({ email: users.email, passwordHash: users.passwordHash })

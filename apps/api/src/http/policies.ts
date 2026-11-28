@@ -1,9 +1,12 @@
 import { ASSISTANT_ACCESS } from './assistantPolicies';
+import { AUTH_ACCESS } from './authPolicies';
 import { MESSAGING_ACCESS } from './messagingPolicies';
 import { MEMBER, needs, type Policy, type ProcedurePath, PUBLIC } from './policyRules';
 import { CUSTOMER_ACCESS } from './customerPolicies';
 import { DATA_EXTENSION_ACCESS } from './dataExtensionPolicies';
 import { PAYMENT_ACCESS } from './paymentPolicies';
+import { SUPPORT_ACCESS } from './supportPolicies';
+import { INTEGRATION_ACCESS } from './integrationPolicies';
 
 /**
  * The access map: one entry per procedure, checked before the procedure runs
@@ -28,10 +31,17 @@ export const ACCESS = {
   'activities.create': { plugin: 'activities:write' },
   'activities.importNote': { plugin: 'activities:write' },
 
-  // A plugin sends to its own agents only (agents.router).
+  // Members pick agents (frontline's bot); admins make them. A plugin sends to any agent.
+  'agents.list': needs('assistant.chat'),
+  'agents.get': needs('assistant.chat'),
+  'agents.create': needs('assistant.manage'),
+  'agents.update': needs('assistant.manage'),
+  'agents.remove': needs('assistant.manage'),
+  'agents.try': needs('assistant.manage'),
   'agents.submit': { plugin: 'installed' },
-  'agents.models': needs('assistant.chat'),
-  'agents.setModel': needs('assistant.manage'),
+  // A plugin reads and restarts only the conversations it talks in.
+  'agents.runs': { member: 'assistant.manage', plugin: 'installed' },
+  'agents.restart': { member: 'assistant.manage', plugin: 'installed' },
   ...ASSISTANT_ACCESS,
   ...MESSAGING_ACCESS,
   // Each member's own keys; api_keys.manage reaches everyone's (apiKeys.service).
@@ -54,21 +64,7 @@ export const ACCESS = {
   'audit.removeStream': needs('audit.stream'),
   'audit.testStream': needs('audit.stream'),
 
-  'auth.setupStatus': PUBLIC,
-  'auth.setup': PUBLIC,
-  'auth.signIn': PUBLIC,
-  'auth.signOut': PUBLIC,
-  'auth.signOutEverywhere': MEMBER,
-  'auth.signInTwoFactor': PUBLIC,
-  'auth.twoFactorSetup': MEMBER,
-  'auth.twoFactorEnable': MEMBER,
-  'auth.twoFactorDisable': MEMBER,
-  'auth.twoFactorRecoveryCodes': MEMBER,
-  'auth.requestPasswordReset': PUBLIC,
-  'auth.resetPassword': PUBLIC,
-  'auth.invitation': PUBLIC,
-  'auth.acceptInvitation': PUBLIC,
-  'auth.me': MEMBER,
+  ...AUTH_ACCESS,
   // Transfer checks per record type: contacts.import and contacts.export for core's,
   // the manifest's exportPermission and importPermission for a plugin's.
   'transfer.types': MEMBER,
@@ -85,6 +81,8 @@ export const ACCESS = {
   'transfer.createExport': MEMBER,
   // Views check per list: contacts.view for contact lists; every member sees products.
   // Plugins see shared views only, and test records against them (segments).
+  'oauthConsent.get': MEMBER,
+  'oauthConsent.decide': MEMBER,
   'favorites.list': MEMBER,
   'favorites.add': MEMBER,
   'favorites.rename': MEMBER,
@@ -97,10 +95,10 @@ export const ACCESS = {
   'views.fields': MEMBER,
   'views.matches': { plugin: 'views:read' },
   'saas.plan': MEMBER,
+  // Every member sees whether the license holds; who manages plugins asks erxes.io again.
+  'license.status': MEMBER,
+  'license.refresh': needs('plugins.manage'),
   'saas.pluginPlan': { plugin: 'installed' },
-  'auth.onboarded': MEMBER,
-  'auth.changePassword': MEMBER,
-  'auth.signIns': MEMBER,
 
   ...CUSTOMER_ACCESS,
 
@@ -204,14 +202,35 @@ export const ACCESS = {
   // Plugins read product tags only (tags.service).
   // Each type needs what its own list needs (search.service).
   'search.global': MEMBER,
+  // Members set portals up; plugins attach their records to them.
+  'portals.list': { member: 'contacts.view', plugin: 'portals:write' },
+  'portals.get': { member: 'contacts.view', plugin: 'portals:write' },
+  'portals.create': needs('portals.manage'),
+  'portals.update': needs('portals.manage'),
+  'portals.remove': needs('portals.manage'),
+  'portals.save': { plugin: 'portals:write' },
+  'portals.attach': { plugin: 'portals:write' },
+  'portals.detach': { plugin: 'portals:write' },
+  'portals.keys': needs('portals.manage'),
+  'portals.createKey': needs('portals.manage'),
+  'portals.removeKey': needs('portals.manage'),
+  'portalAuth.token': PUBLIC,
+  'customerAccounts.list': needs('contacts.view'),
+
   'tags.list': { member: 'any', plugin: 'products:read' },
   'tags.create': needs('tags.manage'),
   'tags.update': needs('tags.manage'),
   'tags.remove': needs('tags.delete'),
 
   // Branches and departments: every member reads them (pickers); plugins keep a copy.
+  'exchangeRates.list': { member: 'any', plugin: 'exchange_rates:read' },
+  'exchangeRates.getActiveRate': { member: 'any', plugin: 'exchange_rates:read' },
+  'exchangeRates.create': { member: 'exchange_rates.manage', plugin: 'exchange_rates:write' },
+  'exchangeRates.update': { member: 'exchange_rates.manage', plugin: 'exchange_rates:write' },
+  'exchangeRates.remove': { member: 'exchange_rates.manage', plugin: 'exchange_rates:write' },
   'units.list': { member: 'any', plugin: 'units:read' },
   'units.get': { member: 'any', plugin: 'units:read' },
+  'units.restrictions': { member: 'any', plugin: 'units:read' },
   'units.create': { member: 'structure.manage', plugin: 'units:write' },
   'units.update': { member: 'structure.manage', plugin: 'units:write' },
   'units.remove': { member: 'structure.manage', plugin: 'units:write' },
@@ -251,17 +270,22 @@ export const ACCESS = {
   'automations.remove': needs('automations.manage'),
   'automations.start': needs('automations.manage'),
   'automations.test': needs('automations.view'),
+  'automations.saveSample': needs('automations.manage'),
+  'automations.outputs': needs('automations.view'),
   'automations.stats': needs('automations.view'),
   'automations.versions': needs('automations.view'),
   'automations.restoreVersion': needs('automations.manage'),
   'automations.templates': needs('automations.view'),
   'automations.fields': needs('automations.view'),
+  'automations.decisionModels': needs('automations.view'),
   'automations.runs': needs('automations.view'),
   'automations.run': needs('automations.view'),
   'automations.retryRun': needs('automations.manage'),
   'automations.cancelRun': needs('automations.manage'),
 
   ...PAYMENT_ACCESS,
+
+  ...SUPPORT_ACCESS,
 
   'products.list': { member: 'any', plugin: 'products:read' },
   'products.get': { member: 'any', plugin: 'products:read' },
@@ -271,22 +295,24 @@ export const ACCESS = {
   'products.use': { plugin: 'products:write' },
   'products.archive': { member: 'products.manage', plugin: 'products:write' },
   'products.restore': { member: 'products.manage', plugin: 'products:write' },
+  // Stock: every member and products:read read it; only the plugin that keeps it writes.
+  'productInventories.list': { member: 'any', plugin: 'products:read' },
+  'productInventories.remainders': { member: 'any', plugin: 'products:read' },
+  'productInventories.stock': { member: 'any', plugin: 'products:read' },
+  'productInventories.set': { plugin: 'inventories:write' },
+  'productInventories.increase': { plugin: 'inventories:write' },
   'productCategories.list': { member: 'any', plugin: 'products:read' },
   'productCategories.create': { member: 'products.manage', plugin: 'products:write' },
   'productCategories.update': { member: 'products.manage', plugin: 'products:write' },
   'productCategories.remove': { member: 'products.manage', plugin: 'products:write' },
 
-  'integrations.list': needs('integrations.manage'),
-  'integrations.get': needs('integrations.manage'),
-  'integrations.create': needs('integrations.manage'),
-  'integrations.update': needs('integrations.manage'),
-  'integrations.setSecrets': needs('integrations.manage'),
-  'integrations.remove': needs('integrations.manage'),
-  'integrations.saveProgram': needs('integrations.manage'),
-  'integrations.removeProgram': needs('integrations.manage'),
-  'integrations.programVersions': needs('integrations.manage'),
-  'integrations.restoreProgram': needs('integrations.manage'),
-  'integrations.testProgram': needs('integrations.manage'),
+  'secrets.holdings': needs('integrations.manage'),
+  'secrets.save': { plugin: 'secrets:write' },
+  'secrets.replace': { plugin: 'secrets:write' },
+  'secrets.read': { plugin: 'secrets:write' },
+  'secrets.remove': { plugin: 'secrets:write' },
+
+  ...INTEGRATION_ACCESS,
 
   'webhooks.eventTypes': MEMBER,
   'webhooks.list': needs('webhooks.manage'),

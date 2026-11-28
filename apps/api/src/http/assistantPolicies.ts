@@ -2,12 +2,8 @@ import { needs } from './policyRules';
 
 /** The assistant's part of the access map (`ACCESS` in `./policies`). */
 export const ASSISTANT_ACCESS = {
-  'assistant.connections': needs('assistant.chat'),
-  'assistant.saveConnection': needs('assistant.manage'),
-  'assistant.removeConnection': needs('assistant.manage'),
-  'assistant.setDefaultProvider': needs('assistant.manage'),
+  'assistant.providers': needs('assistant.chat'),
   'assistant.models': needs('assistant.chat'),
-  'assistant.verifyModel': needs('assistant.chat'),
   'assistant.threads': needs('assistant.chat'),
   'assistant.thread': needs('assistant.chat'),
   'assistant.send': needs('assistant.chat'),

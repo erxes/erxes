@@ -19,7 +19,8 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   (`{ plugin, permissions, reason }`, the owner approves it) and call
   `core.fetchPlugin(orgId, plugin, '/v1/...')`, outside `context.tx`.
 - `src/orpc.ts`: build every procedure on `reads(action)` or `writes(action)`.
-  Both check the permission and run the handler in `withOrg(member.orgId)`, so
+  Both check the permission, name it in the API document (`checksPermission`, so
+  the assistant offers a route only to who holds it), and run the handler in `withOrg(member.orgId)`, so
   row-level security shows `context.tx` one organisation's rows. Queries carry
   no org filter; only an insert sets `orgId`, from `context.member`.
 - Call core (`core.forOrg(orgId)...`) outside `context.tx`; a failed core call
@@ -40,7 +41,8 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   retries until it answers 2xx. A job may run twice: key its effect by `jobId`.
 - An automation action is an entry in the manifest's `actions`; core POSTs
   each run to `/api/automations/actions/<type>`, checked with `verifyCoreCall`.
-  A field that picks one of the plugin's records is
+  An action that acts through one of the manifest's `integrations` names it
+  (`integration: 'facebook'`): the builder lists it under that integration. A field that picks one of the plugin's records is
   `{ key: 'pipelineId', label: 'Pipeline', type: 'plugin_record', recordType: 'pipeline' }`,
   and `dependsOn: 'pipelineId'` on another narrows it to that pipeline's. Web
   fills the list from `GET /api/automations/records/<recordType>?parent=<value>`,
@@ -91,7 +93,8 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   `{ rows, cursor }` (rows keyed by column, cursor null on the last page);
   POST `/api/transfer/import` sends `rows` of `{ rowNumber, values }`, answered
   `{ rows: [{ rowNumber, action, recordId?, error? }] }`, changing nothing when
-  `dryRun`. Check each with `verifyCoreTransfer` and answer as its `userId` may
+  `dryRun`; a type's `batchStart` column (a voucher's date) keeps the rows
+  without it in the batch of the row above. Check each with `verifyCoreTransfer` and answer as its `userId` may
   see and change. A retried batch keeps its `requestId`: write it once.
 - Tests: `vite-plus/test`, run with `call(procedure, input, { context: { member } })`.
   `src/test/setup.ts` gives each file its own database, owned by a role without

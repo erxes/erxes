@@ -12,7 +12,9 @@ import { QueryState } from '~/components/QueryState';
 import { useAppliedTheme } from '~/modules/app/ThemeEffect';
 
 /** Who a reference is for: the routes core's `/openapi/<audience>.json` lists. */
-export type ApiAudience = 'member' | 'customer';
+export const API_AUDIENCES = ['member', 'portal'] as const;
+
+export type ApiAudience = (typeof API_AUDIENCES)[number];
 
 type CreateApiReference = typeof createApiReference;
 
@@ -49,7 +51,7 @@ export type ReferenceSource =
 const locate = (source: ReferenceSource) =>
   'plugin' in source
     ? // A plugin's document names its own server (`pluginOpenApi`'s `server`): routes for a
-      // website or customers may sit outside `api.url`.
+      // portal or customers may sit outside `api.url`.
       { url: `${source.apiUrl}${source.path}`, server: null }
     : {
         url: `${CORE_API_PREFIX}/openapi/${source.audience}.json`,
@@ -73,6 +75,9 @@ const configFor = (
   // No proxy, telemetry, agent or remote fonts: calls go straight to core or the plugin.
   // Scalar's own toolbar (share, SDKs, deploy) links to its hosted services.
   showDeveloperTools: 'never',
+  // "Open API client" sends the document's address to client.scalar.com, which can't fetch it
+  // (no CORS, no session); "try it" in the reference is the client.
+  hideClientButton: true,
   withDefaultFonts: false,
   telemetry: false,
   persistAuth: false,
@@ -108,7 +113,7 @@ const Reference = ({ create, source }: { create: CreateApiReference; source: Ref
   const theme = useAppliedTheme();
   const { url, server } = locate(source);
 
-  // Only a member document signs in as the member; customers and websites bring their own.
+  // Only a member document signs in as the member; customers and portals bring their own.
   const token = useSessionToken(
     'plugin' in source && source.audience === 'member' ? source.plugin : null,
   );

@@ -54,6 +54,8 @@ export const User = createSelectSchema(users, {
   lastName: true,
   shortName: true,
   employeeId: true,
+  /** 3.x's member code; accounting prints it as a voucher's party code. */
+  code: true,
   phone: true,
   /** `YYYY-MM-DD` */
   birthDate: true,
@@ -65,6 +67,8 @@ export const User = createSelectSchema(users, {
   onboardedAt: true,
   /** Signs in with a second step (an authenticator app's code) since then; null when off. */
   totpEnabledAt: true,
+  /** erxes support on a visit (SaaS): an erxes.io admin, not on the team list. */
+  isSupport: true,
   createdAt: true,
   updatedAt: true,
 });
@@ -95,7 +99,8 @@ const Email = z.string().trim().check(z.email()).max(254);
  * What a member's update may set. The names are never cleared; the profile
  * details (old erxes `users.details`) are, with `null`.
  */
-const UserFields = createUpdateSchema(users, {
+/** What a member's profile create or update may set. */
+export const UserFields = createUpdateSchema(users, {
   fullName: z.string().trim().min(1).max(200).optional(),
   username: z
     .string()
@@ -109,6 +114,7 @@ const UserFields = createUpdateSchema(users, {
   lastName: name,
   shortName: name,
   employeeId: name,
+  code: name,
   phone: () => PhoneNumber,
   birthDate: () => DateOnly,
   workStartedDate: () => DateOnly,
@@ -126,6 +132,7 @@ const UserFields = createUpdateSchema(users, {
   lastName: true,
   shortName: true,
   employeeId: true,
+  code: true,
   phone: true,
   birthDate: true,
   workStartedDate: true,
@@ -136,6 +143,8 @@ const UserFields = createUpdateSchema(users, {
   role: true,
 });
 
+export type UserFields = z.infer<typeof UserFields>;
+
 const InviteEntry = z.object({
   email: Email,
   role: InviteRole.default('member'),
@@ -145,13 +154,14 @@ const InviteEntry = z.object({
 });
 
 /** Someone on the team who doesn't sign in: their name, and optionally how to reach them. */
-const NewMember = UserFields.pick({
+export const NewMember = UserFields.pick({
   fullName: true,
   firstName: true,
   middleName: true,
   lastName: true,
   shortName: true,
   employeeId: true,
+  code: true,
   phone: true,
   email: true,
   birthDate: true,
@@ -160,49 +170,31 @@ const NewMember = UserFields.pick({
   role: true,
 }).required({ fullName: true });
 
+export type NewMember = z.infer<typeof NewMember>;
+
 /** Something to change: at least one field besides `id`. */
 const changes = (value: Record<string, unknown>) => Object.keys(value).some((key) => key !== 'id');
-
-const {
-  BEYOND_OWN_PERMISSIONS,
-  BUILTIN_ROLE,
-  FIXED_ROLE,
-  INVALID_LINK,
-  INVALID_RECIPIENT,
-  LAST_OWNER,
-  LIMIT_EXCEEDED,
-  NOT_INVITED,
-  OWNER_ONLY,
-  OWNER_ONLY_PERMISSION,
-  OWNER_SIGNS_IN,
-  OWN_ACCOUNT,
-  OWN_ROLE,
-  ROLE_IN_USE,
-  ROLE_NOT_FOUND,
-  UNKNOWN_PERMISSION,
-  EMAIL_REQUIRED,
-} = ERRORS;
 
 /** What these procedures answer with besides the common errors. */
 const base = oc.errors({
   ...COMMON_ERRORS,
-  BEYOND_OWN_PERMISSIONS,
-  BUILTIN_ROLE,
-  FIXED_ROLE,
-  INVALID_LINK,
-  INVALID_RECIPIENT,
-  LAST_OWNER,
-  LIMIT_EXCEEDED,
-  NOT_INVITED,
-  OWNER_ONLY,
-  OWNER_ONLY_PERMISSION,
-  OWNER_SIGNS_IN,
-  OWN_ACCOUNT,
-  OWN_ROLE,
-  ROLE_IN_USE,
-  ROLE_NOT_FOUND,
-  UNKNOWN_PERMISSION,
-  EMAIL_REQUIRED,
+  BEYOND_OWN_PERMISSIONS: ERRORS.BEYOND_OWN_PERMISSIONS,
+  BUILTIN_ROLE: ERRORS.BUILTIN_ROLE,
+  FIXED_ROLE: ERRORS.FIXED_ROLE,
+  INVALID_LINK: ERRORS.INVALID_LINK,
+  INVALID_RECIPIENT: ERRORS.INVALID_RECIPIENT,
+  LAST_OWNER: ERRORS.LAST_OWNER,
+  LIMIT_EXCEEDED: ERRORS.LIMIT_EXCEEDED,
+  NOT_INVITED: ERRORS.NOT_INVITED,
+  OWNER_ONLY: ERRORS.OWNER_ONLY,
+  OWNER_ONLY_PERMISSION: ERRORS.OWNER_ONLY_PERMISSION,
+  OWNER_SIGNS_IN: ERRORS.OWNER_SIGNS_IN,
+  OWN_ACCOUNT: ERRORS.OWN_ACCOUNT,
+  OWN_ROLE: ERRORS.OWN_ROLE,
+  ROLE_IN_USE: ERRORS.ROLE_IN_USE,
+  ROLE_NOT_FOUND: ERRORS.ROLE_NOT_FOUND,
+  UNKNOWN_PERMISSION: ERRORS.UNKNOWN_PERMISSION,
+  EMAIL_REQUIRED: ERRORS.EMAIL_REQUIRED,
 });
 
 export const usersContract = {
@@ -210,7 +202,8 @@ export const usersContract = {
     .route({
       method: 'GET',
       path: '/users',
-      summary: 'Team members of the organisation, newest first',
+      summary: 'List team members',
+      description: 'Team members of the organisation, newest first',
     })
     .input(
       CursorQuery.extend({
@@ -224,6 +217,8 @@ export const usersContract = {
         /** `false`: only the members who don't sign in. */
         canSignIn: QueryBoolean.optional(),
         ids: IdList.optional(),
+        /** The team members list's filter bar: JSON of a condition group on `subject.<field>` paths (role, status, dates…). */
+        filter: z.string().max(20_000).optional(),
       }),
     )
     .output(cursorPageOf(User)),
@@ -231,12 +226,18 @@ export const usersContract = {
     .route({
       method: 'POST',
       path: '/users/{id}/invitation',
-      summary: 'Email an invited member a new invitation link (earlier links stop working)',
+      summary: 'Resend an invitation',
+      description: 'Email an invited member a new invitation link (earlier links stop working)',
     })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   get: base
-    .route({ method: 'GET', path: '/users/{id}' })
+    .route({
+      method: 'GET',
+      path: '/users/{id}',
+      summary: 'Get a team member',
+      description: 'One team member, by id',
+    })
     .input(z.object({ id: Id }))
     .output(User),
   invite: base
@@ -244,7 +245,8 @@ export const usersContract = {
       method: 'POST',
       path: '/users',
       successStatus: 201,
-      summary: 'Invite a team member (owners and admins)',
+      summary: 'Invite a team member',
+      description: 'Invite a team member (owners and admins)',
     })
     .input(InviteEntry)
     .output(User),
@@ -253,7 +255,8 @@ export const usersContract = {
       method: 'POST',
       path: '/users/invitations',
       successStatus: 201,
-      summary: 'Invite several team members at once, all or none (owners and admins)',
+      summary: 'Invite team members',
+      description: 'Invite several team members at once, all or none (owners and admins)',
     })
     .input(z.object({ entries: z.array(InviteEntry).min(1).max(50) }))
     .output(z.object({ data: z.array(User).max(50) })),
@@ -262,7 +265,8 @@ export const usersContract = {
       method: 'POST',
       path: '/users/without-sign-in',
       successStatus: 201,
-      summary:
+      summary: 'Add a member who doesn’t sign in',
+      description:
         'Add someone to the team who doesn’t sign in (no seat): a worker who uses a plugin’s own app, such as HR’s. Members with team.invite; plugins with users:write. 409 TAKEN when the email is a member’s',
     })
     .input(NewMember)
@@ -271,7 +275,8 @@ export const usersContract = {
     .route({
       method: 'POST',
       path: '/users/{id}/sign-in',
-      summary:
+      summary: 'Let a member sign in',
+      description:
         'Let a member who doesn’t sign in join: they are invited at their email (or the one given). 400 EMAIL_REQUIRED without one',
     })
     .input(z.object({ id: Id, email: Email.optional() }))
@@ -280,7 +285,8 @@ export const usersContract = {
     .route({
       method: 'DELETE',
       path: '/users/{id}/sign-in',
-      summary:
+      summary: 'Stop a member signing in',
+      description:
         'Keep a member on the team without sign-in: their sessions, password and API keys stop working, and they no longer take a seat. 409 OWNER_SIGNS_IN for an owner',
     })
     .input(z.object({ id: Id }))
@@ -289,7 +295,8 @@ export const usersContract = {
     .route({
       method: 'PATCH',
       path: '/users/{id}',
-      summary:
+      summary: 'Change a team member',
+      description:
         'Update a team member (self: own profile; owners/admins: anyone’s profile and role; only owners change an owner’s email). Plugins with users:write change the profile of members who don’t sign in',
     })
     .input(UserFields.extend({ id: Id }).refine(changes, 'nothing to update'))
@@ -298,7 +305,8 @@ export const usersContract = {
     .route({
       method: 'POST',
       path: '/users/{id}/password',
-      summary:
+      summary: 'Set a member’s password',
+      description:
         'Set another member’s password (owners and admins; an invited member becomes active)',
     })
     .input(z.object({ id: Id, password: NewPassword }))
@@ -307,12 +315,18 @@ export const usersContract = {
     .route({
       method: 'POST',
       path: '/users/{id}/disable',
-      summary: 'Plugins with users:write disable and enable members who don’t sign in',
+      summary: 'Disable a member',
+      description: 'Plugins with users:write disable and enable members who don’t sign in',
     })
     .input(z.object({ id: Id }))
     .output(User),
   enable: base
-    .route({ method: 'POST', path: '/users/{id}/enable' })
+    .route({
+      method: 'POST',
+      path: '/users/{id}/enable',
+      summary: 'Enable a member',
+      description: 'Plugins with users:write disable and enable members who don’t sign in',
+    })
     .input(z.object({ id: Id }))
     .output(User),
 };

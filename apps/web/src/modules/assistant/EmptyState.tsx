@@ -1,32 +1,42 @@
 import type { AssistantRecordType } from '@erxes/core-contract';
-import { IconKey } from '@tabler/icons-react';
-import { Button, buttonVariants, cn, Empty, Kbd } from 'erxes-ui';
-import { useState } from 'react';
+import {
+  IconBolt,
+  IconBuilding,
+  IconFileDescription,
+  IconKey,
+  IconTag,
+  IconUserPlus,
+  IconUsersGroup,
+  type Icon,
+} from '@tabler/icons-react';
+import { Button, buttonVariants, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { AssistantAvatar } from './AssistantAvatar';
 import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';
 
-const GENERAL = [
-  ['suggestion.new-customers', 'Which customers were added this week?'],
-  ['suggestion.top-companies', 'List our five most recent companies'],
-  ['suggestion.tag', 'Which tags do we use for customers?'],
-  ['suggestion.team', 'Who is on our team?'],
-] as const;
+type Suggestion = readonly [key: string, text: string, icon: Icon];
 
-const ABOUT_RECORD: Record<AssistantRecordType, (readonly [string, string])[]> = {
+const GENERAL: Suggestion[] = [
+  ['suggestion.new-customers', 'Which customers were added this week?', IconUserPlus],
+  ['suggestion.top-companies', 'List our five most recent companies', IconBuilding],
+  ['suggestion.tag', 'Which tags do we use for customers?', IconTag],
+  ['suggestion.team', 'Who is on our team?', IconUsersGroup],
+];
+
+const ABOUT_RECORD: Record<AssistantRecordType, Suggestion[]> = {
   customer: [
-    ['suggestion.customer-summary', 'Summarize this customer'],
-    ['suggestion.customer-tags', 'Which tags does this customer have?'],
+    ['suggestion.customer-summary', 'Summarize this customer', IconFileDescription],
+    ['suggestion.customer-tags', 'Which tags does this customer have?', IconTag],
   ],
   company: [
-    ['suggestion.company-summary', 'Summarize this company'],
-    ['suggestion.company-tags', 'Which tags does this company have?'],
+    ['suggestion.company-summary', 'Summarize this company', IconFileDescription],
+    ['suggestion.company-tags', 'Which tags does this company have?', IconTag],
   ],
-  member: [['suggestion.member-summary', 'Summarize this team member']],
-  product: [['suggestion.product-summary', 'Summarize this product']],
-  automation: [['suggestion.automation-explain', 'Explain what this automation does']],
+  member: [['suggestion.member-summary', 'Summarize this team member', IconFileDescription]],
+  product: [['suggestion.product-summary', 'Summarize this product', IconFileDescription]],
+  automation: [['suggestion.automation-explain', 'Explain what this automation does', IconBolt]],
 };
 
 export const KeyNotice = () => {
@@ -41,102 +51,84 @@ export const KeyNotice = () => {
           <>
             <p>
               {t(
-                'no-key',
-                'Add an API key for a model provider to start. Everyone in the organisation uses it.',
+                'no-provider',
+                'Connect an AI provider in Integrations to start. Everyone in the organisation uses it.',
               )}
             </p>
             <Link
-              to={paths.settings.assistant}
+              to={paths.settings.aiIntegrations}
               className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'self-start')}
             >
-              {t('add-key', 'Add a key')}
+              {t('connect-provider', 'Connect an AI provider')}
             </Link>
           </>
         ) : (
-          <p>{t('no-key-ask', 'Ask an admin to add a model provider key to start.')}</p>
+          <p>{t('no-provider-ask', 'Ask an admin to connect an AI provider in Integrations.')}</p>
         )}
       </div>
     </div>
   );
 };
 
-const Tips = () => {
+export const EmptyHero = ({ winking }: { winking: boolean }) => {
   const { t } = useTranslation('assistant');
 
   return (
-    <p className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-      <span className="inline-flex items-center gap-1">
-        <span className="text-foreground">
-          <Kbd variant="foreground">@</Kbd>
-        </span>
-        {t('empty.tip-mention', 'mention a record')}
-      </span>
-      <span className="hidden items-center gap-1 md:inline-flex">
-        <span className="text-foreground">
-          <Kbd variant="foreground">Ctrl/⌘ K</Kbd>
-        </span>
-        {t('empty.tip-ask', 'ask from anywhere')}
-      </span>
-    </p>
+    <div className="flex min-h-0 flex-1 flex-col items-center justify-end gap-4 px-4 pb-6 text-center">
+      <AssistantAvatar
+        size={64}
+        state={winking ? 'wink' : 'idle'}
+        follow
+        label={t('empty.avatar', 'Assistant')}
+      />
+      <h2 className="text-2xl font-semibold tracking-tight">
+        {t('empty.title', 'How can I help?')}
+      </h2>
+    </div>
   );
 };
 
-export const EmptyState = ({
+export const Suggestions = ({
   noKey,
   record,
   onPick,
+  onWink,
 }: {
   noKey: boolean;
   record: AssistantRecordType | null;
   onPick: (text: string) => void;
+  onWink: (winking: boolean) => void;
 }) => {
   const { t } = useTranslation('assistant');
-  const [winking, setWinking] = useState(false);
   const suggestions = [...(record ? ABOUT_RECORD[record] : []), ...GENERAL].slice(0, 4);
 
   return (
-    <Empty size="sm" className="min-h-0 overflow-y-auto">
-      <Empty.Header>
-        <Empty.Media>
-          <AssistantAvatar
-            size={72}
-            state={winking ? 'wink' : 'idle'}
-            follow
-            label={t('empty.avatar', 'Assistant')}
-          />
-        </Empty.Media>
-        <Empty.Title>
-          <h2>{t('empty.title', 'How can I help?')}</h2>
-        </Empty.Title>
-        <Empty.Description>
-          {t('empty.description', 'Ask about your workspace, or ask for a change.')}
-        </Empty.Description>
-      </Empty.Header>
-      <Empty.Content>
-        {noKey ? (
+    <div className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto px-4 pt-2 pb-6">
+      {noKey ? (
+        <div className="w-full max-w-3xl">
           <KeyNotice />
-        ) : (
-          <ul
-            className="flex w-full flex-col gap-2"
-            aria-label={t('empty.suggestions', 'Suggestions')}
-            onPointerOver={() => setWinking(true)}
-            onPointerLeave={() => setWinking(false)}
-          >
-            {suggestions.map(([key, text]) => (
-              <li key={key}>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={() => onPick(t(key, text))}
-                >
-                  {t(key, text)}
-                </Button>
-              </li>
-            ))}
-          </ul>
-        )}
-        {!noKey && <Tips />}
-      </Empty.Content>
-    </Empty>
+        </div>
+      ) : (
+        <ul
+          className="flex w-full max-w-3xl flex-wrap justify-center gap-2"
+          aria-label={t('empty.suggestions', 'Suggestions')}
+          onPointerOver={() => onWink(true)}
+          onPointerLeave={() => onWink(false)}
+        >
+          {suggestions.map(([key, text, Glyph], index) => (
+            <li
+              key={key}
+              className="animate-appear"
+              style={{ '--appear-delay': `${index * 60}ms`, '--appear-y': '4px' }}
+            >
+              <Button variant="outline" tone="muted" onClick={() => onPick(t(key, text))}>
+                <Glyph aria-hidden />
+                {t(key, text)}
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 };

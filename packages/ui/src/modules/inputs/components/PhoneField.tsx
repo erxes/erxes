@@ -1,7 +1,7 @@
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { formatPhones } from 'erxes-ui/modules/display/utils/formatPhones';
 import { ValidationStatus } from 'erxes-ui/types/ValidationStatus';
-import { formatPhoneNumber } from 'erxes-ui/utils/format/formatPhoneNumber';
+import { usePhoneFormatter } from 'erxes-ui/utils/format/formatPhoneNumber';
 import { useContactFieldInput, type ContactFieldInput } from '../hooks/useContactFieldInput';
 import type { IPhoneField, IPhoneFieldProps, TPhones } from '../types/phoneField';
 import { ContactFieldOptions, ContactFieldValue } from './ContactFieldParts';
@@ -21,6 +21,7 @@ const PhoneRow = ({
   onValidationStatusChange,
   input,
 }: PhoneListProps & { item: IPhoneField }) => {
+  const formatPhoneNumber = usePhoneFormatter();
   const others = phones.filter((other) => other.phone !== item.phone);
 
   return (

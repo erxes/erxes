@@ -3,6 +3,7 @@ import { bigint, check, foreignKey, index, integer, text, timestamp } from 'driz
 import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
+import { secrets } from './secrets';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
@@ -20,10 +21,9 @@ export const auditStreams = pgTable(
     name: text().notNull(),
     url: text().notNull(),
     format: text({ enum: AUDIT_STREAM_FORMATS }).default('erxes').notNull(),
-    /** Sealed: the HMAC signing secret, and an optional auth header (`DD-API-KEY`, `Authorization`). */
-    secretSealed: text().notNull(),
+    secretId: text().notNull(),
     authHeaderName: text(),
-    authHeaderValueSealed: text(),
+    authHeaderSecretId: text(),
     status: text({ enum: AUDIT_STREAM_STATUSES }).default('active').notNull(),
     cursorSeq: bigint({ mode: 'number' }).default(0).notNull(),
     lastDeliveredAt: timestamptz(),
@@ -42,5 +42,15 @@ export const auditStreams = pgTable(
       foreignColumns: [organizations.id],
       name: 'core_audit_streams_org_id_fkey',
     }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.secretId],
+      foreignColumns: [secrets.id],
+      name: 'core_audit_streams_secret_id_fkey',
+    }),
+    foreignKey({
+      columns: [table.authHeaderSecretId],
+      foreignColumns: [secrets.id],
+      name: 'core_audit_streams_auth_header_secret_id_fkey',
+    }),
   ],
 );

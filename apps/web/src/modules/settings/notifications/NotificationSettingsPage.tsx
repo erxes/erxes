@@ -5,10 +5,18 @@ import {
   type NotificationSettings,
 } from '@erxes/core-contract';
 import { IconBellCog, IconBrowser, IconLock, IconMail } from '@tabler/icons-react';
-import { PageContainer, PageHeader, ScrollArea, Select, Spinner, Switch, useToast } from 'erxes-ui';
+import {
+  PageContainer,
+  PageHeader,
+  ScrollArea,
+  Select,
+  Spinner,
+  Switch,
+  useToast,
+  AppBreadcrumb,
+} from 'erxes-ui';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { messageOf } from '@erxes/core-contract/client';
 import { desktopSupported } from '~/modules/notifications/useDesktopNotifications';
 import { useNotificationSettings } from '~/modules/notifications/useNotifications';

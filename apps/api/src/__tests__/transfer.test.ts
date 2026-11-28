@@ -245,7 +245,7 @@ describe('import and export of contacts', { timeout: 300_000 }, () => {
   });
 
   it('exports the list as filtered, to CSV and Excel, safe to open', async () => {
-    await t.owner().customers.create({
+    const evil = await t.owner().customers.create({
       firstName: '=HYPERLINK("http://evil")',
       primaryEmail: 'evil@x.mn',
     });
@@ -274,12 +274,20 @@ describe('import and export of contacts', { timeout: 300_000 }, () => {
       columns: ['firstName', 'primaryEmail', 'createdAt'],
     });
 
+    // The rows the member selected, alone.
+    const selected = await t.owner().transfer.createExport({
+      recordType: 'customer',
+      columns: ['firstName'],
+      query: { ids: [evil.id] },
+    });
+
     await settle();
 
     const list = (await t.owner().transfer.exports({})).data;
 
     expect(list.find((item) => item.id === csv.id)).toMatchObject({ status: 'done', rowCount: 1 });
     expect(list.find((item) => item.id === all.id)).toMatchObject({ status: 'done', rowCount: 2 });
+    expect(list.find((item) => item.id === selected.id)?.rowCount).toBe(1);
 
     const text = (await exported(csv.id)).toString('utf8');
 
@@ -312,7 +320,7 @@ describe('import and export of contacts', { timeout: 300_000 }, () => {
     );
 
     // Exports are in the audit log.
-    expect((await t.owner().audit.list({ action: 'contacts.exported' })).data).toHaveLength(3);
+    expect((await t.owner().audit.list({ action: 'contacts.exported' })).data).toHaveLength(4);
   });
 
   it('writes descriptions as their text and reads text back as editor paragraphs', async () => {

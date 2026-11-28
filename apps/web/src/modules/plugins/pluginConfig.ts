@@ -1,7 +1,6 @@
 import type { Icon as TablerIcon } from '@tabler/icons-react';
 import {
   DASHBOARD_WIDGET_PREVIEWS,
-  INTEGRATION_CATEGORIES,
   type TContactContentType,
   type TDashboardWidget,
   type TPanelRecordType,
@@ -18,7 +17,7 @@ import {
   type TRelationTab,
   type TRelationTabProps,
 } from 'erxes-ui';
-import { Country, PluginRecordType } from '@erxes/core-contract';
+import { IntegrationKey, PluginRecordType } from '@erxes/core-contract';
 import type { UseQueryOptions } from '@tanstack/react-query';
 import type { ComponentType, ElementType } from 'react';
 import { z } from 'zod';
@@ -33,6 +32,21 @@ const component = <P>() => z.custom<ComponentType<P>>(isComponent);
 
 /** Where a plugin's pages mount: `/<path>`, however its `path` is written. */
 export const pluginBasePath = (path: string) => `/${path.replace(/^\/+|\/+$/g, '')}`;
+
+/**
+ * A plugin's apps: each of its `modules`, a page module (`./<name>`) at its own `/<path>` with its
+ * own tab; without modules, one at the plugin's `path`, loaded as `./<plugin name>`.
+ */
+export const pluginApps = (
+  config: Pick<LoadedPluginConfig, 'name' | 'path' | 'icon' | 'modules'>,
+) =>
+  config.modules?.length
+    ? config.modules
+    : [{ name: config.name, path: config.path, icon: config.icon }];
+
+/** Whether `path` is a page of one of the plugin's apps. */
+const underApps = (bases: string[], path: string | null | undefined) =>
+  bases.some((base) => path?.startsWith(`${base}/`) ?? false);
 
 const Icon = component<{ className?: string }>();
 
@@ -57,16 +71,15 @@ const Config = z.object({
 
 const FloatingWidget = component().optional();
 
-/** A settings page is one of the plugin's own, under its `path`. */
-const settingsPageSchema = (path: string) => {
-  const base = pluginBasePath(path);
-
-  return z.object({
-    path: z.string().startsWith(`${base}/`, `is not under ${base}/`),
+/** A settings page is one of the plugin's own, under one of its apps' paths. */
+const settingsPageSchema = (bases: string[]) =>
+  z.object({
+    path: z
+      .string()
+      .refine((path) => underApps(bases, path), `is not under ${bases.join('/ or ')}/`),
     label: z.string().min(1),
     icon: z.custom<ElementType>(isComponent).optional(),
   }) satisfies z.ZodType<TPluginSettingsPage>;
-};
 
 const RecordSection = z.object({
   contentType: z.custom<TContactContentType>(
@@ -107,13 +120,8 @@ const DashboardWidget = z.object({
 }) satisfies z.ZodType<TDashboardWidget>;
 
 const Integration = z.object({
-  key: z.string().regex(/^[a-z0-9][a-z0-9-]*$/, 'is not lowercase letters, digits and dashes'),
-  name: z.string().min(1),
-  summary: z.string().min(1),
+  key: IntegrationKey,
   icon: TabIcon,
-  category: z.enum(INTEGRATION_CATEGORIES),
-  countries: z.array(Country).optional(),
-  permission: z.string().regex(/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/, 'is not a permission'),
   tabs: z
     .array(z.object({ value: z.string().min(1), label: z.string().min(1), component: component() }))
     .min(1),
@@ -130,11 +138,9 @@ const samplePath = (detailPath: (id: string) => unknown) => {
   }
 };
 
-/** A record type is the plugin's own (`<name>:<thing>`) and its page is under the plugin's. */
-const recordTypeSchema = (name: string, path: string) => {
-  const base = pluginBasePath(path);
-
-  return z.object({
+/** A record type is the plugin's own (`<name>:<thing>`) and its page is under one of its apps'. */
+const recordTypeSchema = (name: string, bases: string[]) =>
+  z.object({
     contentType: z
       .string()
       .regex(/^[^\s/:]+:[^\s/:]+$/, 'is not <plugin>:<thing>')
@@ -143,12 +149,13 @@ const recordTypeSchema = (name: string, path: string) => {
         `does not start with "${name}:"`,
       ),
     title: z.string().min(1),
+    newTitle: z.string().min(1).optional(),
     icon: z.custom<ElementType>(isComponent),
     detailPath: z
       .custom<(contentId: string) => string>(isFunction)
       .refine(
-        (detailPath) => samplePath(detailPath)?.startsWith(`${base}/`) ?? false,
-        `does not give a page under ${base}/`,
+        (detailPath) => underApps(bases, samplePath(detailPath)),
+        `does not give a page under ${bases.join('/ or ')}/`,
       ),
     Title: component<TRecordSlotProps>(),
     Actions: component<TRecordSlotProps>().optional(),
@@ -189,7 +196,6 @@ const recordTypeSchema = (name: string, path: string) => {
       })
       .optional(),
   }) satisfies z.ZodType<TPanelRecordType>;
-};
 
 /** The entries of a list that parse; a broken one is logged and left out. */
 const validEntries = <T>(
@@ -242,6 +248,8 @@ export const parsePluginConfig = (remote: string, value: unknown): LoadedPluginC
 
   if (!widget.success) console.error(`[plugins] ${remote}: floatingWidget is not a component`);
 
+  const bases = pluginApps(rest).map((app) => pluginBasePath(app.path));
+
   const sections: TRecordSection[] = validEntries(
     remote,
     'recordSections',
@@ -256,10 +264,10 @@ export const parsePluginConfig = (remote: string, value: unknown): LoadedPluginC
       remote,
       'recordTypes',
       recordTypes,
-      recordTypeSchema(rest.name, rest.path),
+      recordTypeSchema(rest.name, bases),
     ),
     relationTabs: validEntries(remote, 'relationTabs', relationTabs, RelationTab),
-    settings: validEntries(remote, 'settings', settings, settingsPageSchema(rest.path)),
+    settings: validEntries(remote, 'settings', settings, settingsPageSchema(bases)),
     integrations: validEntries(remote, 'integrations', integrations, Integration),
     dashboardWidgets: validEntries(remote, 'dashboardWidgets', dashboardWidgets, DashboardWidget),
     floatingWidget: widget.success ? widget.data : undefined,

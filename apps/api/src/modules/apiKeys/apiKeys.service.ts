@@ -1,12 +1,22 @@
-import { apiKeys, caller, type Db, newId, users, withOrg, withSystem } from '@erxes/core-db';
-import { and, count, desc, eq, getTableColumns, isNull, lt, or, sql } from 'drizzle-orm';
+import type { ApiKeyRules } from '@erxes/core-contract';
+import {
+  agents,
+  apiKeys,
+  caller,
+  type Db,
+  newId,
+  users,
+  withOrg,
+  withSystem,
+} from '@erxes/core-db';
+import { and, count, desc, eq, getTableColumns, isNull, lt, notExists, or, sql } from 'drizzle-orm';
 import { callerCan } from '~/http/access';
 import { fail, notFound } from '~/http/errors';
 import { randomToken, safeEqual, sha256 } from '~/lib/crypto';
 import { wholeList } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
-import { type KeyRulesInput, keyRuleColumns } from './keyRulesInput';
+import { type KeyRulesInput, keyRuleColumns, mustOpenSomething } from './keyRulesInput';
 
 /** Keys read `erxes_<id>.<secret>`: the prefix tells them from session and plugin tokens. */
 const KEY_PREFIX = 'erxes_';
@@ -50,6 +60,10 @@ const withMember = (client: Db) =>
     .from(apiKeys)
     .innerJoin(users, eq(users.id, apiKeys.userId));
 
+/** An agent's key, with its maker's name, for the agent's page. */
+export const agentKey = async (client: Db, id: string) =>
+  oneRow(await withMember(client).where(eq(apiKeys.id, id)).limit(1));
+
 /** A key the caller may see (their own, or any with api_keys.manage), or 404. */
 export const visibleKey = async (client: Db, id: string, userId: string) => {
   const [row] = await withMember(client).where(eq(apiKeys.id, id)).limit(1);
@@ -59,13 +73,16 @@ export const visibleKey = async (client: Db, id: string, userId: string) => {
   return row;
 };
 
+/** An agent's key is the agent's: it shows and changes on the agent's page, not here. */
+const notAnAgents = notExists(sql`(select 1 from ${agents} where ${agents.keyId} = ${apiKeys.id})`);
+
 export const listApiKeys = async (client: Db) => {
   const { userId } = keyManager();
   const own = managesEveryKey() ? undefined : eq(apiKeys.userId, userId);
 
   return {
     data: await wholeList((limit) =>
-      withMember(client).where(own).orderBy(desc(apiKeys.createdAt)).limit(limit),
+      withMember(client).where(and(own, notAnAgents)).orderBy(desc(apiKeys.createdAt)).limit(limit),
     ),
   };
 };
@@ -85,15 +102,14 @@ const mustExpire = (kind: KeyRulesInput['kind'], lifetimeDays: number | null | u
 const auditRules = ({ permissions: _held, ...rules }: Awaited<ReturnType<typeof keyRuleColumns>>) =>
   rules;
 
-export const createApiKey = async (
-  client: Db,
-  input: KeyRulesInput & { name: string; lifetimeDays: number | null },
-) => {
+export const createApiKey = async (client: Db, input: ApiKeyRules, { forAgent = false } = {}) => {
   const me = sessionMember();
 
   mustExpire(input.kind, input.lifetimeDays);
 
   const rules = await keyRuleColumns(client, me, input);
+
+  if (!forAgent) mustOpenSomething(rules);
 
   const [held] = await client
     .select({ total: count() })
@@ -148,6 +164,14 @@ export const updateApiKey = async (
   mustExpire(input.kind, keepsExpiry && !row.expiresAt ? null : input.lifetimeDays);
 
   const rules = await keyRuleColumns(client, me, input);
+
+  const [agent] = await client
+    .select({ id: agents.id })
+    .from(agents)
+    .where(eq(agents.keyId, id))
+    .limit(1);
+
+  if (!agent) mustOpenSomething(rules);
 
   await client
     .update(apiKeys)

@@ -1,6 +1,7 @@
 import {
   type Caller,
   db,
+  type Db,
   enterScope,
   pluginInstallations,
   plugins,
@@ -15,13 +16,16 @@ import { z } from 'zod';
 import { readCookies, SESSION_COOKIE } from '~/http/cookies';
 import { publicPaths, recordKeyDenial } from '~/http/access';
 import { fail } from '~/http/errors';
-import type { KeyDecision } from '~/http/keyRules';
+import type { KeyDecision } from '@erxes/core-contract';
 import { accessClaimsOf, renewSession } from '~/http/session';
 import { verifyJwt } from '~/lib/signing';
 import { apiKeyOfToken, isApiKey, markKeyUsed } from '~/modules/apiKeys/apiKeys.service';
 import { keyCaller } from '~/modules/apiKeys/keyCaller';
-import { appServes } from '~/modules/customerAuth/customerApps';
+import { requestedScopes } from '~/modules/plugins/requestedScopes';
+import { livePortal } from '~/modules/customerAuth/customerPortals';
+import { portalClaimsOfCall } from '~/modules/customerAuth/portalCalls';
 import { customerOfToken } from '~/modules/customerAuth/customerSessions';
+import { actsNow } from '~/modules/supportAccess/onVisit';
 
 declare global {
   namespace Express {
@@ -78,7 +82,8 @@ const isCrossSiteWrite = (req: Request) => {
 /**
  * The member a token names, if still active at the token's session version,
  * with their role's permissions. Role and status are read on every request,
- * so a disabled member or a role change applies at once.
+ * so a disabled member or a role change applies at once. erxes support counts
+ * only while their visit lasts: its end cuts off every session, key and app.
  */
 export const memberOf = async (orgId: string, userId: string, sessionVersion?: number) => {
   const [user] = await withOrg(orgId, (tx) =>
@@ -90,15 +95,16 @@ export const memberOf = async (orgId: string, userId: string, sessionVersion?: n
         canSignIn: users.canSignIn,
         sessionVersion: users.sessionVersion,
         permissions: roles.permissions,
+        isSupport: users.isSupport,
       })
       .from(users)
       .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
-      .where(eq(users.id, userId))
+      .where(and(eq(users.id, userId), actsNow(tx)))
       .limit(1),
   );
 
-  // Disabled, kept on the team without sign-in, or the session predates a password change,
-  // reset or sign-out everywhere.
+  // Disabled, kept on the team without sign-in, erxes support after the visit, or the session
+  // predates a password change, reset or sign-out everywhere.
   if (user?.status !== 'active' || !user.canSignIn) return null;
 
   if (sessionVersion !== undefined && user.sessionVersion !== sessionVersion) return null;
@@ -108,6 +114,7 @@ export const memberOf = async (orgId: string, userId: string, sessionVersion?: n
     userId: user.id,
     role: user.role,
     permissions: user.permissions,
+    ...(user.isSupport ? { support: true } : {}),
   } satisfies Caller;
 };
 
@@ -116,11 +123,24 @@ interface Resolved {
   orgId: string | null;
 }
 
-/** A signed-in customer: their own routes only, from an app that still serves the organisation. */
+/**
+ * A signed-in customer: their own routes only (`/portal/me`), with the token of the portal they
+ * signed in to, while it still signs customers in.
+ */
 const resolveCustomer = async (req: Request, bearer: string): Promise<Resolved> => {
   const customer = bearer ? await customerOfToken(bearer) : null;
 
-  if (!customer || !(await appServes(customer.clientId, customer.orgId, req.get('origin')))) {
+  if (!customer) throw unauthorized();
+
+  // Core's portal API takes the portal's token too, for the portal the customer signed in to.
+  const portal = await portalClaimsOfCall(req.get('x-portal-token'), req.get('origin'));
+
+  // A portal that stopped signing customers in ends their sessions.
+  if (
+    portal.sub !== customer.portalId ||
+    portal.org !== customer.orgId ||
+    !(await livePortal(portal.sub))
+  ) {
     throw unauthorized();
   }
 
@@ -157,25 +177,33 @@ const memberKeyCaller = async (key: ApiKeyRow) => {
   return { ...member, apiKeyId: key.id };
 };
 
-/** An API key: a member key, or a regular or management key with its rules. */
+/** The caller a key acts as, or its refusal (recorded on its own: `withOrgDetached`). */
+const keyCallerOf = async (req: Request, tx: Db, key: ApiKeyRow): Promise<Caller> => {
+  if (key.kind === 'member') return memberKeyCaller(key);
+
+  const result = await keyCaller(tx, key, req.ip ?? null);
+
+  if ('denied' in result) throw await refuseKey(key, result.denied);
+
+  return result.caller;
+};
+
+/**
+ * An API key: a member key, or a regular or management key with its rules. Its checks and
+ * marking it used share one transaction of its organisation.
+ */
 const resolveApiKey = async (req: Request, token: string): Promise<Resolved> => {
   const key = await apiKeyOfToken(token);
 
   if (!key) throw unauthorized();
 
-  let who: Caller;
+  const who = await withOrg(key.orgId, async (tx) => {
+    const caller = await keyCallerOf(req, tx, key);
 
-  if (key.kind === 'member') {
-    who = await memberKeyCaller(key);
-  } else {
-    const result = await withOrg(key.orgId, (tx) => keyCaller(tx, key, req.ip ?? null));
+    await markKeyUsed(key.orgId, key.id);
 
-    if ('denied' in result) throw await refuseKey(key, result.denied);
-
-    who = result.caller;
-  }
-
-  await markKeyUsed(key.orgId, key.id);
+    return caller;
+  });
 
   req.log.setBindings({ orgId: key.orgId, actorId: key.userId, apiKeyId: key.id });
 
@@ -212,10 +240,31 @@ const PluginClaims = z.object({
 });
 
 /**
+ * Scopes the owner granted after the token was issued that the plugin still asks for. Read
+ * only when the installation grants more than the token carries, so most requests skip it.
+ */
+const grantedSince = async (plugin: string, granted: string[], carried: Set<string>) => {
+  const newer = granted.filter((scope) => !carried.has(scope));
+
+  if (newer.length === 0) return [];
+
+  const [row] = await db()
+    .select({ manifest: plugins.manifest })
+    .from(plugins)
+    .where(eq(plugins.name, plugin))
+    .limit(1);
+
+  const requested = new Set(row ? requestedScopes(row) : []);
+
+  return newer.filter((scope) => requested.has(scope));
+};
+
+/**
  * A plugin token (`POST /plugins/token`), checked on every request against
  * the registry and the organisation's installation: disabling a plugin or
- * uninstalling it cuts it off at once, and scopes can only shrink. A token
- * without an organisation is the plugin's own (its manifest only).
+ * uninstalling it cuts it off at once, and a scope the owner approved after
+ * the token was issued works at once. A token without an organisation is the
+ * plugin's own (its manifest only).
  */
 const resolvePlugin = async (req: Request, token: string): Promise<Resolved> => {
   const claims = await verifyJwt(token, PluginClaims, {
@@ -255,6 +304,8 @@ const resolvePlugin = async (req: Request, token: string): Promise<Resolved> => 
   if (installation?.status !== 'active') throw unauthorized();
 
   const granted = new Set(installation.grantedScopes);
+  const carried = (claims.scope ?? '').split(' ').filter((scope) => granted.has(scope));
+  const since = await grantedSince(claims.sub, installation.grantedScopes, new Set(carried));
 
   req.log.setBindings({ orgId: org, actorId: claims.sub });
 
@@ -262,7 +313,7 @@ const resolvePlugin = async (req: Request, token: string): Promise<Resolved> => 
     caller: {
       type: 'plugin',
       plugin: claims.sub,
-      scopes: (claims.scope ?? '').split(' ').filter((scope) => granted.has(scope)),
+      scopes: [...carried, ...since],
     },
     orgId: org,
   };
@@ -281,8 +332,8 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
   const header = req.headers.authorization ?? '';
   const bearer = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
 
-  // Nobody else's token works on the customer routes.
-  const resolved = req.path.startsWith('/customer/')
+  // Nobody else's token works on the customer's own routes.
+  const resolved = /^\/portal\/me(\/|$)/.test(req.path)
     ? await resolveCustomer(req, bearer)
     : bearer && isPluginToken(bearer)
       ? await resolvePlugin(req, bearer)
@@ -291,6 +342,43 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
         : await resolveMember(req, res, bearer);
 
   enterScope(resolved.caller, resolved.orgId, next);
+};
+
+const AppTokenClaims = z.object({
+  sub: z.string(),
+  org: z.string(),
+  sv: z.int(),
+  client_id: z.string(),
+});
+
+/**
+ * A caller of the MCP server at `resource`: an app's token for it (OAuth), acting as the member
+ * while their session version holds, or an API key with its rules. Bearer only: a session cookie
+ * never reaches the MCP server. Null for a token that isn't one; a refused key throws its refusal.
+ */
+export const mcpCallerOf = async (
+  req: Request,
+  bearer: string,
+  resource: string,
+): Promise<Resolved | null> => {
+  if (isApiKey(bearer)) {
+    const { caller, orgId } = await resolveApiKey(req, bearer);
+
+    return { caller: caller.type === 'user' ? { ...caller, via: 'mcp' } : caller, orgId };
+  }
+
+  const claims = await verifyJwt(bearer, AppTokenClaims, {
+    typ: 'at+jwt',
+    audience: resource,
+  }).catch(() => null);
+
+  const member = claims && (await memberOf(claims.org, claims.sub, claims.sv));
+
+  if (!claims || !member) return null;
+
+  req.log.setBindings({ orgId: claims.org, actorId: member.userId, clientId: claims.client_id });
+
+  return { caller: { ...member, via: 'mcp' }, orgId: claims.org };
 };
 
 /** Who a session cookie belongs to, if it is still valid (for sign-out). */

@@ -26,7 +26,7 @@ import {
   VariableExtension,
 } from '@maily-to/core/extensions';
 import { useToast } from 'erxes-ui';
-import { useRef, useState } from 'react';
+import { type ReactNode, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { uploadErrorMessage, uploadFile } from '~/lib/files';
 import type { EmailNode } from './emailDocument';
@@ -74,10 +74,13 @@ export const EmailEditor = ({
   value,
   onChange,
   label,
+  actions,
 }: {
   value: EmailNode | null;
   onChange: (content: EmailNode) => void;
   label: string;
+  /** More buttons by the label, before Insert a field (Templates). */
+  actions?: ReactNode;
 }) => {
   const { t } = useTranslation('broadcasts');
   const { toast } = useToast();
@@ -119,7 +122,9 @@ export const EmailEditor = ({
 
   return (
     <fieldset aria-label={label} className="min-w-0 space-y-1.5">
-      <LabelRow label={label} onPick={insertField} />
+      <LabelRow label={label} onPick={insertField}>
+        {actions}
+      </LabelRow>
       <div className="min-h-64 overflow-hidden rounded-md bg-white text-sm text-black shadow-xs scheme-light focus-within:shadow-focus">
         <Editor.Root
           ref={root}

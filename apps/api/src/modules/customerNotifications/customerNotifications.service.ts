@@ -1,7 +1,7 @@
-import type { CustomerNotificationInput } from '@erxes/core-contract';
+import type { CustomerNotificationInput, MarkReadInput } from '@erxes/core-contract';
 import {
   caller,
-  customerLogins,
+  customerAccounts,
   customerNotifications,
   customers,
   type Db,
@@ -10,7 +10,7 @@ import {
   requestOrgId,
   sourceOf,
 } from '@erxes/core-db';
-import { and, asc, count, eq, exists, gt, inArray, isNotNull, isNull, sql } from 'drizzle-orm';
+import { and, asc, count, eq, exists, gt, inArray, isNotNull, isNull, or, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { assertPluginNamespace } from '~/lib/guards';
@@ -18,32 +18,42 @@ import { keysetPage } from '~/lib/keyset';
 import { deleteInBatches, repeatWhile } from '~/lib/sequence';
 import { logger } from '~/logger';
 import { sendEmail } from '~/modules/email/email';
-import { canDeliverEmail } from '~/modules/email/sender';
-import { clientOf } from '~/modules/oauth/oauthClients';
+import { mailRoute } from '~/modules/email/mailConnections';
+import { type PluginPortal, pluginPortal } from '~/modules/portals/pluginPortal';
 import { sendSms } from '~/modules/sms/sms';
 
 const log = logger.child({ component: 'customer-notifications' });
 
-/** The signed-in customer's own notifications. */
-const mine = () => eq(customerNotifications.customerId, caller('customer').customerId);
+/** The signed-in customer's own notifications: their portal's, and those for every portal. */
+const mine = () => {
+  const { customerId, portalId } = caller('customer');
 
-/**
- * The address the plugin's customer app runs at, `{subdomain}` still in it,
- * if it has one. Read before the request's transaction (a system lookup).
- */
-export const customerAppOrigin = async (plugin: string) =>
-  (await clientOf(plugin))?.manifest?.customerApp?.origins[0] ?? null;
+  return and(
+    eq(customerNotifications.customerId, customerId),
+    or(isNull(customerNotifications.portalId), eq(customerNotifications.portalId, portalId)),
+  );
+};
 
-/** Every customer who signs in to the organisation's customer apps. */
-const signedUp = () =>
+/** Every customer with an account on the portal, or on any portal. */
+const signedUp = (portalId: string | undefined) =>
   exists(
-    sql`(select 1 from ${customerLogins} where ${customerLogins.customerId} = ${customers.id})`,
+    sql`(select 1 from ${customerAccounts} where ${and(
+      eq(customerAccounts.customerId, customers.id),
+      portalId ? eq(customerAccounts.portalId, portalId) : undefined,
+    )})`,
   );
 
 type Input = CustomerNotificationInput;
 
+/** The portal a notification is for: one the sending plugin is on. */
+const portalOf = (client: Db, source: string, portalId: string | undefined) =>
+  portalId ? pluginPortal(client, source, portalId) : null;
+
+type NotifiedPortal = PluginPortal;
+
 /** The row every recipient gets, without its id and customer. */
 const rowOf = (source: string, input: Input) => ({
+  portalId: input.portalId ?? null,
   source,
   kind: input.kind,
   title: input.title,
@@ -73,7 +83,7 @@ const notifyEveryone = async (client: Db, source: string, input: Input) => {
     const batch = await client
       .select({ id: customers.id })
       .from(customers)
-      .where(and(signedUp(), gt(customers.id, after)))
+      .where(and(signedUp(input.portalId), gt(customers.id, after)))
       .orderBy(asc(customers.id))
       .limit(EVERYONE_BATCH);
 
@@ -95,36 +105,35 @@ const notifyEveryone = async (client: Db, source: string, input: Input) => {
   return { created, skipped: seen - created };
 };
 
-/** Emails and texts the customers who got it anew, where they have an address. */
+/**
+ * Emails and texts the customers who got it anew, where they have an address: from the portal's
+ * sender name, From and Reply-To, linking to its first web address, texted through its SMS connection.
+ */
 const deliver = async (
   client: Db,
   input: Input,
-  appOrigin: string | null,
+  portal: NotifiedPortal | null,
   created: { id: string; email: string | null; phone: string | null }[],
 ) => {
   if (!input.channels.length || !created.length) return;
 
   const orgId = requestOrgId();
 
-  const [org] = await client
-    .select({ name: organizations.name, subdomain: organizations.subdomain })
-    .from(organizations)
-    .limit(1);
+  const [org] = await client.select({ name: organizations.name }).from(organizations).limit(1);
 
   const organization = org?.name ?? 'erxes';
-  const origin = org && appOrigin?.replaceAll('{subdomain}', org.subdomain);
+  const origin = portal?.origins[0];
   const link = origin && input.link ? `${origin}${input.link}` : null;
+  const fromName = portal ? (portal.senderName ?? portal.name) : undefined;
   const body = input.body ?? null;
 
   // Email that would only reach the log is skipped; the inbox and other channels still get it.
   const wantsEmail = input.channels.includes('email');
-  const emailing = wantsEmail && (await canDeliverEmail(client));
+  const route = await mailRoute(client, portal?.mailConnectionId ?? null);
+  const emailing = wantsEmail && route.deliverable;
 
   if (wantsEmail && !emailing)
-    log.warn(
-      { orgId, kind: input.kind },
-      'customer notification not emailed: sending isn’t set up',
-    );
+    log.warn({ orgId, kind: input.kind }, 'customer notification not emailed: email isn’t set up');
 
   if (emailing) {
     await sendEmail(
@@ -137,12 +146,15 @@ const deliver = async (
                 customerId: id,
                 to: email,
                 template: 'customer_notification' as const,
+                ...(fromName && { fromName }),
+                ...(portal?.fromEmail && { fromEmail: portal.fromEmail }),
+                ...(portal?.replyTo && { replyTo: portal.replyTo }),
                 data: { organization, title: input.title, body, link },
               },
             ]
           : [],
       ),
-      { source: 'customer' },
+      { source: 'customer', connectionId: route.connectionId },
     );
   }
 
@@ -152,7 +164,17 @@ const deliver = async (
     await sendSms(
       client,
       orgId,
-      created.flatMap(({ phone }) => (phone ? [{ to: phone, text }] : [])),
+      created.flatMap(({ phone }) =>
+        phone
+          ? [
+              {
+                to: phone,
+                text,
+                ...(portal?.smsConnectionId && { connectionId: portal.smsConnectionId }),
+              },
+            ]
+          : [],
+      ),
     );
   }
 };
@@ -162,10 +184,12 @@ const deliver = async (
  * with `channels`, an email or text to their primary address. Unknown ids
  * are an error. With a `dedupeKey`, a retry creates and sends nothing.
  */
-export const notifyCustomers = async (client: Db, input: Input, appOrigin: string | null) => {
+export const notifyCustomers = async (client: Db, input: Input) => {
   const source = sourceOf(caller());
 
   assertPluginNamespace(source, input.kind);
+
+  const portal = await portalOf(client, source, input.portalId);
 
   if (input.everyone) return notifyEveryone(client, source, input);
 
@@ -192,7 +216,7 @@ export const notifyCustomers = async (client: Db, input: Input, appOrigin: strin
   await deliver(
     client,
     input,
-    appOrigin,
+    portal,
     inserted.flatMap(({ customerId }) => contacts.get(customerId) ?? []),
   );
 
@@ -241,10 +265,7 @@ export const customerUnreadCount = async (client: Db, source?: string) => {
   return { count: row?.count ?? 0 };
 };
 
-export const markCustomerNotificationsRead = async (
-  client: Db,
-  input: { ids?: string[]; source?: string; read: boolean },
-) => {
+export const markCustomerNotificationsRead = async (client: Db, input: MarkReadInput) => {
   if (input.ids && !input.ids.length) return { updated: 0 };
 
   const result = await client

@@ -28,10 +28,9 @@ describe('sendRequest', () => {
 });
 
 describe('modelToRun', () => {
-  const connections = [
-    { provider: 'openai' as const, isDefault: false },
-    { provider: 'kimi' as const, isDefault: true },
-  ];
+  const providers = ['openai' as const, 'kimi' as const];
+  const preferred = { defaultProvider: 'kimi' as const, defaultModel: null };
+  const connections = { providers, preferred };
 
   const catalog = [
     {
@@ -58,7 +57,7 @@ describe('modelToRun', () => {
   ];
 
   it('names the default provider and its best model when nothing is picked', () => {
-    expect(modelToRun({ connections, catalog, picked: {} })).toMatchObject({
+    expect(modelToRun({ ...connections, catalog, picked: {} })).toMatchObject({
       provider: 'kimi',
       model: 'kimi-k3',
       label: 'Kimi K3',
@@ -68,7 +67,7 @@ describe('modelToRun', () => {
   it('runs the picked model, and thinking only where the model supports it', () => {
     expect(
       modelToRun({
-        connections,
+        ...connections,
         catalog,
         picked: { provider: 'openai', model: 'gpt-b', thinkingLevel: 'low' },
       }),
@@ -80,7 +79,7 @@ describe('modelToRun', () => {
     });
 
     expect(
-      modelToRun({ connections, catalog, picked: { provider: 'kimi', thinkingLevel: 'low' } }),
+      modelToRun({ ...connections, catalog, picked: { provider: 'kimi', thinkingLevel: 'low' } }),
     ).toMatchObject({ model: 'kimi-k3', thinkingLevel: 'low' });
   });
 
@@ -103,31 +102,56 @@ describe('modelToRun', () => {
       },
     ];
 
-    expect(modelToRun({ connections, catalog, picked: {} })).toMatchObject({
+    expect(modelToRun({ ...connections, catalog, picked: {} })).toMatchObject({
       thinkingLevel: 'off',
     });
 
-    expect(modelToRun({ connections, catalog: effortOnly, picked: {} })).toMatchObject({
+    expect(modelToRun({ ...connections, catalog: effortOnly, picked: {} })).toMatchObject({
       thinkingLevel: 'low',
     });
 
     expect(
-      modelToRun({ connections, catalog: effortOnly, picked: { thinkingLevel: 'medium' } }),
+      modelToRun({ ...connections, catalog: effortOnly, picked: { thinkingLevel: 'medium' } }),
     ).toMatchObject({ thinkingLevel: 'high' });
   });
 
-  it('falls back to the default provider when the picked one has no key any more', () => {
+  it('starts on the default model the settings name, while its provider is connected', () => {
+    const settings = { defaultProvider: 'kimi' as const, defaultModel: 'kimi-old' };
+
+    expect(modelToRun({ providers, preferred: settings, catalog, picked: {} })).toMatchObject({
+      provider: 'kimi',
+      model: 'kimi-old',
+    });
+
+    expect(
+      modelToRun({ providers: ['openai'], preferred: settings, catalog, picked: {} }),
+    ).toMatchObject({ provider: 'openai', model: 'gpt-a' });
+  });
+
+  it('falls back to the default provider when the picked one is no longer connected', () => {
     expect(
       modelToRun({
-        connections: [{ provider: 'kimi', isDefault: true }],
+        providers: ['kimi'],
+        preferred,
         catalog,
         picked: { provider: 'openai', model: 'gpt-a' },
       }),
     ).toMatchObject({ provider: 'kimi', model: 'kimi-k3' });
   });
 
-  it('is null without any saved key', () => {
-    expect(modelToRun({ connections: [], catalog: [], picked: {} })).toBeNull();
+  it('runs on the provider connected first when the settings name none', () => {
+    expect(
+      modelToRun({
+        providers,
+        preferred: { defaultProvider: null, defaultModel: null },
+        catalog,
+        picked: {},
+      }),
+    ).toMatchObject({ provider: 'openai', model: 'gpt-a' });
+  });
+
+  it('is null without any connected AI provider', () => {
+    expect(modelToRun({ providers: [], preferred, catalog: [], picked: {} })).toBeNull();
   });
 });
 
@@ -167,12 +191,14 @@ const exported = (title: string, entries: Fields[]) =>
   threadMarkdown(title, transcriptOf({ entries, docs: {} }).messages, 'https://acme.erxes.io');
 
 describe('threadMarkdown', () => {
-  it('writes the conversation as Markdown, with the answers given and without tool calls', () => {
+  it('writes the conversation as Markdown, with interface blocks named and without tool calls', () => {
     const markdown = exported('Top customers', [
       member(1, { type: 'text', text: 'Who are our top customers?' }),
-      said(2, call('q', 'ask_user', { questions: [{ question: 'Which period?' }] })),
-      result('q', { asked: true }),
-      member(3, { type: 'text', text: 'Which period?: This quarter' }),
+      said(2, {
+        type: 'text',
+        text: 'Which period?\n\n<a2ui>\nsurface("period")\nroot = Text("x")\n</a2ui>',
+      }),
+      member(3, { type: 'text', text: 'This quarter' }),
       said(4, call('c', 'callApi', { procedure: 'customers.list', input: {} })),
       result('c', { ok: true }),
       said(5, { type: 'text', text: '| Name |\n| --- |\n| Ada |' }),
@@ -186,9 +212,13 @@ describe('threadMarkdown', () => {
         '',
         'Who are our top customers?',
         '',
+        '## Assistant',
+        '',
+        'Which period?\n\n_(interactive view)_',
+        '',
         '## You',
         '',
-        'Which period?: This quarter',
+        'This quarter',
         '',
         '## Assistant',
         '',

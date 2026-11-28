@@ -733,15 +733,302 @@
     {
       "idx": 104,
       "version": "7",
-      "when": 1795263489379,
-      "tag": "0104_data_extensions",
+      "when": 1795279997799,
+      "tag": "0104_secret_vault",
       "breakpoints": true
     },
     {
       "idx": 105,
       "version": "7",
-      "when": 1795263562416,
-      "tag": "0105_data_plugins",
+      "when": 1795279998774,
+      "tag": "0105_secret_vault_drop_sealed",
+      "breakpoints": true
+    },
+    {
+      "idx": 106,
+      "version": "7",
+      "when": 1795283832634,
+      "tag": "0106_drop_custom_integrations",
+      "breakpoints": true
+    },
+    {
+      "idx": 107,
+      "version": "7",
+      "when": 1795284881197,
+      "tag": "0107_integration_connections",
+      "breakpoints": true
+    },
+    {
+      "idx": 108,
+      "version": "7",
+      "when": 1795315772079,
+      "tag": "0108_field_value_stats",
+      "breakpoints": true
+    },
+    {
+      "idx": 109,
+      "version": "7",
+      "when": 1795315793856,
+      "tag": "0109_key_row_role",
+      "breakpoints": true
+    },
+    {
+      "idx": 110,
+      "version": "7",
+      "when": 1795315814724,
+      "tag": "0110_list_search_indexes",
+      "breakpoints": true
+    },
+    {
+      "idx": 111,
+      "version": "7",
+      "when": 1795315827317,
+      "tag": "0111_field_value_month_day",
+      "breakpoints": true
+    },
+    {
+      "idx": 112,
+      "version": "7",
+      "when": 1795325083178,
+      "tag": "0112_bank_transfers",
+      "breakpoints": true
+    },
+    {
+      "idx": 113,
+      "version": "7",
+      "when": 1795334169120,
+      "tag": "0113_customer_websites",
+      "breakpoints": true
+    },
+    {
+      "idx": 114,
+      "version": "7",
+      "when": 1795339754489,
+      "tag": "0114_customer_sign_up",
+      "breakpoints": true
+    },
+    {
+      "idx": 115,
+      "version": "7",
+      "when": 1795341994984,
+      "tag": "0115_integrations_org_wide",
+      "breakpoints": true
+    },
+    {
+      "idx": 116,
+      "version": "7",
+      "when": 1795341995871,
+      "tag": "0116_plugin_integration_states",
+      "breakpoints": true
+    },
+    {
+      "idx": 117,
+      "version": "7",
+      "when": 1795347056984,
+      "tag": "0117_customer_accounts_no_status",
+      "breakpoints": true
+    },
+    {
+      "idx": 118,
+      "version": "7",
+      "when": 1795352300884,
+      "tag": "0118_integration_subscriptions",
+      "breakpoints": true
+    },
+    {
+      "idx": 119,
+      "version": "7",
+      "when": 1795354468504,
+      "tag": "0119_connection_settings",
+      "breakpoints": true
+    },
+    {
+      "idx": 120,
+      "version": "7",
+      "when": 1795366942004,
+      "tag": "0120_connection_unique_names",
+      "breakpoints": true
+    },
+    {
+      "idx": 121,
+      "version": "7",
+      "when": 1795378851851,
+      "tag": "0121_ai_provider_integrations",
+      "breakpoints": true
+    },
+    {
+      "idx": 122,
+      "version": "7",
+      "when": 1795412001863,
+      "tag": "0122_agents",
+      "breakpoints": true
+    },
+    {
+      "idx": 123,
+      "version": "7",
+      "when": 1795412002863,
+      "tag": "0123_organization_currencies",
+      "breakpoints": true
+    },
+    {
+      "idx": 124,
+      "version": "7",
+      "when": 1795412003863,
+      "tag": "0124_exchange_rates",
+      "breakpoints": true
+    },
+    {
+      "idx": 125,
+      "version": "7",
+      "when": 1795412004863,
+      "tag": "0125_user_code",
+      "breakpoints": true
+    },
+    {
+      "idx": 126,
+      "version": "7",
+      "when": 1795412005863,
+      "tag": "0126_member_restrictions",
+      "breakpoints": true
+    },
+    {
+      "idx": 127,
+      "version": "7",
+      "when": 1795412006863,
+      "tag": "0127_product_inventories",
+      "breakpoints": true
+    },
+    {
+      "idx": 128,
+      "version": "7",
+      "when": 1795412007863,
+      "tag": "0128_product_category_code",
+      "breakpoints": true
+    },
+    {
+      "idx": 129,
+      "version": "7",
+      "when": 1795412008863,
+      "tag": "0129_organization_contact",
+      "breakpoints": true
+    },
+    {
+      "idx": 130,
+      "version": "7",
+      "when": 1795420331395,
+      "tag": "0130_portals",
+      "breakpoints": true
+    },
+    {
+      "idx": 131,
+      "version": "7",
+      "when": 1795423042791,
+      "tag": "0131_ebarimt_configs",
+      "breakpoints": true
+    },
+    {
+      "idx": 132,
+      "version": "7",
+      "when": 1795430102501,
+      "tag": "0132_publishable_keys",
+      "breakpoints": true
+    },
+    {
+      "idx": 133,
+      "version": "7",
+      "when": 1795431428883,
+      "tag": "0133_email_domains_templates",
+      "breakpoints": true
+    },
+    {
+      "idx": 134,
+      "version": "7",
+      "when": 1795445937212,
+      "tag": "0134_portal_messages",
+      "breakpoints": true
+    },
+    {
+      "idx": 135,
+      "version": "7",
+      "when": 1795500103993,
+      "tag": "0135_manifest_portal_audience",
+      "breakpoints": true
+    },
+    {
+      "idx": 136,
+      "version": "7",
+      "when": 1795503649447,
+      "tag": "0136_oauth_mcp_clients",
+      "breakpoints": true
+    },
+    {
+      "idx": 137,
+      "version": "7",
+      "when": 1795536251863,
+      "tag": "0137_support_visits",
+      "breakpoints": true
+    },
+    {
+      "idx": 138,
+      "version": "7",
+      "when": 1795550187443,
+      "tag": "0138_mail_connections",
+      "breakpoints": true
+    },
+    {
+      "idx": 139,
+      "version": "7",
+      "when": 1795552357391,
+      "tag": "0139_ebarimt_recorded_receipts",
+      "breakpoints": true
+    },
+    {
+      "idx": 140,
+      "version": "7",
+      "when": 1795628927890,
+      "tag": "0140_personal_connections",
+      "breakpoints": true
+    },
+    {
+      "idx": 141,
+      "version": "7",
+      "when": 1795633056432,
+      "tag": "0141_github_app",
+      "breakpoints": true
+    },
+    {
+      "idx": 142,
+      "version": "7",
+      "when": 1795635985715,
+      "tag": "0142_integration_ready",
+      "breakpoints": true
+    },
+    {
+      "idx": 143,
+      "version": "7",
+      "when": 1795711111957,
+      "tag": "0143_agent_web",
+      "breakpoints": true
+    },
+    {
+      "idx": 144,
+      "version": "7",
+      "when": 1795764520940,
+      "tag": "0144_identities_and_server_license",
+      "breakpoints": true
+    },
+    {
+      "idx": 145,
+      "version": "7",
+      "when": 1795841456695,
+      "tag": "0145_data_extensions",
+      "breakpoints": true
+    },
+    {
+      "idx": 146,
+      "version": "7",
+      "when": 1795841929331,
+      "tag": "0146_data_plugins",
       "breakpoints": true
     }
   ]

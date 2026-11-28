@@ -1,0 +1,1 @@
+ALTER TABLE "core_organizations" ADD COLUMN "member_restrictions" jsonb DEFAULT '{"enabled":false,"allBranchesUserIds":[],"allDepartmentsUserIds":[]}'::jsonb NOT NULL;

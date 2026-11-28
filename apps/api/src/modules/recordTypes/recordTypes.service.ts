@@ -2,7 +2,7 @@ import {
   CORE_RECORD_TYPES,
   CUSTOM_OBJECT_NATIVE_FIELDS,
   customObjectType,
-  type RecordType,
+  type ExtendableRecordType,
 } from '@erxes/core-contract';
 import {
   caller,
@@ -55,7 +55,7 @@ export const objectsPlugins = async (client: Db): Promise<ObjectsPlugin[]> => {
 };
 
 /** A plugin object as a record type: its own fields are the view's that it declares. */
-export const pluginRecordType = (plugin: string, object: PluginObject): RecordType => ({
+export const pluginRecordType = (plugin: string, object: PluginObject): ExtendableRecordType => ({
   type: object.type,
   plugin,
   label: object.label,
@@ -75,7 +75,7 @@ export const pluginRecordType = (plugin: string, object: PluginObject): RecordTy
  * The record types that can be extended: core's, the `objects` of each plugin connected to Data
  * Extensions here in plugin order, then the organisation's active custom objects by label.
  */
-export const listRecordTypes = async (client: Db): Promise<RecordType[]> => {
+export const listRecordTypes = async (client: Db): Promise<ExtendableRecordType[]> => {
   const [owners, objects] = await Promise.all([
     objectsPlugins(client),
     client
@@ -123,7 +123,7 @@ export const findRecordType = async (client: Db, type: string) => {
  * records: a member whose role holds the type's permission, or the plugin that keeps them.
  * Their Data Extensions values follow the same rights.
  */
-export const assertRecordRight = (recordType: RecordType, right: 'read' | 'update') => {
+export const assertRecordRight = (recordType: ExtendableRecordType, right: 'read' | 'update') => {
   const action = right === 'read' ? recordType.permission : recordType.updatePermission;
   const who = caller();
 

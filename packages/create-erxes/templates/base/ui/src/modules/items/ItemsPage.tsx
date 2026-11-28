@@ -1,6 +1,7 @@
 import { memberQueries } from '@erxes/core-contract/client';
 import { IconBox, IconPlus, IconTrash } from '@tabler/icons-react';
 import {
+  AppBreadcrumb,
   Button,
   Empty,
   ListFilter,
@@ -115,8 +116,7 @@ export const ItemsPage = () => {
     <PageContainer>
       <PageHeader>
         <PageHeader.Start>
-          <IconBox />
-          <h1 className="text-sm font-semibold">{t('items', 'Items')}</h1>
+          <AppBreadcrumb items={[{ label: t('items', 'Items'), icon: IconBox }]} />
         </PageHeader.Start>
         <PageHeader.End>
           <Button onClick={() => openNew(ITEM_TYPE)}>

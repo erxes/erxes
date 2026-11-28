@@ -31,7 +31,7 @@ const CustomerCreateButton = ({ state }: { state: CustomerState }) => {
 
 export const CustomersHeader = ({ state }: { state: CustomerState }) => (
   <PageHeader>
-    <PageHeader.Start variant="flush">
+    <PageHeader.Start>
       <ContactsBreadcrumb />
     </PageHeader.Start>
     <PageHeader.End>

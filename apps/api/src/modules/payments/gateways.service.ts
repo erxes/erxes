@@ -1,89 +1,73 @@
-import { GatewayConfig, gatewayTakes, visibleGatewaySettings } from '@erxes/core-contract';
 import {
-  caller,
   type Db,
-  newId,
-  paymentGateways,
+  integrationConnections,
+  organizations,
   paymentInvoices,
-  paymentPluginSettings,
+  pluginInstallations,
+  plugins,
+  withOrg,
 } from '@erxes/core-db';
-import { createGateway } from '@erxes/payment-gateways';
 import { and, eq, inArray, sql } from 'drizzle-orm';
+import { config } from '~/config';
+import { fail } from '~/http/errors';
 import { wholeList } from '~/lib/keyset';
-import { fail, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
-import { seal, unseal } from '~/lib/secrets';
 import { recordAudit } from '~/modules/audit/audit.service';
+import {
+  clientOf,
+  type ConnectionRow,
+  connectionsWithSecret,
+  listConnections,
+} from '~/modules/integrations/connections';
+import { quickQrDistricts } from '~/modules/integrations/gateways/quickqr';
+import { gatewayOf, PAYMENT_KEYS } from '~/modules/integrations/registry';
+import { getOrganization } from '~/modules/organizations/organizations.service';
 
-export type GatewayRow = typeof paymentGateways.$inferSelect;
+export type GatewayRow = ConnectionRow;
 
-/** The calling plugin's payment settings; members have none. */
-const pluginSettingsOf = async (client: Db) => {
-  const who = caller();
+const takes = (key: string, currency: string) => {
+  const { currencies } = gatewayOf(key).payments;
 
-  if (who.type !== 'plugin') return null;
-
-  const [settings] = await client
-    .select()
-    .from(paymentPluginSettings)
-    .where(eq(paymentPluginSettings.plugin, who.plugin))
-    .limit(1);
-
-  return settings ?? null;
+  return currencies.length === 0 || currencies.includes(currency);
 };
 
+const activeGateway = (id?: string) =>
+  and(
+    eq(integrationConnections.status, 'active'),
+    inArray(integrationConnections.key, PAYMENT_KEYS),
+    id ? eq(integrationConnections.id, id) : undefined,
+  );
+
 /**
- * The gateway an invoice goes through: the one asked for, else the plugin's
- * default (Settings › Payments), else the first active one — within the
- * gateways the owner allowed the plugin, if any are listed, that take the
- * invoice's currency (QPay: MNT only).
+ * The gateway an invoice goes through: the one asked for, else the
+ * organisation's default (Settings › Payments), else the oldest active one,
+ * of those that take the invoice's currency (QPay: MNT only).
  */
 export const resolveGateway = async (client: Db, currency: string, requested?: string) => {
-  const settings = await pluginSettingsOf(client);
-  const allowed = settings?.allowedGatewayIds ?? [];
-
-  if (requested && allowed.length && !allowed.includes(requested)) {
-    throw fail('GATEWAY_NOT_ALLOWED', 'This plugin may not use that gateway (Settings › Payments)');
-  }
-
-  const active = await client
-    .select()
-    .from(paymentGateways)
-    .where(
-      and(
-        eq(paymentGateways.status, 'active'),
-        requested
-          ? eq(paymentGateways.id, requested)
-          : allowed.length
-            ? inArray(paymentGateways.id, allowed)
-            : undefined,
-      ),
-    )
-    .orderBy(paymentGateways.createdAt);
+  const active = await connectionsWithSecret(client, activeGateway(requested)).orderBy(
+    integrationConnections.createdAt,
+  );
 
   if (!active.length) {
     throw fail(
       'NO_GATEWAY',
       requested
         ? 'That gateway is not connected or is turned off'
-        : 'Connect a payment gateway first (Settings › Payments)',
+        : 'Connect a payment gateway first (Settings › Integrations)',
     );
   }
 
-  const taking = active.filter((row) => gatewayTakes(row.kind, currency));
+  const taking = active.filter((row) => takes(row.key, currency));
 
-  const preferred = requested
-    ? undefined
-    : taking.find((row) => row.id === settings?.defaultGatewayId);
-
-  const gateway = preferred ?? taking[0];
+  const preferred = requested ? null : (await getOrganization(client)).defaultGatewayId;
+  const gateway = taking.find((row) => row.id === preferred) ?? taking[0];
 
   if (!gateway) {
     throw fail(
       'CURRENCY_NOT_SUPPORTED',
       requested
         ? `That gateway doesn't take ${currency}`
-        : `No connected gateway takes ${currency} (Settings › Payments)`,
+        : `No connected gateway takes ${currency} (Settings › Integrations)`,
       { currency },
     );
   }
@@ -91,116 +75,55 @@ export const resolveGateway = async (client: Db, currency: string, requested?: s
   return gateway;
 };
 
-const configOf = (row: GatewayRow) => GatewayConfig.parse(JSON.parse(unseal(row.configSealed)));
+/** The gateway and its client; a transfer gateway's bank connection is read in the gateway's organisation. */
+export const gatewayAt = async (row: GatewayRow) => {
+  const gateway = gatewayOf(row.key);
 
-export const driverOf = (row: GatewayRow) => createGateway(configOf(row), { cacheKey: row.id });
-
-/** The row with the settings a member may see; the sealed credentials stay out. */
-const withVisibleSettings = (row: GatewayRow) => ({
-  ...row,
-  settings: visibleGatewaySettings(configOf(row)),
-});
-
-const gatewayOrThrow = async (client: Db, id: string) => {
-  const [row] = await client
-    .select()
-    .from(paymentGateways)
-    .where(eq(paymentGateways.id, id))
-    .limit(1);
-
-  if (!row) throw notFound('Gateway');
-
-  return row;
+  return {
+    payments: gateway.payments,
+    client: await withOrg(row.orgId, (tx) => clientOf(tx, gateway, row)),
+  };
 };
 
-const verifyGateway = async (id: string, settings: GatewayConfig) => {
-  try {
-    await createGateway(settings, { cacheKey: id }).verify();
-  } catch (error) {
-    throw fail(
-      'GATEWAY_REFUSED',
-      `The gateway refused these credentials: ${error instanceof Error ? error.message : String(error)}`,
-    );
-  }
+/** The gateways connected here, each with its service's name and how payers pay through it. */
+export const listGateways = async (client: Db) => {
+  const { data } = await listConnections(client, PAYMENT_KEYS);
+
+  return {
+    data: data.map((row) => {
+      const gateway = gatewayOf(row.key);
+
+      return { ...row, integrationName: gateway.name, pays: gateway.payments.pays };
+    }),
+  };
 };
 
-export const listGateways = async (client: Db) => ({
-  data: (
+/** The installed plugins that may create invoices (`payments:write`), by title. */
+export const payingPlugins = async (client: Db) =>
+  (
     await wholeList((limit) =>
-      client.select().from(paymentGateways).orderBy(paymentGateways.createdAt).limit(limit),
+      client
+        .select({
+          title: sql<string>`coalesce(${plugins.manifest} ->> 'title', ${pluginInstallations.plugin})`,
+        })
+        .from(pluginInstallations)
+        .innerJoin(plugins, eq(plugins.name, pluginInstallations.plugin))
+        .where(sql`'payments:write' = any(${pluginInstallations.grantedScopes})`)
+        .orderBy(pluginInstallations.plugin)
+        .limit(limit),
     )
-  ).map(withVisibleSettings),
-});
+  ).map((row) => row.title);
 
-export const addGateway = async (client: Db, input: { name: string; config: GatewayConfig }) => {
-  const id = newId();
-
-  await verifyGateway(id, input.config);
-
-  const row = oneRow(
-    await client
-      .insert(paymentGateways)
-      .values({
-        id,
-        kind: input.config.kind,
-        name: input.name,
-        configSealed: seal(JSON.stringify(input.config)),
-        createdBy: caller('user').userId,
-      })
-      .returning(),
-  );
-
-  await recordAudit(client, {
-    action: 'payment.gateway_added',
-    targetType: 'payment_gateway',
-    targetId: id,
-    targetLabel: input.name,
-    metadata: { kind: input.config.kind, ...visibleGatewaySettings(input.config) },
-  });
-
-  return withVisibleSettings(row);
-};
-
-export const updateGateway = async (
-  client: Db,
-  id: string,
-  input: { name?: string; config?: GatewayConfig; status?: GatewayRow['status'] },
-) => {
-  const before = await gatewayOrThrow(client, id);
-
-  if (input.config) {
-    if (input.config.kind !== before.kind)
-      throw fail('KIND_CHANGED', 'Add a new gateway to change its kind');
-    await verifyGateway(id, input.config);
+/** QPay QuickQR's districts of a city, for a merchant's address. */
+export const listQuickQrDistricts = async (city: string) => {
+  try {
+    return { data: await quickQrDistricts(city, { quickQr: config.quickQr }) };
+  } catch (error) {
+    throw fail('GATEWAY_REFUSED', error instanceof Error ? error.message : String(error));
   }
-
-  const row = oneRow(
-    await client
-      .update(paymentGateways)
-      .set({
-        name: input.name,
-        configSealed: input.config && seal(JSON.stringify(input.config)),
-        status: input.status,
-        updatedAt: sql`now()`,
-      })
-      .where(eq(paymentGateways.id, id))
-      .returning(),
-  );
-
-  await recordAudit(client, {
-    action: 'payment.gateway_updated',
-    targetType: 'payment_gateway',
-    targetId: id,
-    targetLabel: row.name,
-    metadata: { credentialsChanged: Boolean(input.config), status: input.status },
-  });
-
-  return withVisibleSettings(row);
 };
 
-export const removeGateway = async (client: Db, id: string) => {
-  const row = await gatewayOrThrow(client, id);
-
+export const releaseGateway = async (client: Db, id: string) => {
   const [used] = await client
     .select({ id: paymentInvoices.id })
     .from(paymentInvoices)
@@ -209,18 +132,46 @@ export const removeGateway = async (client: Db, id: string) => {
 
   if (used) throw fail('GATEWAY_IN_USE', 'It has invoices: turn it off instead');
 
-  await client.delete(paymentGateways).where(eq(paymentGateways.id, id));
-  // Plugins that used it go back to the organisation's other gateways.
-  await client.update(paymentPluginSettings).set({
-    allowedGatewayIds: sql`array_remove(${paymentPluginSettings.allowedGatewayIds}, ${id})`,
-    defaultGatewayId: sql`nullif(${paymentPluginSettings.defaultGatewayId}, ${id})`,
-  });
+  await client
+    .update(organizations)
+    .set({ defaultGatewayId: null })
+    .where(eq(organizations.defaultGatewayId, id));
+};
+
+export const paymentSettings = (client: Db) => getOrganization(client);
+
+export const savePaymentSettings = async (
+  client: Db,
+  input: { defaultGatewayId: string | null },
+) => {
+  const before = await getOrganization(client);
+
+  const [gateway] = input.defaultGatewayId
+    ? await client
+        .select({ name: integrationConnections.name })
+        .from(integrationConnections)
+        .where(activeGateway(input.defaultGatewayId))
+        .limit(1)
+    : [];
+
+  if (input.defaultGatewayId && !gateway) {
+    throw fail('NO_GATEWAY', 'That gateway is not connected or is turned off');
+  }
+
+  const row = oneRow(
+    await client
+      .update(organizations)
+      .set({ defaultGatewayId: input.defaultGatewayId, updatedAt: sql`now()` })
+      .returning(),
+  );
+
   await recordAudit(client, {
-    action: 'payment.gateway_removed',
-    targetType: 'payment_gateway',
-    targetId: id,
-    targetLabel: row.name,
+    action: 'payment.default_gateway_changed',
+    targetType: 'organization',
+    targetId: row.id,
+    targetLabel: gateway?.name ?? null,
+    changes: { defaultGatewayId: [before.defaultGatewayId, row.defaultGatewayId] },
   });
 
-  return { ok: true as const };
+  return row;
 };

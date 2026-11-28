@@ -20,6 +20,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { CustomerAccountsSection } from '~/modules/contacts/customers/CustomerAccountsSection';
 import { sexCodeOf } from '~/modules/contacts/customers/sexCode';
 import { useCustomer, useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
 import { LeadPanelSection } from '~/modules/leads/LeadPanelSection';
@@ -182,6 +183,7 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
           onSave={(value) => edit.mutate({ id: customer.id, ...value })}
         />
         <CustomerPersonalSections customer={customer} />
+        <CustomerAccountsSection customerId={customer.id} />
         {!expanded && (
           <ContactDescriptionField
             contentType="core:customer"

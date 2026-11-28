@@ -1,18 +1,16 @@
-import type { BroadcastChannel } from '@erxes/core-db';
+import type { broadcasts } from '@erxes/core-db';
 import { escapeHtml } from '~/modules/email/templates';
 import { recipientPaths } from './links';
 import { fillPlaceholders, type PlaceholderValues } from './placeholders';
 
-/** What a broadcast's copy is made from. */
-export interface BroadcastContent {
-  channel: BroadcastChannel;
-  subject: string | null;
-  preheader: string | null;
-  /** SMS: the text. Email: the text part, rendered from the document when it was saved. */
-  body: string;
-  /** Email: the document rendered when it was saved (`emailBody.ts`). */
-  html: string | null;
-}
+/**
+ * What a broadcast's copy is made from. `body` is the SMS text, or the email's text part;
+ * `html` is the email document rendered when it was saved (`emailBody.ts`).
+ */
+export type BroadcastContent = Pick<
+  typeof broadcasts.$inferSelect,
+  'channel' | 'subject' | 'preheader' | 'body' | 'html'
+>;
 
 /** One copy, as sent. */
 export interface RenderedCopy {

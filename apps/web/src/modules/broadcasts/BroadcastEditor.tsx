@@ -4,6 +4,7 @@ import { Button, Input, ScrollArea, Separator, Spinner, useFormat } from 'erxes-
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EmailSetupBanner, useEmailUndeliverable } from '~/components/EmailSetupBanner';
+import { useFromStale } from '~/components/useFromAddress';
 import { useCan } from '~/modules/auth/session';
 import { AttachmentsField } from './AttachmentsField';
 import { type AudienceMode, AudienceSection, isAudienceMissing, modeOf } from './AudienceSection';
@@ -20,7 +21,13 @@ import { useBroadcastDraft } from './useBroadcastDraft';
 const useBlocked = (broadcast: Broadcast, missingAudience: boolean, undeliverable: boolean) => {
   const { t } = useTranslation('broadcasts');
 
-  if (undeliverable) return t('blocked-email', 'Email sending isn’t set up');
+  const fromStale = useFromStale(
+    broadcast.channel === 'email' && !broadcast.mailConnectionId ? broadcast.fromEmail : null,
+  );
+
+  if (undeliverable) return t('blocked-email', 'Organization email isn’t set up');
+
+  if (fromStale) return t('blocked-from', 'Its From address isn’t on a verified domain');
 
   if (missingAudience) return t('blocked-audience', 'Pick who gets it first');
 
@@ -46,7 +53,9 @@ export const BroadcastEditor = ({ broadcast }: { broadcast: Broadcast }) => {
   const [mode, setMode] = useState<AudienceMode>(() => modeOf(broadcast));
   // What sending or scheduling uses: the editor's copy, which `prepare` saves first.
   const current = { ...broadcast, ...draft };
-  const undeliverable = useEmailUndeliverable(broadcast.channel === 'email');
+  // Through a Mail service connection, Organization email's setup doesn't matter.
+  const throughOrganization = broadcast.channel === 'email' && !current.mailConnectionId;
+  const undeliverable = useEmailUndeliverable(throughOrganization);
   const blocked = useBlocked(current, isAudienceMissing(mode, draft), undeliverable);
 
   return (
@@ -72,7 +81,7 @@ export const BroadcastEditor = ({ broadcast }: { broadcast: Broadcast }) => {
       <ScrollArea className="flex-1">
         <div className="mx-auto grid max-w-7xl gap-8 p-6 lg:grid-cols-3">
           <div className="min-w-0 space-y-6 lg:col-span-2">
-            {broadcast.channel === 'email' && <EmailSetupBanner />}
+            {throughOrganization && <EmailSetupBanner />}
             {broadcast.status === 'recurring' && <RepeatPanel broadcast={broadcast} />}
             <Input
               aria-label={t('name', 'Name')}

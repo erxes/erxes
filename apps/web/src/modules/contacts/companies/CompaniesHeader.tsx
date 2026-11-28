@@ -26,7 +26,7 @@ const CompanyCreateButton = ({ state = 'customer' }: { state?: 'lead' | 'custome
 
 export const CompaniesHeader = ({ state = 'customer' }: { state?: 'lead' | 'customer' }) => (
   <PageHeader>
-    <PageHeader.Start variant="flush">
+    <PageHeader.Start>
       <ContactsBreadcrumb />
     </PageHeader.Start>
     <PageHeader.End>
