@@ -64,6 +64,16 @@ describe('maskLogLine', () => {
     expect(maskLogLine(text)).toBe(text);
   });
 
+  it('masks secret query parameter values and keeps the others', () => {
+    expect(
+      maskLogLine(
+        'GET /deals?page=2&access_token=FakeTok&sort=x mongodb://db/app?tls=true&tlsCertificateKeyFilePassword=FakeKey',
+      ),
+    ).toBe(
+      'GET /deals?page=2&access_token=***&sort=x mongodb://db/app?tls=true&tlsCertificateKeyFilePassword=***',
+    );
+  });
+
   it('masks Bearer tokens', () => {
     expect(
       maskLogLine('authorization: Bearer eyJhbGciOiJIUzI1NiJ9.abc.def'),
@@ -169,11 +179,13 @@ describe('trace ids on log lines', () => {
   const SPAN_ID = '00f067aa0ba902b7';
 
   const inSpan = (traceFlags: number) =>
-    jest
-      .spyOn(trace, 'getActiveSpan')
-      .mockReturnValue(
-        trace.wrapSpanContext({ traceId: TRACE_ID, spanId: SPAN_ID, traceFlags }),
-      );
+    jest.spyOn(trace, 'getActiveSpan').mockReturnValue(
+      trace.wrapSpanContext({
+        traceId: TRACE_ID,
+        spanId: SPAN_ID,
+        traceFlags,
+      }),
+    );
 
   afterEach(() => jest.restoreAllMocks());
 
@@ -437,6 +449,9 @@ describe('errorLogger', () => {
       res.write('partial');
       next(new Error('failed after the headers were sent'));
     });
+    app.post('/json', express.json(), (_req, res) => {
+      res.send('ok');
+    });
     app.use(errorLogger({ log }));
 
     const server = http.createServer(app);
@@ -483,6 +498,27 @@ describe('errorLogger', () => {
       expect(raw.join('\n')).not.toContain('FakeTopSecret');
       expect(raw.join('\n')).not.toContain('token=abc');
       expect(consoleError).not.toHaveBeenCalled();
+    } finally {
+      await stop(server);
+    }
+  });
+
+  it('never logs the raw body of a request body-parser rejected', async () => {
+    const { lines, raw, base, server } = await start();
+    try {
+      const res = await fetch(`${base}/json`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: '{"password": FakeSecretPass',
+      });
+
+      expect(res.status).toBe(400);
+      expect(lines[0]).toMatchObject({
+        level: 'warn',
+        status: 400,
+        bodyError: 'entity.parse.failed',
+      });
+      expect(raw.join('\n')).not.toContain('FakeSecretPass');
     } finally {
       await stop(server);
     }

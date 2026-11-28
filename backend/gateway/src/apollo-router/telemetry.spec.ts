@@ -56,6 +56,9 @@ describe('Apollo Router telemetry config', () => {
     });
 
     expect(tracing?.instrumentation.spans.mode).toBe('spec_compliant');
+    expect(tracing?.apollo.field_level_instrumentation_sampler).toBe(
+      'always_off',
+    );
     expect(tracing?.exporters.tracing.common).toEqual({
       service_name: 'gateway',
       sampler: 0.1,

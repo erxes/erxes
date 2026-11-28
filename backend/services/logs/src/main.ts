@@ -5,6 +5,7 @@ import {
   applyTrustProxy,
   closeMongooose,
   createHealthRoute,
+  flushTelemetry,
   isDev,
   keyForConfig,
   redis,
@@ -112,6 +113,7 @@ async function closeHttpServer() {
     await closeHttpServer();
     await closeMongooose();
     await leaveServiceDiscovery();
+    await flushTelemetry();
     process.exit(0);
   });
 });

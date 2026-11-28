@@ -50,7 +50,7 @@ export function isSensitiveKey(key: string): boolean {
   );
 }
 
-function isSensitiveParam(name: string): boolean {
+export function isSensitiveParam(name: string): boolean {
   return isSensitiveKey(name) || SENSITIVE_URL_PARAMS.has(name.toLowerCase());
 }
 

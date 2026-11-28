@@ -117,6 +117,8 @@ export async function startPlugin(
   applyTrustProxy(app);
   app.disable('x-powered-by');
   app.use(cors(corsOptions));
+  // request id (x-erxes-request-id, kept from the gateway) + one log line per failed, slow or aborted request
+  app.use(requestLogger());
 
   if (routerBeforeBodyParsers) {
     app.use(routerBeforeBodyParsers);
@@ -130,8 +132,6 @@ export async function startPlugin(
     }),
   );
   app.use(cookieParser());
-  // request id (x-erxes-request-id, kept from the gateway) + one log line per failed, slow or aborted request
-  app.use(requestLogger());
 
   // for health check
   app.get('/health', async (_req, res) => {

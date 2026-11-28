@@ -4,6 +4,7 @@ import * as dotenv from 'dotenv';
 import { STATUS_CODES } from 'http';
 import type { NextFunction, Request, Response } from 'express';
 import pino, { DestinationStream, Logger, LoggerOptions } from 'pino';
+import { isSensitiveParam } from './sentryScrub';
 
 // SERVICE_NAME / LOG_LEVEL may come from a .env file: load it before the logger below reads them
 dotenv.config();
@@ -29,8 +30,16 @@ const CREDENTIALS_IN_URL =
   /\b((?:mongodb(?:\+srv)?|amqps?|rediss?|postgres(?:ql)?|mysql|https?):\/\/[^:/\s@"'<>]+:)[^\s"'<>]*@/gi;
 const BEARER_TOKEN = /\b(Bearer\s+)[A-Za-z0-9._~+/=-]{8,}/gi;
 
+// ?access_token=... / &tlsCertificateKeyFilePassword=... : the value is masked, the name kept.
+const QUERY_PARAM = /([?&;])([^=&#?;/:\s"'<>]+)=([^&#\s"'<>]*)/g;
+
 export const maskLogLine = (text: string): string =>
-  text.replace(CREDENTIALS_IN_URL, '$1***@').replace(BEARER_TOKEN, '$1***');
+  text
+    .replace(CREDENTIALS_IN_URL, '$1***@')
+    .replace(BEARER_TOKEN, '$1***')
+    .replace(QUERY_PARAM, (match, separator, name) =>
+      isSensitiveParam(name) ? `${separator}${name}=***` : match,
+    );
 
 const SECRET_KEYS = [
   'password',
@@ -63,7 +72,7 @@ export const traceFields = (): { traceId?: string; spanId?: string } => {
   if (
     !spanContext ||
     !isSpanContextValid(spanContext) ||
-    !(spanContext.traceFlags & TraceFlags.SAMPLED)
+    (spanContext.traceFlags & TraceFlags.SAMPLED) !== TraceFlags.SAMPLED
   ) {
     return {};
   }
@@ -234,10 +243,13 @@ export function errorLogger(options: { log?: Logger } = {}) {
     const declared = Number(err?.status || err?.statusCode);
     const status = declared >= 400 && declared < 600 ? declared : 500;
     const log: Logger = (req as any).log || base;
+    // body-parser errors carry the raw request body (and Node's JSON message quotes it)
+    const unparsedBody =
+      typeof err?.type === 'string' && err.type.startsWith('entity.');
 
     log[status >= 500 ? 'error' : 'warn'](
       {
-        err,
+        ...(unparsedBody ? { bodyError: err.type } : { err }),
         method: req.method,
         path: (req.originalUrl || req.url).split('?')[0],
         status,

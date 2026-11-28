@@ -92,7 +92,7 @@ export function toFailures(input: {
     });
   }
   const n = input.networkError;
-  if (n && !out.length) {
+  if (n && !input.graphQLErrors?.length) {
     const status = n.statusCode;
     const message = n.message || n.name || 'Network error';
     const worth =

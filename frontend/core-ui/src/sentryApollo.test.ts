@@ -60,6 +60,21 @@ describe('sentryApollo', () => {
     ).toEqual([]);
   });
 
+  test('an expected GraphQL error stays unreported when the response was a 400', () => {
+    expect(
+      toFailures({
+        operationName: 'Login',
+        graphQLErrors: [
+          { message: 'Invalid login', extensions: { code: 'BAD_USER_INPUT' } },
+        ],
+        networkError: {
+          statusCode: 400,
+          message: 'Response not successful: Received status code 400',
+        },
+      }),
+    ).toEqual([]);
+  });
+
   test('aborted requests and 401/403 responses are not reported', () => {
     expect(
       toFailures({ networkError: { message: 'The operation was aborted' } }),

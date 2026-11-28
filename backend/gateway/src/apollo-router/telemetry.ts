@@ -95,6 +95,11 @@ export const createTelemetryConfig = (env: NodeJS.ProcessEnv = process.env) => {
         mode: 'spec_compliant',
       },
     },
+    // Router rejects a field-level ratio above the trace ratio (e.g. OTEL_TRACES_SAMPLER_ARG=0)
+    // and fails to start; field-level stats only go to Apollo GraphOS, which is not used.
+    apollo: {
+      field_level_instrumentation_sampler: 'always_off',
+    },
     exporters: {
       tracing: {
         common: {
