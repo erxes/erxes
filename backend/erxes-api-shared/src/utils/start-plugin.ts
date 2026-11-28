@@ -25,10 +25,12 @@ import {
 import { initApiHandlers, TApiHandler } from './initApiHandlers';
 import { initPluginMeta, IPluginMeta } from './initPluginMeta';
 import { closeMongooose } from './mongo';
+import { flushTelemetry } from './tracing';
 import './sentry-instrument';
 import { joinErxesGateway, leaveErxesGateway } from './service-discovery';
 import { createTRPCContext } from './trpc';
 import { applyTrustProxy } from './utils';
+import { errorLogger, logger, requestLogger, setLoggerService } from './logger';
 
 export const MAX_HEADER_BYTES = 64 * 1024;
 
@@ -109,11 +111,14 @@ export async function startPlugin(
     plugin: name,
     service: name,
   });
+  setLoggerService(name);
 
   const app = express();
   applyTrustProxy(app);
   app.disable('x-powered-by');
   app.use(cors(corsOptions));
+  // request id (x-erxes-request-id, kept from the gateway) + one log line per failed, slow or aborted request
+  app.use(requestLogger());
 
   if (routerBeforeBodyParsers) {
     app.use(routerBeforeBodyParsers);
@@ -233,16 +238,16 @@ export async function startPlugin(
         });
       });
     } catch (e) {
-      console.error(e);
+      logger.error({ err: e }, 'closing the http server failed');
     }
   }
 
   async function leaveServiceDiscovery() {
     try {
       await leaveErxesGateway(name, PORT);
-      console.log(`Left service discovery. name=${name} port=${PORT}`);
+      logger.info({ port: PORT }, 'left service discovery');
     } catch (e) {
-      console.error(e);
+      logger.error({ err: e }, 'leaving service discovery failed');
     }
   }
 
@@ -252,6 +257,7 @@ export async function startPlugin(
       await closeHttpServer();
       await closeMongooose();
       await leaveServiceDiscovery();
+      await flushTelemetry();
       process.exit(0);
     });
   });
@@ -299,10 +305,9 @@ export async function startPlugin(
     httpServer.listen({ port: PORT }, resolve),
   );
 
-  console.log(
-    hasGraphql
-      ? `🚀 ${name} graphql api ready at http://localhost:${PORT}/graphql`
-      : `🚀 ${name} api ready at http://localhost:${PORT} (no graphql)`,
+  logger.info(
+    { port: PORT },
+    hasGraphql ? `${name} graphql api ready` : `${name} api ready (no graphql)`,
   );
 
   await joinErxesGateway({
@@ -326,6 +331,8 @@ export async function startPlugin(
   //   debugInfo(`${name} server is running on port: ${PORT}`);
 
   Sentry.setupExpressErrorHandler(app);
+  // after Sentry: unhandled errors become one JSON line instead of a plain stack trace
+  app.use(errorLogger());
 
   return app;
 }

@@ -37,6 +37,10 @@ describe('errorClassifier', () => {
       ['Access denied: You do not have access to this private pipeline'],
       ['This operation is only allowed in saas version.'],
       ['Start date must be before end date'],
+      ['User is not logged in'],
+      ['"Оөо" belongs to someone else. Ask its owner to change it, or have it transferred'],
+      ['Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters'],
+      ['Project has tasks'],
     ])('should classify auth/business noise "%s" as EXPECTED', (msg) => {
       const result = classifyError(new Error(msg));
       expect(result.category).toBe('EXPECTED');
@@ -139,6 +143,16 @@ describe('errorClassifier', () => {
 
     it('should handle unknown types', () => {
       expect(extractMessage(123)).toBe('123');
+    });
+  });
+
+  describe('real officenext bugs stay reported', () => {
+    test.each([
+      ["Cannot read properties of null (reading '_id')"],
+      ['Limit must be between 1 and 100'],
+      ['Cast to ObjectId failed for value "" (type string) at path "teamId"'],
+    ])('"%s" is not EXPECTED', (msg) => {
+      expect(classifyError(new Error(msg)).isExpected).toBe(false);
     });
   });
 

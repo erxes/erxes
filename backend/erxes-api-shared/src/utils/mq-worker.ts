@@ -6,12 +6,30 @@ import type {
   WorkerOptions,
 } from 'bullmq';
 import { Queue, QueueEvents, Worker } from 'bullmq';
+import { BullMQOtel } from 'bullmq-otel';
 import type { Redis } from 'ioredis';
 import { redis } from './redis';
+import { isTracingRequested } from './tracing';
 // Kept in its own module so it can be tested without opening a connection.
 import { toSerializablePayload } from './serializablePayload';
 
 export { toSerializablePayload };
+
+let telemetry: BullMQOtel | undefined;
+
+/**
+ * With tracing on, a job carries the trace of the request that queued it (in the job's
+ * options, not its data) and the worker's span joins that trace. Undefined when tracing is off.
+ */
+export const queueTelemetry = (): BullMQOtel | undefined => {
+  if (!isTracingRequested()) {
+    return undefined;
+  }
+
+  telemetry ??= new BullMQOtel('erxes-bullmq');
+
+  return telemetry;
+};
 
 const queueMap = new Map<string, Queue>();
 const queueEventsMap = new Map<string, QueueEvents>();
@@ -49,6 +67,7 @@ export const createMQWorkerWithListeners = (
 ): WorkerType => {
   const worker = new Worker(`${service}-${queueName}`, processor, {
     connection: redis,
+    telemetry: queueTelemetry(),
     ...workerOptions,
   });
 
@@ -87,6 +106,7 @@ export const sendWorkerQueue = (serviceName: string, queueName: string) => {
     queue = new Queue(queueKey, {
       connection: redis,
       defaultJobOptions: DEFAULT_JOB_OPTIONS,
+      telemetry: queueTelemetry(),
     });
     makeQueueSerializable(queue);
     queueMap.set(queueKey, queue);
@@ -122,6 +142,7 @@ export const sendWorkerMessage = async ({
     queue = new Queue(queueKey, {
       connection: redis,
       defaultJobOptions: DEFAULT_JOB_OPTIONS,
+      telemetry: queueTelemetry(),
     });
     makeQueueSerializable(queue);
     queueMap.set(queueKey, queue);

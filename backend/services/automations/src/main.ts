@@ -1,3 +1,4 @@
+import 'erxes-api-shared/instrument';
 import * as trpcExpress from '@trpc/server/adapters/express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -5,6 +6,7 @@ import {
   applyTrustProxy,
   closeMongooose,
   createHealthRoute,
+  flushTelemetry,
   createTRPCContext,
   isDev,
   keyForConfig,
@@ -124,6 +126,7 @@ async function closeHttpServer() {
     await closeHttpServer();
     await closeMongooose();
     await leaveServiceDiscovery();
+    await flushTelemetry();
     process.exit(0);
   });
 });

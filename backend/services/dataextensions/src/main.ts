@@ -1,3 +1,4 @@
+import 'erxes-api-shared/instrument';
 import { startPlugin } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 import { resolvers } from '~/apollo/resolvers';
