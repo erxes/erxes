@@ -16,6 +16,7 @@ const BUDGET_KB: Record<string, number> = {
   'automations/AutomationsRoutes': 825,
   'broadcasts/BroadcastsRoutes': 775,
   'contacts/ContactsRoutes': 855,
+  'dataExtensions/records/ObjectsRoutes': 780,
   'home/HomePage': 780,
   'notifications/NotificationsPage': 760,
   'onboarding/MainOnboardingPage': 770,

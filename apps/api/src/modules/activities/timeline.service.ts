@@ -7,6 +7,7 @@ import { fail, notFound } from '~/http/errors';
 import { allOf, anyOf } from '~/lib/conditions';
 import { assertMembers } from '~/lib/guards';
 import { keysetPage } from '~/lib/keyset';
+import { visibleEntries } from '~/modules/dataExtensions/valueHistory';
 import { installedPlugins } from '~/modules/plugins/installedPlugin';
 import { entryById, selectEntries } from './activities.service';
 import { assertTimelineAccess } from './timelineAccess';
@@ -88,7 +89,7 @@ const timelineFilters = (client: Db, query: TimelineFilters) => {
 export const listActivities = async (client: Db, query: TimelineQuery) => {
   await assertTimelineAccess(client, query.targetType, query.targetId);
 
-  return keysetPage(
+  const page = await keysetPage(
     client,
     {
       table: activities,
@@ -105,6 +106,8 @@ export const listActivities = async (client: Db, query: TimelineQuery) => {
         .orderBy(...orderBy)
         .limit(limit),
   );
+
+  return { ...page, data: await visibleEntries(client, page.data) };
 };
 
 /**
@@ -136,7 +139,7 @@ export const listMemberActivities = async (
 
   const targetTypes = await readableTimelines(client);
 
-  return keysetPage(
+  const page = await keysetPage(
     client,
     {
       table: activities,
@@ -156,6 +159,8 @@ export const listMemberActivities = async (
         .orderBy(...orderBy)
         .limit(limit),
   );
+
+  return { ...page, data: await visibleEntries(client, page.data) };
 };
 
 /**

@@ -57,8 +57,8 @@ describe('a plugin record in core’s side panel', () => {
   it('shows another plugin’s relation tab where it names the type; a record opened there stacks, and Back returns', async () => {
     const container = await render('/tasks?panel=/detail/tasks:task/t1');
 
-    // Properties (the type keeps custom fields) comes before relation tabs.
-    await vi.waitFor(() => expect(tabNames(container)).toEqual(['Detail', 'Properties', 'Deals']));
+    // Fields (the plugin keeps the type's Data Extensions values) comes before relation tabs.
+    await vi.waitFor(() => expect(tabNames(container)).toEqual(['Detail', 'Fields', 'Deals']));
     expect(panel(container)).toContain('Task t1');
 
     await click(container.querySelector('[data-panel-tab="sales_ui:deals"]'));

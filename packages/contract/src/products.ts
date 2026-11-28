@@ -6,18 +6,13 @@ import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { ProductId } from './records';
 import { ProductKind, PluginName } from './values';
-import {
-  CursorQuery,
-  CustomFields,
-  CustomFieldsPatch,
-  cursorPageOf,
-  Id,
-  IdList,
-  isoDate,
-  listOf,
-  QueryBoolean,
-} from './common';
+import { CursorQuery, cursorPageOf, Id, IdList, isoDate, listOf, QueryBoolean } from './common';
 import { Currency } from './money';
+import {
+  DataExtensionValues,
+  DataExtensionValuesInput,
+  DataSortQuery,
+} from './dataExtensionValues';
 
 export const ProductStatus = z.enum(PRODUCT_STATUSES);
 
@@ -76,17 +71,16 @@ export const Product = createSelectSchema(products, {
     archivedAt: true,
   })
   .extend({
-    /**
-     * The organisation's own product properties (brand, warranty, room
-     * capacity), set up in Settings › Properties, by field id. Every plugin
-     * sees them; what only one plugin needs stays in that plugin.
-     */
-    customFields: CustomFields,
     /** Product tags (`tags.list({ type: 'product' })`), in the order they were added. */
     tagIds: z.array(Id),
   });
 
 export type Product = z.infer<typeof Product>;
+
+/** A product as its get, list, create and update answer: with the Data Extensions values the caller may read. */
+export const ProductWithValues = Product.extend({ values: DataExtensionValues });
+
+export type ProductWithValues = z.infer<typeof ProductWithValues>;
 
 export const ProductCategory = createSelectSchema(productCategories, {
   id: Id,
@@ -153,8 +147,11 @@ const ProductFields = createUpdateSchema(products, {
   .extend({
     /** The product tags it has after the change. 400 INVALID_TAG. */
     tagIds: z.array(Id).max(50).optional(),
-    /** Values by field id; `null` or empty clears one, fields left out stay. 400 INVALID_FIELD, INVALID_FIELD_VALUE. */
-    customFields: CustomFieldsPatch.optional(),
+    /**
+     * Sets the given Data Extensions values by field key (the organisation's own product
+     * fields: brand, warranty); `null` clears one. Others stay.
+     */
+    values: DataExtensionValuesInput.optional(),
   });
 
 const CategoryFields = createUpdateSchema(productCategories, {
@@ -173,13 +170,12 @@ const base = oc.errors({
   ...COMMON_ERRORS,
   CATEGORY_HAS_CHILDREN: ERRORS.CATEGORY_HAS_CHILDREN,
   INVALID_CATEGORY: ERRORS.INVALID_CATEGORY,
-  INVALID_FIELD: ERRORS.INVALID_FIELD,
-  INVALID_FIELD_VALUE: ERRORS.INVALID_FIELD_VALUE,
   INVALID_FILE: ERRORS.INVALID_FILE,
   INVALID_PRODUCT: ERRORS.INVALID_PRODUCT,
   INVALID_TAG: ERRORS.INVALID_TAG,
   LIMIT_EXCEEDED: ERRORS.LIMIT_EXCEEDED,
   NOTHING_TO_RETRY: ERRORS.NOTHING_TO_RETRY,
+  PLUGIN_FIELD: ERRORS.PLUGIN_FIELD,
   PLUGIN_NOT_INSTALLED: ERRORS.PLUGIN_NOT_INSTALLED,
   SUBJECT_REQUIRED: ERRORS.SUBJECT_REQUIRED,
 });
@@ -215,9 +211,9 @@ export const productsContract = {
         minRemainder: z.coerce.number().optional(),
         /** Stock at most this, read as `minRemainder` is. */
         maxRemainder: z.coerce.number().optional(),
-      }),
+      }).extend(DataSortQuery.shape),
     )
-    .output(cursorPageOf(Product)),
+    .output(cursorPageOf(ProductWithValues)),
   get: base
     .route({
       method: 'GET',
@@ -226,17 +222,17 @@ export const productsContract = {
       description: 'One product, by id',
     })
     .input(z.object({ id: Id }))
-    .output(Product),
+    .output(ProductWithValues),
   lookup: base
     .route({
       method: 'GET',
       path: '/products/lookup',
       summary: 'Get products by id',
       description:
-        'The given products (archived ones too), for order lines: `?ids=a,b`, at most 100',
+        'The given products (archived ones too), with their Data Extensions values, for order lines: `?ids=a,b`, at most 100',
     })
     .input(z.object({ ids: IdList }))
-    .output(z.object({ data: z.array(Product).max(100) })),
+    .output(z.object({ data: z.array(ProductWithValues).max(100) })),
   create: base
     .route({
       method: 'POST',
@@ -247,7 +243,7 @@ export const productsContract = {
         "409 TAKEN for a code or barcode, with the existing product's id in `data.id` (a plugin can `use` it instead); 400 INVALID_CATEGORY, INVALID_FILE, PLUGIN_NOT_INSTALLED",
     })
     .input(ProductFields.required({ kind: true, name: true }))
-    .output(Product),
+    .output(ProductWithValues),
   update: base
     .route({
       method: 'PATCH',
@@ -261,7 +257,7 @@ export const productsContract = {
         'nothing to update',
       ),
     )
-    .output(Product),
+    .output(ProductWithValues),
   use: base
     .route({
       method: 'POST',
@@ -280,7 +276,7 @@ export const productsContract = {
       description: 'Take a product out of lists and pickers; orders and invoices keep it',
     })
     .input(z.object({ id: Id }))
-    .output(Product),
+    .output(ProductWithValues),
   restore: base
     .route({
       method: 'POST',
@@ -289,7 +285,7 @@ export const productsContract = {
       description: 'Make an archived product active again',
     })
     .input(z.object({ id: Id }))
-    .output(Product),
+    .output(ProductWithValues),
 };
 
 /** Groups of products, nested by `parentId`. */

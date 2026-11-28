@@ -15,12 +15,15 @@ import { smsContract } from './sms';
 import { eventsContract } from './events';
 import { exchangeRatesContract } from './exchangeRates';
 import { customersContract } from './customers';
+import { dataFieldsContract, dataObjectsContract } from './dataExtensions';
+import { dataChangesContract } from './dataChanges';
+import { dataFieldGroupsContract } from './dataFieldGroups';
+import { dataPluginsContract } from './dataPlugins';
+import { dataRecordsContract, dataValuesContract } from './dataRecords';
 import { favoritesContract } from './favorites';
 import { customerAccountContract } from './customerAccount';
 import { customerAuthContract } from './customerAuth';
 import { customerNotificationsContract } from './customerNotifications';
-import { fieldGroupsContract } from './fieldGroups';
-import { fieldsContract } from './fields';
 import { filesContract } from './files';
 import { notificationsContract } from './notifications';
 import { oauthConsentContract } from './oauthConsent';
@@ -30,6 +33,7 @@ import { ebarimtContract } from './ebarimt';
 import { pluginsContract } from './plugins';
 import { productInventoriesContract } from './productInventories';
 import { productCategoriesContract, productsContract } from './products';
+import { recordTypesContract } from './recordTypes';
 import { banksContract } from './banks';
 import { integrationsContract } from './integrations';
 import { githubAppContract } from './githubApp';
@@ -64,6 +68,13 @@ export type CoreContract = {
   broadcastSchedules: typeof broadcastSchedulesContract;
   companies: typeof companiesContract;
   customers: typeof customersContract;
+  dataFields: typeof dataFieldsContract;
+  dataObjects: typeof dataObjectsContract;
+  dataFieldGroups: typeof dataFieldGroupsContract;
+  dataPlugins: typeof dataPluginsContract;
+  dataChanges: typeof dataChangesContract;
+  dataRecords: typeof dataRecordsContract;
+  dataValues: typeof dataValuesContract;
   favorites: typeof favoritesContract;
   customerAccount: typeof customerAccountContract;
   customerAuth: typeof customerAuthContract;
@@ -73,8 +84,6 @@ export type CoreContract = {
   sms: typeof smsContract;
   events: typeof eventsContract;
   exchangeRates: typeof exchangeRatesContract;
-  fieldGroups: typeof fieldGroupsContract;
-  fields: typeof fieldsContract;
   files: typeof filesContract;
   leads: typeof leadsContract;
   license: typeof licenseContract;
@@ -87,6 +96,7 @@ export type CoreContract = {
   productCategories: typeof productCategoriesContract;
   productInventories: typeof productInventoriesContract;
   products: typeof productsContract;
+  recordTypes: typeof recordTypesContract;
   roles: typeof rolesContract;
   saas: typeof saasContract;
   search: typeof searchContract;
@@ -123,6 +133,13 @@ export const coreContract: CoreContract = {
   broadcastSchedules: broadcastSchedulesContract,
   companies: companiesContract,
   customers: customersContract,
+  dataFields: dataFieldsContract,
+  dataObjects: dataObjectsContract,
+  dataFieldGroups: dataFieldGroupsContract,
+  dataPlugins: dataPluginsContract,
+  dataChanges: dataChangesContract,
+  dataRecords: dataRecordsContract,
+  dataValues: dataValuesContract,
   favorites: favoritesContract,
   customerAccount: customerAccountContract,
   customerAuth: customerAuthContract,
@@ -132,8 +149,6 @@ export const coreContract: CoreContract = {
   sms: smsContract,
   events: eventsContract,
   exchangeRates: exchangeRatesContract,
-  fieldGroups: fieldGroupsContract,
-  fields: fieldsContract,
   files: filesContract,
   leads: leadsContract,
   license: licenseContract,
@@ -146,6 +161,7 @@ export const coreContract: CoreContract = {
   productCategories: productCategoriesContract,
   productInventories: productInventoriesContract,
   products: productsContract,
+  recordTypes: recordTypesContract,
   roles: rolesContract,
   saas: saasContract,
   search: searchContract,
@@ -215,6 +231,26 @@ export * from './contactLinks';
 
 export * from './customers';
 
+export * from './dataExtensionFields';
+
+export * from './dataExtensions';
+
+export * from './dataChanges';
+
+export * from './dataPlugins';
+
+export * from './dataPluginFields';
+
+export * from './dataExtensionConditions';
+
+export * from './dataFieldGroups';
+
+export * from './recordNativeFields';
+
+export * from './dataExtensionValues';
+
+export * from './dataRecords';
+
 export * from './customerAccount';
 
 export * from './customerAuth';
@@ -231,11 +267,7 @@ export * from './exchangeRates';
 
 export * from './favorites';
 
-export * from './fieldGroups';
-
-export * from './fieldLogic';
-
-export * from './fields';
+export * from './recordTypes';
 
 export * from './files';
 
@@ -290,8 +322,6 @@ export * from './pluginSignIn';
 export * from './plugins';
 
 export * from './pluginAssistant';
-
-export * from './pluginFields';
 
 export * from './pluginRelations';
 

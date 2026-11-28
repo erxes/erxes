@@ -22,13 +22,14 @@ const sorted = (names: (string | null)[]) =>
  * Acme's contacts for filter and view tests: Bat (a VIP lead at golf.mn who
  * spends 1500, likes golf, birthday in 5 days), Dorj (Member's customer for
  * 40 days, spends 200), Saraa (at Retail Co, an industry Retail company of 40)
- * and Lonely LLC (Mining). Custom fields Spend and Interests; a Viewer role
+ * and Lonely LLC (Mining). Data Extensions fields Spend and Interests; a Viewer role
  * that may only view contacts.
  */
 export const useContacts = () => {
   const t = useTwoOrgs();
   const ids = { bat: '', dorj: '', saraa: '', retail: '', viewer: '' };
-  const fields = { spend: '', interests: '' };
+  /** The Data Extensions fields' filter paths. */
+  const fields = { spend: 'subject.data.spend', interests: 'subject.data.interests' };
   let vip = '';
 
   beforeAll(async () => {
@@ -52,17 +53,22 @@ export const useContacts = () => {
     const owner = t.owner();
 
     vip = (await owner.tags.create({ name: 'VIP', type: 'customer' })).id;
-    fields.spend = (
-      await owner.fields.create({ contentType: 'customer', label: 'Spend', type: 'number' })
-    ).id;
-    fields.interests = (
-      await owner.fields.create({
-        contentType: 'customer',
-        label: 'Interests',
-        type: 'multiselect',
-        options: ['golf', 'ski'],
-      })
-    ).id;
+    await owner.dataFields.create({
+      recordType: 'core.customer',
+      key: 'spend',
+      label: 'Spend',
+      type: 'number',
+    });
+    await owner.dataFields.create({
+      recordType: 'core.customer',
+      key: 'interests',
+      label: 'Interests',
+      type: 'multiSelect',
+      options: [
+        { value: 'golf', label: 'Golf', color: 'green' },
+        { value: 'ski', label: 'Ski', color: 'blue' },
+      ],
+    });
 
     ids.bat = (
       await owner.customers.create({
@@ -71,7 +77,7 @@ export const useContacts = () => {
         primaryEmail: 'bat@golf.mn',
         tagIds: [vip],
         birthDate: `1988-${monthDayIn(5)}`,
-        customFields: { [fields.spend]: 1500, [fields.interests]: ['golf'] },
+        values: { spend: 1500, interests: ['golf'] },
       })
     ).id;
     ids.dorj = (
@@ -79,7 +85,7 @@ export const useContacts = () => {
         firstName: 'Dorj',
         state: 'customer',
         ownerId: t.ids.member,
-        customFields: { [fields.spend]: 200 },
+        values: { spend: 200 },
       })
     ).id;
     ids.saraa = (

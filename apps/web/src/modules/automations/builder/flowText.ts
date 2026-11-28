@@ -246,10 +246,8 @@ type DescribeContext = {
 
 const namedValue = (type: ActionField['type'], value: unknown, context: DescribeContext) => {
   switch (type) {
-    case 'custom_field':
-      return context.fields
-        .find((item) => item.path === `subject.customFields.${String(value)}`)
-        ?.label.replace(/ \(custom\)$/, '');
+    case 'data_field':
+      return context.fields.find((item) => item.path === `subject.data.${String(value)}`)?.label;
     case 'lead_stage':
       return context.stages?.find((stage) => stage.id === value)?.name;
     case 'automation':

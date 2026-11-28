@@ -283,14 +283,14 @@ describe('action inputs', () => {
   };
 
   const setField: ActionInfo = {
-    type: 'core.customer.set_field',
-    label: 'Set a custom field',
+    type: 'core.customer.set_data_value',
+    label: 'Set a field',
     description: null,
     source: 'core',
     integration: null,
     integrationName: null,
     subject: 'customer',
-    fields: [{ key: 'fieldId', label: 'Field', type: 'custom_field', required: true }],
+    fields: [{ key: 'field', label: 'Field', type: 'data_field', required: true }],
     outputs: [],
   };
 
@@ -299,13 +299,11 @@ describe('action inputs', () => {
     expect(actionDefaults(move)).toEqual({});
   });
 
-  it('names stages and custom fields on the card, not their ids', () => {
+  it('names stages and data fields on the card, not their ids or keys', () => {
     const context = {
       actions: [move, setField],
       events: [],
-      fields: [
-        { path: 'subject.customFields.f1', label: 'Plan (custom)', type: 'select' as const },
-      ],
+      fields: [{ path: 'subject.data.plan', label: 'Plan', type: 'select' as const }],
       stages: [{ id: 's1', name: 'Qualified' }],
     };
 
@@ -317,7 +315,12 @@ describe('action inputs', () => {
     ).toBe('Stage: Qualified');
     expect(
       describeStep(
-        { id: 'f', type: 'action', action: 'core.customer.set_field', input: { fieldId: 'f1' } },
+        {
+          id: 'f',
+          type: 'action',
+          action: 'core.customer.set_data_value',
+          input: { field: 'plan' },
+        },
         context,
       ).detail,
     ).toBe('Field: Plan');

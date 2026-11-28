@@ -5,7 +5,6 @@ import {
   companyTags,
   customerCompanies,
   customerTags,
-  type CustomValue,
   type Db,
   tags,
   users,
@@ -15,15 +14,17 @@ import { eq, inArray, sql } from 'drizzle-orm';
 import writeXlsxFile from 'write-excel-file/node';
 import { defuse } from '~/lib/csv';
 import { editorText } from '~/lib/editorText';
-import { customCell } from './columns';
+import { DATA_PATH } from '~/modules/dataExtensions/hostFilters';
+import { valueCell } from './columns';
+import { exportedValues } from './dataColumns';
+import { isCoreType } from './pluginTransfer';
 
 export type Cell = string | number | Date | null;
 
-/** A customer or company row as the export reads it: its columns and its custom field values. */
+/** A customer or company row as the export reads it: its columns. */
 export interface ExportRecord {
   id: string;
   ownerId: string | null;
-  customFields: Record<string, CustomValue>;
   [column: string]: unknown;
 }
 
@@ -107,10 +108,19 @@ export const pageCells = async (
 ): Promise<Cell[][]> => {
   const relations = await relationsOf(tx, recordType === 'company', rows, keys);
 
+  const values = isCoreType(recordType)
+    ? await exportedValues(
+        tx,
+        recordType,
+        rows.map((row) => row.id),
+        keys,
+      )
+    : new Map<string, Record<string, unknown>>();
+
   return rows.map((row) =>
     keys.map((key): Cell => {
-      if (key.startsWith('customFields.'))
-        return customCell(row.customFields[key.slice('customFields.'.length)]);
+      if (key.startsWith(DATA_PATH))
+        return valueCell(values.get(row.id)?.[key.slice(DATA_PATH.length)]);
 
       if (key === 'tags') return (relations.tags.get(row.id) ?? []).join('; ');
 

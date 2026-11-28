@@ -1,4 +1,5 @@
 import { type Activity, EmailDeliveryStatus } from '@erxes/core-contract';
+import { DataExtensionValueChange } from '@erxes/core-contract/dataChanges';
 import { z } from 'zod';
 
 /*
@@ -23,6 +24,12 @@ const ids = z.array(z.string()).default([]);
 const changes = z.record(z.string(), z.tuple([z.unknown(), z.unknown()]));
 
 export const readChanges = reader(z.object({ changes }).transform((data) => data.changes));
+
+/** `data.record.created` and `data.values.changed`: each Data Extensions value before and after. */
+export const readDataChanges = reader(
+  z.object({ changes: z.array(DataExtensionValueChange) }).transform((data) => data.changes),
+);
+
 export const readTagged = reader(z.object({ added: ids, removed: ids }));
 export const readMerged = reader(z.object({ mergedNames: z.array(z.string()) }));
 

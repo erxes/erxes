@@ -1,35 +1,12 @@
-import { isCoreFieldType, LEAD_SOURCES, type ViewRecordType } from '@erxes/core-contract';
-import { CONTENT_TYPES } from '@erxes/core-db/enums';
-import {
-  companies,
-  customerCompanies,
-  customers,
-  type Db,
-  fields,
-  leadStages,
-} from '@erxes/core-db';
-import { and, asc, eq, inArray, sql } from 'drizzle-orm';
-import { fieldShown, pluginTitle } from '~/modules/fields/fieldRows';
-import { type CustomSpec, field, type FieldSpec, type FieldType } from './fieldSpec';
+import { LEAD_SOURCES, type ViewRecordType } from '@erxes/core-contract';
+import { companies, customerCompanies, customers, type Db, leadStages } from '@erxes/core-db';
+import type { CONTENT_TYPES } from '@erxes/core-db/enums';
+import { asc, sql } from 'drizzle-orm';
+import { field, type FieldSpec } from './fieldSpec';
 import { textArray } from '@erxes/plugin-sdk/filter';
+import { companyDataFilterFields, dataFilterFields } from './dataFilterFields';
 import { productFields } from './productFilterFields';
 import { relationFields } from './relationFields';
-
-const STORAGE: Record<string, CustomSpec['storage']> = {
-  number: 'number',
-  date: 'date',
-  boolean: 'bool',
-};
-
-const FILTER_TYPE: Record<string, FieldType> = {
-  number: 'number',
-  date: 'date',
-  boolean: 'boolean',
-  select: 'select',
-  radio: 'select',
-  multiselect: 'select',
-  check: 'select',
-};
 
 /**
  * A column that stores one of fixed lower-case values (a state, a source): "is" compares the
@@ -167,81 +144,21 @@ const CUSTOMER_RELATED: FieldSpec[] = [
   }),
 ];
 
-/** The list's custom fields; customers also filter by their company's properties. */
-const customFields = async (client: Db, recordType: ViewRecordType) => {
-  const isCompany = isCompanyList(recordType);
-
-  const rows = await client
-    .select({
-      id: fields.id,
-      contentType: fields.contentType,
-      label: fields.label,
-      type: fields.type,
-      options: fields.options,
-      plugin: fields.plugin,
-      pluginTitle,
-    })
-    .from(fields)
-    .where(
-      and(
-        recordType === 'product'
-          ? eq(fields.contentType, 'product')
-          : isCompany
-            ? eq(fields.contentType, 'company')
-            : inArray(fields.contentType, CONTENT_TYPES),
-        fieldShown,
-        eq(fields.filterable, true),
-      ),
-    )
-    .orderBy(asc(fields.order));
-
-  return rows.flatMap((row): FieldSpec[] => {
-    const { contentType } = row;
-
-    // Only core's records: plugin record types aren't among these rows (the query names the types).
-    if (!isCoreFieldType(contentType)) return [];
-
-    const ofCompany = contentType === 'company' && !isCompany;
-
-    return [
-      {
-        path: ofCompany
-          ? `subject.company.customFields.${row.id}`
-          : `subject.customFields.${row.id}`,
-        label: ofCompany ? `Company ${row.label}` : row.label,
-        // A plugin's fields list under its title (`Sales`: Total spent, Last order).
-        ...(ofCompany
-          ? { group: 'company' as const }
-          : row.plugin
-            ? { group: 'plugin' as const, groupLabel: row.pluginTitle ?? row.plugin }
-            : { group: 'custom' as const }),
-        type: FILTER_TYPE[row.type] ?? 'text',
-        options: row.options.length ? row.options : undefined,
-        expr: sql`null`,
-        dateOnly: row.type === 'date',
-        viaCompany: ofCompany,
-        custom: {
-          recordType: contentType,
-          fieldId: row.id,
-          storage: STORAGE[row.type] ?? 'text',
-        },
-      },
-    ];
-  });
-};
-
 const stageNamesOf = async (client: Db) =>
   (
     await client.select({ name: leadStages.name }).from(leadStages).orderBy(asc(leadStages.order))
   ).map((stage) => stage.name);
 
-/** Built-in fields, custom fields (`customFields.<id>`), the linked company's fields and activity. */
+/**
+ * Built-in fields, Data Extensions fields (`subject.data.<key>`), the linked company's fields
+ * (its Data Extensions ones too, `subject.company.data.<key>`) and activity.
+ */
 export const filterFields = async (
   client: Db,
   recordType: ViewRecordType,
 ): Promise<FieldSpec[]> => {
   if (recordType === 'product')
-    return [...(await productFields(client)), ...(await customFields(client, recordType))];
+    return [...(await productFields(client)), ...(await dataFilterFields(client, recordType))];
 
   const isCompany = isCompanyList(recordType);
   const stageNames = recordType === 'customer' ? [] : await stageNamesOf(client);
@@ -251,7 +168,8 @@ export const filterFields = async (
     ...lifecycleFields(recordType, stageNames),
     ...commonFields(isCompany ? companies : customers),
     ...(isCompany ? COMPANY_RELATED : CUSTOMER_RELATED),
-    ...(await customFields(client, recordType)),
+    ...(await dataFilterFields(client, recordType)),
+    ...(isCompany ? [] : await companyDataFilterFields(client)),
     ...(await relationFields(client, isCompany ? 'company' : 'customer')),
   ];
 };
@@ -275,7 +193,8 @@ export const subjectFilterFields = async (
     ...lifecycleFields('lead', await stageNamesOf(client)),
     ...commonFields(customers),
     ...CUSTOMER_RELATED,
-    ...(await customFields(client, 'customer')),
+    ...(await dataFilterFields(client, 'customer')),
+    ...(await companyDataFilterFields(client)),
     ...(await relationFields(client, 'customer')),
   ];
 };

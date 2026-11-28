@@ -11,7 +11,6 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import { inList, orgIdColumn, pgTable } from '../table';
-import type { CustomValue } from './common';
 import { organizations } from './organizations';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
@@ -21,8 +20,8 @@ type SnapshotRow = { id: string } & Record<string, unknown>;
 
 /** What went to the bin with a record. */
 export interface TrashSnapshot {
-  /** The customer or company row, with its `customFields` values. */
-  row: SnapshotRow & { customFields?: Record<string, CustomValue> };
+  /** The customer or company row; its Data Extensions values stay in their table. */
+  row: SnapshotRow;
   tagIds: string[];
   /** Its `customer_companies` rows: role, main contact, left. */
   links: (Record<string, unknown> & { customerId: string; companyId: string })[];

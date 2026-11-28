@@ -21,7 +21,7 @@ const MetaApp = () => createElement('p', null, 'App id and secret');
 
 const ZaloOverview = () => createElement('p', null, 'Zalo official accounts');
 
-const properties = (type: string) => ({
+const dataFields = (type: string) => ({
   type,
   values: async () => ({}),
   save: async () => undefined,
@@ -45,7 +45,7 @@ export const CONFIGS: Record<string, unknown> = {
         detailPath: (id: string) => `/pms/rooms/${id}`,
         Title: Page,
         Detail: Page,
-        properties: properties('pms.room'),
+        dataFields: dataFields('pms.room'),
       },
     ],
   },
@@ -60,7 +60,7 @@ export const CONFIGS: Record<string, unknown> = {
         detailPath: (id: string) => `/tms/bookings/${id}`,
         Title: Page,
         Detail: Page,
-        properties: properties('tms.booking'),
+        dataFields: dataFields('tms.booking'),
       },
     ],
   },

@@ -1,9 +1,8 @@
-import type { CustomerProfile } from '@erxes/core-contract';
+import type { CustomerProfile, DataExtensionValues } from '@erxes/core-contract';
 import {
   caller,
   customerLogins,
   customerSessions,
-  type CustomValue,
   requestOrgId,
   portals,
   withOrg,
@@ -13,11 +12,10 @@ import { fail, notFound } from '~/http/errors';
 import { requestInfo } from '~/http/requestContext';
 import { wholeList } from '~/lib/keyset';
 import { lockKeys } from '~/lib/locks';
-import { findCustomer } from '~/modules/customers/customerRows';
 import { updateCustomer } from '~/modules/customers/customers.service';
 import { issueCode, proveCode } from './customerCodeReplies';
 import { type Address, addressOf, type PhoneMethod } from './customerCodes';
-import { checkTheirFields, profileOf } from './customerFields';
+import { checkTheirValues, profileOf } from './customerFields';
 import { addLogin, findLogin, lockLogin } from './customerLogins';
 
 // The signed-in customer (`caller('customer')`): their profile, and their account on the portal.
@@ -28,18 +26,15 @@ export const myProfile = () =>
 /** Their name, picture, birth date and the fields customers fill in; nothing staff keep. */
 export const updateMyProfile = (
   changes: Partial<Pick<CustomerProfile, 'firstName' | 'lastName' | 'avatarUrl' | 'birthDate'>> & {
-    customFields?: Record<string, CustomValue | null>;
+    values?: DataExtensionValues;
   },
 ) =>
   withOrg(requestOrgId(), async (tx) => {
     const { customerId } = caller('customer');
-    const { customFields, ...own } = changes;
 
-    if (customFields) {
-      await checkTheirFields(tx, (await findCustomer(tx, customerId)).customFields, customFields);
-    }
+    if (changes.values) await checkTheirValues(tx, changes.values);
 
-    await updateCustomer(tx, customerId, { ...own, ...(customFields && { customFields }) });
+    await updateCustomer(tx, customerId, changes);
 
     return profileOf(tx, customerId);
   });

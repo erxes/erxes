@@ -21,11 +21,10 @@ import { logger } from '~/logger';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { companyListWhere } from '~/modules/companies/companyList';
 import { customerListWhere } from '~/modules/customers/customerList';
-import { customFieldsColumn } from '~/modules/fields/fieldValues';
 import { storeServerFile } from '~/modules/files/files.service';
 import { defineJob } from '~/modules/jobs/jobs';
 import { notify } from '~/modules/notifications/notifications.service';
-import { customCell, transferColumns } from './columns';
+import { transferColumns, valueCell } from './columns';
 import { type Cell, type ExportRecord, exportFile, pageCells } from './exportCells';
 import {
   assertCanTransfer,
@@ -194,10 +193,7 @@ const pageOf = async (
 ): Promise<ExportRecord[]> => {
   if (recordType === 'company') {
     return tx
-      .select({
-        ...getTableColumns(companies),
-        customFields: customFieldsColumn('company', companies.id),
-      })
+      .select(getTableColumns(companies))
       .from(companies)
       .where(and(where, last ? gt(companies.id, last) : undefined))
       .orderBy(asc(companies.id))
@@ -205,10 +201,7 @@ const pageOf = async (
   }
 
   return tx
-    .select({
-      ...getTableColumns(customers),
-      customFields: customFieldsColumn('customer', customers.id),
-    })
+    .select(getTableColumns(customers))
     .from(customers)
     .where(and(where, last ? gt(customers.id, last) : undefined))
     .orderBy(asc(customers.id))
@@ -262,7 +255,7 @@ const pluginRows = async (orgId: string, row: ExportRow) => {
     body.push(
       ...page.rows
         .slice(0, PLUGIN_PAGE)
-        .map((record) => row.columns.map((key) => customCell(record[key]))),
+        .map((record) => row.columns.map((key) => valueCell(record[key]))),
     );
     cursor = page.cursor;
 

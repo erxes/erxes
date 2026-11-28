@@ -1,13 +1,45 @@
-/** `rows` customers with properties, tags, owners and activity, and a company for every twenty. */
+import type { DataFieldOption } from '@erxes/core-db';
+import type { createField } from '~/modules/dataExtensions/fields.service';
+
+const options = (...values: string[]): DataFieldOption[] =>
+  values.map((value) => ({ value, label: value, color: 'gray' }));
+
+/**
+ * The Data Extensions fields the bench filters by, customers' and companies'. They are made
+ * through the API first, so their tables and columns exist when the seed fills them.
+ */
+export const BENCH_FIELDS: Parameters<typeof createField>[1][] = [
+  { recordType: 'core.customer', key: 'spend', label: 'Spend', type: 'number' },
+  {
+    recordType: 'core.customer',
+    key: 'tier',
+    label: 'Tier',
+    type: 'select',
+    options: options('bronze', 'silver', 'gold'),
+  },
+  {
+    recordType: 'core.customer',
+    key: 'interests',
+    label: 'Interests',
+    type: 'multiSelect',
+    options: options('golf', 'ski', 'music', 'food'),
+  },
+  { recordType: 'core.customer', key: 'renewal', label: 'Renewal', type: 'date' },
+  {
+    recordType: 'core.company',
+    key: 'region',
+    label: 'Region',
+    type: 'select',
+    options: options('north', 'south', 'east', 'west'),
+  },
+];
+
+/** `rows` customers with field values, tags, owners and activity, and a company for every twenty. */
 const contactsSql = (orgId: string, rows: number) => {
   const companies = Math.max(1, Math.floor(rows / 20));
+  const schema = `"data_${orgId}"`;
 
   return `
-    INSERT INTO core_fields (id, org_id, content_type, label, type, options, "order")
-    VALUES ('f_spend', '${orgId}', 'customer', 'Spend', 'number', '{}', 1),
-           ('f_tier', '${orgId}', 'customer', 'Tier', 'select', '{bronze,silver,gold}', 2),
-           ('f_interests', '${orgId}', 'customer', 'Interests', 'multiselect', '{golf,ski,music,food}', 3),
-           ('f_renewal', '${orgId}', 'customer', 'Renewal', 'date', '{}', 4);
     INSERT INTO core_tags (id, org_id, type, name)
       SELECT 'tag' || g, '${orgId}', 'customer', 'Tag ' || g FROM generate_series(1, 20) g;
     INSERT INTO core_users (id, org_id, email, role, status)
@@ -24,15 +56,11 @@ const contactsSql = (orgId: string, rows: number) => {
         now() - make_interval(mins => g % (365 * 24 * 60)),
         now() - make_interval(mins => g % (3 * 365 * 24 * 60))
       FROM generate_series(1, ${rows}) g;
-    INSERT INTO core_customer_field_values (org_id, record_id, field_id, number_value)
-      SELECT '${orgId}', 'c' || g, 'f_spend', (g * 37) % 10000 FROM generate_series(1, ${rows}) g;
-    INSERT INTO core_customer_field_values (org_id, record_id, field_id, text_value)
-      SELECT '${orgId}', 'c' || g, 'f_tier', (ARRAY['bronze','silver','gold'])[g % 3 + 1] FROM generate_series(1, ${rows}) g;
-    INSERT INTO core_customer_field_values (org_id, record_id, field_id, position, text_value)
-      SELECT '${orgId}', 'c' || g, 'f_interests', p - 1, (CASE WHEN g % 4 = 0 THEN ARRAY['golf','music'] ELSE ARRAY['food'] END)[p]
-      FROM generate_series(1, ${rows}) g, generate_series(1, 2) p WHERE p = 1 OR g % 4 = 0;
-    INSERT INTO core_customer_field_values (org_id, record_id, field_id, date_value)
-      SELECT '${orgId}', 'c' || g, 'f_renewal', current_date + (g % 400) - 200 FROM generate_series(1, ${rows}) g;
+    INSERT INTO ${schema}.ext_core_customer (record_id, org_id, spend, tier, interests, renewal)
+      SELECT 'c' || g, '${orgId}', (g * 37) % 10000, (ARRAY['bronze','silver','gold'])[g % 3 + 1],
+        CASE WHEN g % 4 = 0 THEN ARRAY['golf','music'] ELSE ARRAY['food'] END,
+        current_date + (g % 400) - 200
+      FROM generate_series(1, ${rows}) g;
     INSERT INTO core_customer_tags (org_id, customer_id, tag_id)
       SELECT '${orgId}', 'c' || g, 'tag' || (g % 20 + 1) FROM generate_series(1, ${rows}) g WHERE g % 3 = 0;
     INSERT INTO core_companies (id, org_id, primary_name, names, emails, phones, industry, created_at, updated_at)
@@ -45,10 +73,8 @@ const contactsSql = (orgId: string, rows: number) => {
       SELECT 'a' || g, '${orgId}', 'customer', 'c' || (g * 13 % ${rows} + 1), 'core', 'customer.note', 'system',
         now() - make_interval(hours => g % (2 * 365 * 24))
       FROM generate_series(1, ${rows}) g;
-    INSERT INTO core_fields (id, org_id, content_type, label, type, options, "order")
-    VALUES ('f_region', '${orgId}', 'company', 'Region', 'select', '{north,south,east,west}', 1);
-    INSERT INTO core_company_field_values (org_id, record_id, field_id, text_value)
-      SELECT '${orgId}', 'co' || g, 'f_region', (ARRAY['north','south','east','west'])[g % 4 + 1] FROM generate_series(1, ${companies}) g;
+    INSERT INTO ${schema}.ext_core_company (record_id, org_id, region)
+      SELECT 'co' || g, '${orgId}', (ARRAY['north','south','east','west'])[g % 4 + 1] FROM generate_series(1, ${companies}) g;
   `;
 };
 

@@ -31,7 +31,22 @@ export const CORE_PERMISSIONS = [
   { action: 'notes.moderate', group: 'Contacts', label: "Edit and delete other people's notes" },
   { action: 'tags.manage', group: 'Tags', label: 'Create and rename tags' },
   { action: 'tags.delete', group: 'Tags', label: 'Delete tags' },
-  { action: 'properties.manage', group: 'Properties', label: 'Manage custom fields and groups' },
+  {
+    action: 'properties.manage',
+    group: 'Properties',
+    label: 'Manage custom fields, groups and custom objects',
+  },
+  { action: 'objects.view', group: 'Custom objects', label: 'See custom objects’ records' },
+  {
+    action: 'objects.edit',
+    group: 'Custom objects',
+    label: 'Add and change custom objects’ records',
+  },
+  {
+    action: 'objects.delete',
+    group: 'Custom objects',
+    label: 'Move custom objects’ records to the recycle bin',
+  },
   { action: 'files.moderate', group: 'Files', label: "Delete other people's files" },
   { action: 'team.view', group: 'Team', label: 'See team members' },
   { action: 'team.invite', group: 'Team', label: 'Invite team members' },

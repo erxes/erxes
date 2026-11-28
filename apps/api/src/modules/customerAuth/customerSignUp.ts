@@ -1,10 +1,12 @@
-import type { CustomValue, CustomerSignUpData, Db } from '@erxes/core-db';
+import { isEmptyValue } from '@erxes/core-contract';
+import type { CustomerSignUpData, Db } from '@erxes/core-db';
 import { customerLogins, runAs, system, withOrg } from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
 import { requestInfo } from '~/http/requestContext';
 import { findCustomer } from '~/modules/customers/customerRows';
 import { updateCustomer } from '~/modules/customers/customers.service';
 import { findOrCreateCustomer } from '~/modules/customers/findOrCreateCustomer';
+import { allValues } from '~/modules/dataExtensions/hostValues.service';
 import { accountOf, openSession, type SignInRequest } from './customerAuth.service';
 import { issueCode, proveCode } from './customerCodeReplies';
 import { type Address, addressOf, invalidCode, type PhoneMethod } from './customerCodes';
@@ -36,16 +38,17 @@ export const sendSignUpCode = async (
 /** What the form adds to a customer erxes already had: only what is still empty, staff's data kept. */
 export const fillEmpty = async (tx: Db, customerId: string, form: CustomerSignUpData) => {
   const current = await findCustomer(tx, customerId);
+  const kept = await allValues(tx, 'core.customer', customerId);
 
-  const customFields: Record<string, CustomValue> = Object.fromEntries(
-    Object.entries(form.customFields ?? {}).filter(([id]) => !(id in current.customFields)),
+  const values = Object.fromEntries(
+    Object.entries(form.values ?? {}).filter(([key]) => isEmptyValue(kept[key])),
   );
 
   const changes = {
     ...(!current.firstName && { firstName: form.firstName }),
     ...(!current.lastName && form.lastName && { lastName: form.lastName }),
     ...(!current.birthDate && form.birthDate && { birthDate: form.birthDate }),
-    ...(Object.keys(customFields).length && { customFields }),
+    ...(Object.keys(values).length && { values }),
   };
 
   if (Object.keys(changes).length) await updateCustomer(tx, customerId, changes);

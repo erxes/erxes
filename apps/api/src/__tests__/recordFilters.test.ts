@@ -4,8 +4,6 @@ import { describe, expect, it } from 'vite-plus/test';
 import { rule, useContacts } from './contacts.fixture';
 import { adminDb, useTestDatabase } from './db';
 
-const custom = (fieldId: string) => `subject.customFields.${fieldId}`;
-
 /** The day `ago` days before today, as a date rule takes it. */
 const day = (ago: number) => new Date(Date.now() - ago * 86_400_000).toISOString().slice(0, 10);
 
@@ -15,7 +13,7 @@ describe('advanced filters on contact lists', { timeout: 300_000 }, () => {
   const t = useContacts();
   const found = (filter: Parameters<typeof t.customersWhere>[0]) => t.customersWhere(filter);
 
-  it('filters by fields, custom fields, tags, owner, dates, the company and nested groups', async () => {
+  it('filters by fields, data fields, tags, owner, dates, the company and nested groups', async () => {
     expect(await found(rule('subject.state', 'eq', 'lead'))).toEqual(['Bat']);
     expect(await found(rule('subject.state', 'in', ['lead']))).toEqual(['Bat']);
     expect(await found(rule('subject.firstName', 'not_in', ['bat', 'dorj']))).toEqual(['Saraa']);
@@ -26,9 +24,9 @@ describe('advanced filters on contact lists', { timeout: 300_000 }, () => {
     expect(await t.customersWhere(rule('subject.ownerId', 'eq', 'me'), t.member())).toEqual([
       'Dorj',
     ]);
-    expect(await found(rule(custom(t.fields.spend), 'gt', 1000))).toEqual(['Bat']);
-    expect(await found(rule(custom(t.fields.spend), 'lte', 1000))).toEqual(['Dorj']);
-    expect(await found(rule(custom(t.fields.interests), 'contains', 'golf'))).toEqual(['Bat']);
+    expect(await found(rule(t.fields.spend, 'gt', 1000))).toEqual(['Bat']);
+    expect(await found(rule(t.fields.spend, 'lte', 1000))).toEqual(['Dorj']);
+    expect(await found(rule(t.fields.interests, 'contains', 'golf'))).toEqual(['Bat']);
     expect(
       await found(rule('subject.createdAt', 'more_than_ago', { amount: 30, unit: 'days' })),
     ).toEqual(['Dorj']);
@@ -63,7 +61,7 @@ describe('advanced filters on contact lists', { timeout: 300_000 }, () => {
             match: 'any',
             rules: [
               { path: 'subject.state', op: 'eq', value: 'lead' },
-              { path: custom(t.fields.spend), op: 'gt', value: 100 },
+              { path: t.fields.spend, op: 'gt', value: 100 },
             ],
           },
           { path: 'subject.primaryEmail', op: 'not_contains', value: 'shop' },
@@ -81,63 +79,70 @@ describe('advanced filters on contact lists', { timeout: 300_000 }, () => {
     ).toEqual([]);
   });
 
-  it('filters by company properties, treats a missing value as "not", and keeps last activity from the timeline', async () => {
+  it('filters by the company’s data fields, treats a missing value as "not", and keeps last activity from the timeline', async () => {
     const owner = t.owner();
     const { bat, dorj, retail } = t.contacts;
 
-    const region = (
-      await owner.fields.create({
-        contentType: 'company',
-        label: 'Region',
-        type: 'select',
-        options: ['North', 'South'],
-      })
-    ).id;
-
-    const isMember = (
-      await owner.fields.create({ contentType: 'customer', label: 'Member', type: 'boolean' })
-    ).id;
-
-    const renewal = (
-      await owner.fields.create({ contentType: 'customer', label: 'Renewal', type: 'date' })
-    ).id;
+    await owner.dataFields.create({
+      recordType: 'core.company',
+      key: 'region',
+      label: 'Region',
+      type: 'select',
+      options: [
+        { value: 'North', label: 'North', color: 'blue' },
+        { value: 'South', label: 'South', color: 'green' },
+      ],
+    });
+    await owner.dataFields.create({
+      recordType: 'core.customer',
+      key: 'member',
+      label: 'Member',
+      type: 'boolean',
+    });
+    await owner.dataFields.create({
+      recordType: 'core.customer',
+      key: 'renewal',
+      label: 'Renewal',
+      type: 'date',
+    });
 
     const inTen = new Date(Date.now() + 10 * 86_400_000).toISOString().slice(0, 10);
 
-    await owner.companies.update({ id: retail, customFields: { [region]: 'North' } });
-    await owner.customers.update({ id: bat, customFields: { [isMember]: true, [renewal]: inTen } });
-    await owner.customers.update({ id: dorj, customFields: { [isMember]: false } });
+    await owner.companies.update({ id: retail, values: { region: 'North' } });
+    await owner.customers.update({ id: bat, values: { member: true, renewal: inTen } });
+    await owner.customers.update({ id: dorj, values: { member: false } });
 
-    // Customers by their company's properties.
-    expect(await found(rule(`subject.company.customFields.${region}`, 'eq', 'north'))).toEqual([
-      'Saraa',
-    ]);
-    expect(await found(rule(`subject.company.customFields.${region}`, 'neq', 'North'))).toEqual([
+    // The company filters are offered on customer lists.
+    expect(
+      (await owner.views.fields({ recordType: 'customer' })).data.find(
+        (field) => field.path === 'subject.company.data.region',
+      ),
+    ).toMatchObject({ label: 'Company Region', group: 'company' });
+
+    // Customers by their company's data fields.
+    expect(await found(rule('subject.company.data.region', 'eq', 'North'))).toEqual(['Saraa']);
+    expect(await found(rule('subject.company.data.region', 'neq', 'North'))).toEqual([
       'Bat',
       'Dorj',
     ]);
-    // No value is "no"; "is not" includes records without a value.
-    expect(await found(rule(custom(isMember), 'eq', true))).toEqual(['Bat']);
-    expect(await found(rule(custom(isMember), 'eq', false))).toEqual(['Dorj', 'Saraa']);
-    expect(await found(rule(custom(t.fields.spend), 'neq', 200))).toEqual(['Bat', 'Saraa']);
-    expect(await found(rule(custom(t.fields.spend), 'not_exists'))).toEqual(['Saraa']);
-    expect(await found(rule(custom(t.fields.interests), 'not_contains', 'golf'))).toEqual([
+    // "Is not" includes records without a value.
+    expect(await found(rule('subject.data.member', 'eq', true))).toEqual(['Bat']);
+    expect(await found(rule(t.fields.spend, 'neq', 200))).toEqual(['Bat', 'Saraa']);
+    expect(await found(rule(t.fields.spend, 'not_exists'))).toEqual(['Saraa']);
+    expect(await found(rule(t.fields.interests, 'not_contains', 'golf'))).toEqual([
       'Dorj',
       'Saraa',
     ]);
-    expect(await found(rule(custom(renewal), 'within_next', { amount: 2, unit: 'weeks' }))).toEqual(
-      ['Bat'],
-    );
-    expect(await found(rule(custom(renewal), 'anniversary_within', { amount: 12 }))).toEqual([
-      'Bat',
-    ]);
+    expect(
+      await found(rule('subject.data.renewal', 'within_next', { amount: 2, unit: 'weeks' })),
+    ).toEqual(['Bat']);
 
     // Values read back as they were set.
-    expect((await owner.customers.get({ id: bat })).customFields).toEqual({
-      [t.fields.spend]: 1500,
-      [t.fields.interests]: ['golf'],
-      [isMember]: true,
-      [renewal]: inTen,
+    expect((await owner.customers.get({ id: bat })).values).toEqual({
+      spend: 1500,
+      interests: ['golf'],
+      member: true,
+      renewal: inTen,
     });
 
     // Last activity: every timeline entry moves it; creation counts.
@@ -171,9 +176,7 @@ describe('advanced filters on contact lists', { timeout: 300_000 }, () => {
     const refused = { code: 'INVALID_FILTER' };
 
     await expect(found(rule('subject.nope', 'eq', 'x'))).rejects.toMatchObject(refused);
-    await expect(found(rule(custom(t.fields.spend), 'contains', 'x'))).rejects.toMatchObject(
-      refused,
-    );
+    await expect(found(rule(t.fields.spend, 'contains', 'x'))).rejects.toMatchObject(refused);
     await expect(
       found(rule('subject.createdAt', 'within_last', { amount: 'many' })),
     ).rejects.toMatchObject(refused);

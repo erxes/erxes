@@ -34,6 +34,8 @@ import {
   messageOf,
 } from '@erxes/core-contract/client';
 import { useCustomerCreate } from '~/modules/contacts/customers/useCustomers';
+import { CreateValues, useCreateValues } from '~/modules/dataExtensions/form/CreateValues';
+import { isValuesError } from '~/modules/dataExtensions/values';
 import { useContactDraft } from '../useSidePanel';
 import {
   ContactAvatarRow,
@@ -193,7 +195,11 @@ const BirthDateRow = () => {
 };
 
 /** Creates the customer (or lead) and links the companies picked in the draft. */
-const useCustomerSave = (form: UseFormReturn<TCustomerForm>, companyIds: string[]) => {
+const useCustomerSave = (
+  form: UseFormReturn<TCustomerForm>,
+  companyIds: string[],
+  data: ReturnType<typeof useCreateValues>,
+) => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const { state, leadStageId } = useContactDraft('core:customer');
   const { toast } = useToast();
@@ -217,10 +223,17 @@ const useCustomerSave = (form: UseFormReturn<TCustomerForm>, companyIds: string[
         birthDate: values.birthDate ? toIsoDay(values.birthDate) : null,
         description: values.description || null,
         avatarUrl: values.avatarUrl || null,
+        values: data.values,
       });
 
       await finish(created.id, companyIds);
     } catch (error) {
+      if (isValuesError(error)) {
+        data.failed(error);
+
+        return;
+      }
+
       if (isApiError(error, 'TAKEN')) {
         form.setError(error.data.field === 'primaryPhone' ? 'primaryPhone' : 'primaryEmail', {
           message: error.message,
@@ -269,7 +282,8 @@ export const CustomerPanelNew = () => {
     },
   });
 
-  const { save, saving, isLead } = useCustomerSave(form, companyIds);
+  const data = useCreateValues('core.customer');
+  const { save, saving, isLead } = useCustomerSave(form, companyIds, data);
 
   return (
     <NewContactForm
@@ -304,6 +318,7 @@ export const CustomerPanelNew = () => {
         label={addT('description', 'Description')}
         scope="side-panel-customer-new.description"
       />
+      <CreateValues asked={data.asked} draft={data.draft} disabled={saving} />
     </NewContactForm>
   );
 };

@@ -76,7 +76,7 @@ export const imports = pgTable(
     fileName: text().notNull(),
     status: text({ enum: IMPORT_STATUSES }).default('parsing').notNull(),
     headers: jsonb().$type<string[]>().default([]).notNull(),
-    /** Column index (as text) → field key (`firstName`, `customFields.<id>`, `tags`, …); missing: ignored. */
+    /** Column index (as text) → field key (`firstName`, `data.<key>`, `tags`, …); missing: ignored. */
     mapping: jsonb().$type<Record<string, string>>().default({}).notNull(),
     options: jsonb().$type<ImportOptions>().notNull(),
     counts: jsonb()

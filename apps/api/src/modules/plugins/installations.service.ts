@@ -8,7 +8,7 @@ import { fail } from '~/http/errors';
 import { decidePluginKey } from '~/http/keyRules';
 import { signJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
-import { syncPluginFields } from '~/modules/fields/pluginFields';
+import { syncPluginDataFields } from '~/modules/dataExtensions/pluginFieldSync';
 import { grantDefaultPermissions } from '~/modules/roles/defaultGrants';
 import { licenseAccess, stricter } from '~/modules/license/license';
 import { accessOf, planOfPlugin } from '~/modules/saas/access';
@@ -109,7 +109,7 @@ export const installPlugin = async (name: string) => {
       .returning({ orgId: pluginInstallations.orgId, updatedAt: pluginInstallations.updatedAt }),
   );
 
-  await syncPluginFields(tx, name, row.manifest?.fields);
+  await syncPluginDataFields(tx, name, row.manifest?.fields);
 
   if (before?.status !== 'active')
     await grantDefaultPermissions(tx, name, row.manifest?.permissionSets);

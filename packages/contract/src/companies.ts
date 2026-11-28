@@ -6,8 +6,6 @@ import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import {
   CursorQuery,
-  CustomFields,
-  CustomFieldsPatch,
   DESCRIPTION_MAX,
   EmailAddress,
   Id,
@@ -22,6 +20,11 @@ import {
 } from './common';
 import { ContactLink, ContactLinkInput } from './contactLinks';
 import { TagChange } from './customers';
+import {
+  DataExtensionValues,
+  DataExtensionValuesInput,
+  DataSortQuery,
+} from './dataExtensionValues';
 import { LIFECYCLE_COLUMNS, LIFECYCLE_INPUT_COLUMNS, lifecycleInput, lifecycleRow } from './leads';
 import { CompanyId, CustomerId } from './records';
 
@@ -55,9 +58,14 @@ export const Company = createSelectSchema(companies, {
     createdAt: true,
     updatedAt: true,
   })
-  .extend({ tagIds: z.array(z.string()), customFields: CustomFields });
+  .extend({ tagIds: z.array(z.string()) });
 
 export type Company = z.infer<typeof Company>;
+
+/** A company as its get, list, create and update answer: with the Data Extensions values the caller may read. */
+export const CompanyWithValues = Company.extend({ values: DataExtensionValues });
+
+export type CompanyWithValues = z.infer<typeof CompanyWithValues>;
 
 /** A person as listed on a company, with the link. */
 export const PersonRef = createSelectSchema(customers, { id: CustomerId })
@@ -112,8 +120,11 @@ export const CompanyFields = createUpdateSchema(companies, {
   })
   .extend({
     tagIds: z.array(Id).max(50).optional(),
-    /** Sets the given custom fields; `null` clears one. Others stay. A plugin's field: 403 PLUGIN_FIELD. */
-    customFields: CustomFieldsPatch.optional(),
+    /**
+     * Sets the given Data Extensions values by field key; `null` clears one. Others stay. A
+     * plugin's field: 403 PLUGIN_FIELD.
+     */
+    values: DataExtensionValuesInput.optional(),
   });
 
 export type CompanyInput = z.infer<typeof CompanyFields>;
@@ -135,8 +146,6 @@ export type CompanyMerge = z.infer<typeof MergeInput>;
 
 const {
   INVALID_ACTOR,
-  INVALID_FIELD,
-  INVALID_FIELD_VALUE,
   INVALID_OWNER,
   INVALID_TAG,
   INVALID_TYPE,
@@ -150,8 +159,6 @@ const {
 const base = oc.errors({
   ...COMMON_ERRORS,
   INVALID_ACTOR,
-  INVALID_FIELD,
-  INVALID_FIELD_VALUE,
   INVALID_OWNER,
   INVALID_TAG,
   INVALID_TYPE,
@@ -182,9 +189,9 @@ export const companiesContract = {
         ids: IdList.optional(),
         /** An advanced filter: JSON of a condition group (`RecordFilter`), as views save it. */
         filter: z.string().max(20_000).optional(),
-      }),
+      }).extend(DataSortQuery.shape),
     )
-    .output(cursorPageOf(Company)),
+    .output(cursorPageOf(CompanyWithValues)),
   get: base
     .route({
       method: 'GET',
@@ -193,7 +200,7 @@ export const companiesContract = {
       description: 'A company; ids merged into another company resolve to it',
     })
     .input(ID)
-    .output(Company),
+    .output(CompanyWithValues),
   create: base
     .route({
       method: 'POST',
@@ -203,7 +210,7 @@ export const companiesContract = {
       description: '409 TAKEN when the name is taken',
     })
     .input(CompanyFields.extend({ primaryName: z.string().trim().min(1).max(200) }))
-    .output(Company),
+    .output(CompanyWithValues),
   update: base
     .route({
       method: 'PATCH',
@@ -212,7 +219,7 @@ export const companiesContract = {
       description: 'Change the fields sent; custom fields merge into the stored ones',
     })
     .input(CompanyFields.extend({ id: Id }).refine(changes, 'nothing to update'))
-    .output(Company),
+    .output(CompanyWithValues),
   remove: base
     .route({
       method: 'POST',

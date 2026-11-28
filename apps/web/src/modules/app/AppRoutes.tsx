@@ -34,6 +34,11 @@ const BroadcastsRoutes = lazyNamed(
 
 const ReportsRoutes = lazyNamed(() => import('~/modules/reports/ReportsRoutes'), 'ReportsRoutes');
 
+const ObjectsRoutes = lazyNamed(
+  () => import('~/modules/dataExtensions/records/ObjectsRoutes'),
+  'ObjectsRoutes',
+);
+
 const ConnectAppPage = lazyNamed(() => import('~/modules/auth/ConnectAppPage'), 'ConnectAppPage');
 
 // The settings pages' words load beside their code, so they never show untranslated.
@@ -105,6 +110,7 @@ export const AppRoutes = () => (
       <Route path="automations/*" element={<AutomationsRoutes />} />
       <Route path="broadcasts/*" element={<BroadcastsRoutes />} />
       <Route path="reports/*" element={<ReportsRoutes />} />
+      <Route path="objects/*" element={<ObjectsRoutes />} />
       <Route path="settings/*" element={<SettingsRoutes />} />
       <Route path="assistant" element={<AssistantPage />} />
       <Route path="notifications" element={<NotificationsPage />} />

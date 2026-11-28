@@ -18,8 +18,7 @@ import {
   contactsTagged,
   contactUpdated,
 } from '~/modules/activities/contactHistory';
-import { applyCustomFields } from '~/modules/fields/customValues';
-import { saveCustomFields } from '~/modules/fields/fieldValues';
+import { writeCoreValues } from '~/modules/dataExtensions/hostValues.service';
 import { changeTags, setRecordTags, tagIdsColumn } from '~/modules/tags/tagLinks';
 import { checkTagIds } from '~/modules/tags/tags.service';
 import { lockRows } from '~/lib/locks';
@@ -39,7 +38,7 @@ const scalarFields = (input: CompanyInput) => {
     primaryPhone,
     phones,
     tagIds,
-    customFields,
+    values,
     leadStageId,
     disqualifyReason,
     source,
@@ -68,8 +67,6 @@ export const createCompany = async (client: Db, input: CompanyInput & { primaryN
 
   const tagIds = await checkTagIds(client, 'company', input.tagIds ?? []);
 
-  const customFields = await applyCustomFields(client, 'company', {}, input.customFields);
-
   const lead = await planLeadOnCreate(client, {
     ...input,
     state: input.state ?? 'customer',
@@ -94,7 +91,8 @@ export const createCompany = async (client: Db, input: CompanyInput & { primaryN
         .returning({ id: companies.id }),
     );
 
-    await saveCustomFields(tx, 'company', created, customFields, Object.keys(customFields));
+    await writeCoreValues(tx, 'core.company', created, input.values ?? {}, true);
+
     await recordLeadSteps(tx, 'company', [{ id: created, steps: lead.steps }]);
     await setRecordTags(tx, 'company', created, tagIds);
     await contactCreated(tx, 'company', await findCompany(tx, created));
@@ -162,11 +160,6 @@ export const updateCompany = async (client: Db, id: string, input: CompanyInput)
 
   const changes = contactColumns(current, input);
 
-  const customFields =
-    input.customFields === undefined
-      ? undefined
-      : await applyCustomFields(client, 'company', current.customFields, input.customFields);
-
   const lead = await planLeadOnUpdate(client, current, input);
 
   await savepoint(async (tx) => {
@@ -182,15 +175,11 @@ export const updateCompany = async (client: Db, id: string, input: CompanyInput)
 
     await recordLeadSteps(tx, 'company', [{ id, steps: lead.steps }]);
 
-    if (customFields) {
-      const keys = Object.keys(input.customFields ?? {});
-
-      await saveCustomFields(tx, 'company', id, customFields, keys);
-    }
-
     if (tagIds) {
       await setRecordTags(tx, 'company', id, tagIds);
     }
+
+    if (input.values) await writeCoreValues(tx, 'core.company', id, input.values);
 
     await contactUpdated(tx, 'company', current, await findCompany(tx, id));
   });

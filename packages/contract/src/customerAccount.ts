@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { CustomFieldsPatch, Id, listOf } from './common';
+import { Id, listOf } from './common';
+import { DataExtensionValuesInput } from './dataExtensionValues';
 import {
   addressWith,
   PhoneMethod,
@@ -33,7 +34,7 @@ export const customerAccountContract = {
       description:
         'Change name, picture, birth date or the fields customers fill in (`null` clears one). 400 INVALID_FIELD',
     })
-    .input(CustomerProfileFields.extend({ customFields: CustomFieldsPatch.optional() }))
+    .input(CustomerProfileFields.extend({ values: DataExtensionValuesInput.optional() }))
     .output(CustomerProfile),
   logins: base
     .route({

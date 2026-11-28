@@ -1,7 +1,7 @@
 /**
  * How fast lists, filters, search, counts and detail reads are on a big
  * organisation: seeds a throwaway database (BENCH_ROWS customers, default
- * 100,000) with tags, properties, companies, products, timelines,
+ * 100,000) with tags, Data Extensions fields, companies, products, timelines,
  * notifications and audit entries, then times each case of `benchCases.ts`
  * through the real service function, as a role under row level security (like
  * production). Prints a table (and writes it to the GitHub job summary).
@@ -10,16 +10,17 @@
  *
  * Never point it at a database you care about: it creates and drops its own.
  */
-import { closeDb, configureDb, runMigrations } from '@erxes/core-db';
+import { type Caller, closeDb, configureDb, runAs, runMigrations, withOrg } from '@erxes/core-db';
 import { appendFileSync } from 'node:fs';
 import { Client } from 'pg';
 import { z } from 'zod';
 import { randomToken } from '~/lib/crypto';
 import { MIGRATION_STEPS } from '~/lib/migrateDb';
 import { inOrder } from '~/lib/sequence';
+import { createField } from '~/modules/dataExtensions/fields.service';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { type Bench, benchCases } from './benchCases';
-import { seedSql } from './benchSeed';
+import { BENCH_FIELDS, seedSql } from './benchSeed';
 import { runCli, say } from './cli';
 
 const baseUrl = process.env.BENCH_URL ?? process.env.DATA_TEST_URL ?? '';
@@ -70,18 +71,22 @@ const prepare = async (url: string): Promise<Bench> => {
     owner: { email: 'owner@bench.mn' },
   });
 
+  const orgId = org.organization.id;
+  const owner: Caller = { type: 'user', userId: org.owner.id, role: 'owner', permissions: ['*'] };
+
+  // The fields' tables and columns, made as the app makes them.
+  await runAs(owner, () =>
+    withOrg(orgId, (tx) => inOrder(BENCH_FIELDS, (field) => createField(tx, field))),
+  );
   await closeDb();
 
   const started = performance.now();
 
-  await run(url, seedSql(org.organization.id, org.owner.id, rows));
+  await run(url, seedSql(orgId, org.owner.id, rows));
   await run(url, 'VACUUM (ANALYZE)');
   say(`seeded in ${((performance.now() - started) / 1000).toFixed(1)} s`);
 
-  return {
-    orgId: org.organization.id,
-    owner: { type: 'user', userId: org.owner.id, role: 'owner', permissions: ['*'] },
-  };
+  return { orgId, owner };
 };
 
 /** From here on queries run as a runtime role under row level security, like production. */

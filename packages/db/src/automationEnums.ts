@@ -51,7 +51,7 @@ export const ACTION_FIELD_TYPES = [
   'tags',
   'json',
   'key_values',
-  'custom_field',
+  'data_field',
   'lead_stage',
   'recipients',
   'plugin_record',

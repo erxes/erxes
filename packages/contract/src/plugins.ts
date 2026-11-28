@@ -11,12 +11,13 @@ import { Country } from './money';
 import { EventType } from './platform';
 import { PluginName } from './values';
 import { PluginAssistant } from './pluginAssistant';
-import { PluginFields } from './pluginFields';
+import { PluginFields } from './dataPluginFields';
 import { PluginConnectionUse } from './connectionUse';
 import { PluginIntegrations } from './pluginIntegrations';
 import { PluginRelations } from './pluginRelations';
 import { PluginJobs } from './pluginJobs';
 import { PluginTransfers } from './pluginTransfer';
+import { PluginObjects } from './recordTypes';
 import { ManifestPermissionSet } from './roles';
 import { PluginTimeline } from './timelines';
 import { PluginTranslations } from './pluginTranslations';
@@ -169,6 +170,8 @@ export const PluginManifest = z.object({
   actions: z.array(PluginAction).max(200).optional(),
   /** Its own record types that get a timeline in erxes (notes, mentions, entries), and who may see it. */
   timelines: z.array(PluginTimeline).max(50).optional(),
+  /** Its record types members may add fields to through Data Extensions (`PluginObjects`). */
+  objects: PluginObjects.optional(),
   /**
    * Its integrations in Settings › Integrations (`PluginIntegration`), listed next to core's
    * with the state it reports (`integrations.report`).
@@ -206,7 +209,7 @@ export const PluginManifest = z.object({
   subscriptions: z.array(EventPattern).max(100).optional(),
   /** Background work at its API (`PluginJobs`): core POSTs each job to `<api.url>/jobs/<name>`. */
   jobs: PluginJobs.optional(),
-  /** Fields it keeps on customers and companies (`PluginFields`): read-only custom fields to members. */
+  /** Fields it keeps on customers and companies (`PluginFields`): Data Extensions fields members read. */
   fields: PluginFields.optional(),
   /** Its records members import and export through core (`PluginTransfers`): core asks `<api.url>/transfer/*` for the rows. */
   transfer: PluginTransfers.optional(),

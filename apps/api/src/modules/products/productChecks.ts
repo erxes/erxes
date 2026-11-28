@@ -1,7 +1,6 @@
 import type { ProductKind } from '@erxes/core-contract';
 import {
   caller,
-  type CustomValue,
   type Db,
   files,
   pluginInstallations,
@@ -9,22 +8,17 @@ import {
   products,
 } from '@erxes/core-db';
 import { and, eq, getTableColumns, inArray, ne, type SQL, sql } from 'drizzle-orm';
-import { customFieldsColumn } from '~/modules/fields/fieldValues';
 import { tagIdsColumn } from '~/modules/tags/tagLinks';
 import { fail, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 
-/** A product's columns and its custom field values (`{ fieldId: value }`). */
+/** A product's columns and its tag ids. */
 export const productColumns = {
   ...getTableColumns(products),
-  customFields: customFieldsColumn('product', products.id),
   tagIds: tagIdsColumn('product', products.id),
 };
 
-export type ProductRow = typeof products.$inferSelect & {
-  customFields: Record<string, CustomValue>;
-  tagIds: string[];
-};
+export type ProductRow = typeof products.$inferSelect & { tagIds: string[] };
 
 export const findProduct = async (client: Db, id: string): Promise<ProductRow> => {
   const [row] = await client

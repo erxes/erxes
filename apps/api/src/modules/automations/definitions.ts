@@ -5,15 +5,9 @@ import type {
   ConditionGroup,
 } from '@erxes/core-contract';
 import { isAppEvent } from '@erxes/core-contract';
-import {
-  CONTENT_TYPES,
-  type ContentType,
-  type Db,
-  fields,
-  integrationConnections,
-} from '@erxes/core-db';
+import { CONTENT_TYPES, type ContentType, type Db, integrationConnections } from '@erxes/core-db';
 import { compileGroup } from '@erxes/plugin-sdk/filter';
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { fail } from '~/http/errors';
 import { inOrder } from '~/lib/sequence';
 import { subjectFilterFields } from '~/modules/views/filterFields';
@@ -28,6 +22,7 @@ import { automationCatalog } from './automationCatalog';
 import { render } from './templates';
 import { triggerConditions } from './conditions';
 import { eachStep } from './cursor';
+import { dateFieldOf, dateKeyOf } from './dateFields';
 import { decisionProblems } from './decide';
 import { triggerFields } from './hooks';
 import { MAX_HOURS, MIN_MINUTES } from './schedule';
@@ -210,15 +205,13 @@ const triggerProblems = async (client: Db, definition: AutomationDefinition, cat
 
   if (trigger.kind === 'app') return appTriggerProblems(client, trigger);
 
-  if (trigger.kind !== 'date' || trigger.field === 'birthDate') return [];
+  if (trigger.kind !== 'date' || (trigger.field === 'birthDate' && trigger.subject === 'customer'))
+    return [];
 
-  const [field] = await client
-    .select({ type: fields.type })
-    .from(fields)
-    .where(and(eq(fields.id, trigger.field), inArray(fields.contentType, CONTENT_TYPES)))
-    .limit(1);
+  const key = dateKeyOf(trigger.field);
+  const field = key ? await dateFieldOf(client, trigger.subject, key) : undefined;
 
-  return field?.type === 'date' ? [] : ['The date trigger needs a date field'];
+  return field ? [] : ['The date trigger needs a date field (`birthDate` or `data.<key>`)'];
 };
 
 /** Templates may only use filters that exist. */

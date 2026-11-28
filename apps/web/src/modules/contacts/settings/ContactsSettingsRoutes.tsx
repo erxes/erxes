@@ -3,11 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { AppSettingsLayout } from '~/components/AppSettingsLayout';
 import { useCan } from '~/modules/auth/session';
-import { CONTACT_PROPERTY_TYPES } from '~/modules/properties/constants';
 import { ImportExportPage } from '~/modules/settings/import-export/ImportExportPage';
 import { ImportWizardPage } from '~/modules/settings/import-export/ImportWizardPage';
 import { LeadStagesPage } from '~/modules/settings/lead-stages/LeadStagesPage';
-import { PropertiesSettingsRoutes } from '~/modules/settings/properties/PropertiesSettingsRoutes';
 import { TagsSettingsPage } from '~/modules/settings/tags/TagsSettingsPage';
 import { useTransferTypes } from '~/modules/transfer/useTransfer';
 import { paths } from '~/lib/paths';
@@ -19,7 +17,11 @@ const ContactsSettingsLayout = () => {
   const transfers = useTransferTypes().data ?? [];
 
   const items = [
-    { name: t('properties', 'Properties'), to: paths.contacts.properties, icon: IconHierarchy2 },
+    {
+      name: t('data-fields', 'Fields'),
+      to: paths.settings.dataFieldsOf('core.customer'),
+      icon: IconHierarchy2,
+    },
     { name: t('tags', 'Tags'), to: paths.contacts.tags, icon: IconTag },
     ...(can('properties.manage')
       ? [
@@ -55,17 +57,13 @@ const ContactsSettingsLayout = () => {
 export const ContactsSettingsRoutes = () => (
   <Routes>
     <Route element={<ContactsSettingsLayout />}>
-      <Route index element={<Navigate to={paths.contacts.properties} replace />} />
-      <Route
-        path="properties/*"
-        element={<PropertiesSettingsRoutes types={CONTACT_PROPERTY_TYPES} />}
-      />
+      <Route index element={<Navigate to={paths.contacts.tags} replace />} />
       <Route path="tags" element={<TagsSettingsPage />} />
       <Route path="lead-stages" element={<LeadStagesPage />} />
       <Route path="import-export" element={<ImportExportPage />} />
       <Route path="import-export/:id" element={<ImportWizardPage />} />
       {/* Absolute: a relative target resolves against the splat and appends to the address. */}
-      <Route path="*" element={<Navigate to={paths.contacts.properties} replace />} />
+      <Route path="*" element={<Navigate to={paths.contacts.tags} replace />} />
     </Route>
   </Routes>
 );

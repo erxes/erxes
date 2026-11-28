@@ -20,23 +20,36 @@ import {
   updateProduct,
   useProducts,
 } from '~/modules/products/products.service';
+import { withDataValues, withDataValuesOf } from '~/modules/dataExtensions/hostValues.service';
 import { scoped } from '~/orpc';
+
+const TYPE = 'core.product';
 
 /** Members and plugins alike: the catalog is shared, each write is audited as its caller. */
 export const productsRouter = {
-  list: scoped.products.list.handler(({ input }) => listProducts(db(), input)),
-  get: scoped.products.get.handler(({ input }) => findProduct(db(), input.id)),
-  lookup: scoped.products.lookup.handler(({ input }) => lookupProducts(db(), input.ids)),
-  create: scoped.products.create.handler(({ input }) => createProduct(db(), input)),
-  update: scoped.products.update.handler(({ input: { id, ...changes } }) =>
-    updateProduct(db(), id, changes),
+  list: scoped.products.list.handler(async ({ input }) => {
+    const page = await listProducts(db(), input);
+
+    return { ...page, data: await withDataValues(db(), TYPE, page.data) };
+  }),
+  get: scoped.products.get.handler(async ({ input }) =>
+    withDataValuesOf(db(), TYPE, await findProduct(db(), input.id)),
+  ),
+  lookup: scoped.products.lookup.handler(async ({ input }) => ({
+    data: await withDataValues(db(), TYPE, (await lookupProducts(db(), input.ids)).data),
+  })),
+  create: scoped.products.create.handler(async ({ input }) =>
+    withDataValuesOf(db(), TYPE, await createProduct(db(), input)),
+  ),
+  update: scoped.products.update.handler(async ({ input: { id, ...changes } }) =>
+    withDataValuesOf(db(), TYPE, await updateProduct(db(), id, changes)),
   ),
   use: scoped.products.use.handler(({ input }) => useProducts(db(), input.ids, input.used)),
-  archive: scoped.products.archive.handler(({ input }) =>
-    setProductStatus(db(), input.id, 'archived'),
+  archive: scoped.products.archive.handler(async ({ input }) =>
+    withDataValuesOf(db(), TYPE, await setProductStatus(db(), input.id, 'archived')),
   ),
-  restore: scoped.products.restore.handler(({ input }) =>
-    setProductStatus(db(), input.id, 'active'),
+  restore: scoped.products.restore.handler(async ({ input }) =>
+    withDataValuesOf(db(), TYPE, await setProductStatus(db(), input.id, 'active')),
   ),
 };
 

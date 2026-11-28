@@ -2,6 +2,7 @@ import {
   IconAddressBook,
   IconApps,
   IconBolt,
+  IconBox,
   IconChartPie,
   IconPackage,
   IconSettings,
@@ -44,6 +45,8 @@ const CORE_APPS: NavApp[] = [
     kind: 'core',
   },
   { id: 'reports', label: 'Reports', icon: IconChartPie, path: 'reports', kind: 'core' },
+  // Custom objects' records (Data Extensions), each object in the app's sidebar.
+  { id: 'objects', label: 'Objects', icon: IconBox, path: 'objects', kind: 'core' },
 ];
 
 /** A core app's name in the member's language; a plugin's comes from its own text (`usePluginText`). */
@@ -65,6 +68,8 @@ export const useNavApps = (): NavApp[] => {
       if (app.id === 'automations') return can('automations.view');
 
       if (app.id === 'broadcasts') return can('broadcasts.view');
+
+      if (app.id === 'objects') return can('objects.view');
 
       return app.id === 'reports' ? can('contacts.view') : true;
     }).map((app) => ({ ...app, label: coreLabel(app) })),

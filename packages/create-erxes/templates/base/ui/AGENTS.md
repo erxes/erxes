@@ -66,12 +66,15 @@ and renders `./__id__` (the `__Pascal__` export) under `/__id__/*`.
   (`/__id__/settings/<page>`) that `CONFIG.settings` lists (`{ path, label, icon }`),
   drawn in the plugin's own layout and opened from an `AppLayoutFooterLink` in the
   plugin sidebar's `footer`; a plugin with several pages lists them in its own
-  settings. Core's settings show one link per plugin, to its first page. Custom fields
-  on a record type are its `properties` (`type: '__id__.item'`, `values(id)`,
-  `save(id, patch)`): core keeps the fields and draws the Properties tab and their
-  settings page, `/settings/properties/__id__.item`, which the plugin's own settings
-  link when it has any; the API keeps the values in a jsonb column and checks a patch
-  with core's `fields.check` before saving. Tiles for core's
+  settings. Core's settings show one link per plugin, to its first page. Fields members
+  add to a record type (Data Extensions) are its `dataFields` (`type: '__id__.item'`,
+  `values(id)` of the record's `custom_fields` by field id, `save(id, patch)`, and
+  `limits` for groups shown on some records only, with what each record is in): core keeps the
+  fields (`dataFields.list`, `dataFieldGroups.list`) and draws them under their groups in
+  the Fields tab; they are set up in Settings › Data model,
+  `/settings/data-model/fields/__id__.item`, which the plugin's own settings link when it
+  has any. The API keeps the values and checks a patch with core's `dataValues.check`
+  before saving. Tiles for core's
   home dashboard are `CONFIG.dashboardWidgets`: `name`, `title`, `icon`, `preview`,
   `size` and a `lazy` `component`, which core draws as the tile's body under the
   title. A tile or list that leads to one part of a record opens it on that tab:

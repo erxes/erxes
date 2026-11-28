@@ -35,6 +35,8 @@ import {
   DEFAULT_COMPANY_INDUSTRY_TYPES,
 } from '~/modules/contacts/companies/companyConstants';
 import { useCompanyCreate } from '~/modules/contacts/companies/useCompanies';
+import { CreateValues, useCreateValues } from '~/modules/dataExtensions/form/CreateValues';
+import { isValuesError } from '~/modules/dataExtensions/values';
 import { useContactDraft } from '../useSidePanel';
 import {
   ContactAvatarRow,
@@ -191,7 +193,11 @@ const BusinessRows = () => {
 };
 
 /** Creates the company and links the customers picked in the draft. */
-const useCompanySave = (form: UseFormReturn<TCompanyForm>, customerIds: string[]) => {
+const useCompanySave = (
+  form: UseFormReturn<TCompanyForm>,
+  customerIds: string[],
+  data: ReturnType<typeof useCreateValues>,
+) => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
   const { state, leadStageId } = useContactDraft('core:company');
   const { toast } = useToast();
@@ -215,10 +221,17 @@ const useCompanySave = (form: UseFormReturn<TCompanyForm>, customerIds: string[]
         size: size ? Number(size) : null,
         description: values.description || null,
         avatarUrl: values.avatarUrl || null,
+        values: data.values,
       });
 
       await finish(created.id, customerIds);
     } catch (error) {
+      if (isValuesError(error)) {
+        data.failed(error);
+
+        return;
+      }
+
       if (isApiError(error, 'TAKEN')) {
         form.setError('primaryName', { message: error.message });
 
@@ -250,7 +263,8 @@ export const CompanyPanelNew = () => {
     defaultValues: { primaryName: '', code: '', industry: [] },
   });
 
-  const { save, saving } = useCompanySave(form, customerIds);
+  const data = useCreateValues('core.company');
+  const { save, saving } = useCompanySave(form, customerIds, data);
 
   return (
     <NewContactForm
@@ -282,6 +296,7 @@ export const CompanyPanelNew = () => {
         label={t('field.description', 'Description')}
         scope="side-panel-company-new.description"
       />
+      <CreateValues asked={data.asked} draft={data.draft} disabled={saving} />
     </NewContactForm>
   );
 };

@@ -89,11 +89,11 @@ export const CONFIGS: Record<string, unknown> = {
           queryKey: ['task-contacts', id],
           queryFn: async () => ({ customerIds: ['c1'], companyIds: [] }),
         }),
-        // Custom fields core defines, values the plugin keeps.
-        properties: {
+        // Data Extensions fields core defines, values the plugin keeps.
+        dataFields: {
           type: 'tasks.task',
           values: (id: string) => ({
-            queryKey: ['task-properties', id],
+            queryKey: ['task-fields', id],
             queryFn: async () => ({}),
           }),
           save: async () => undefined,

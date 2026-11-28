@@ -1,27 +1,19 @@
-import type { CustomValue, Db } from '@erxes/core-db';
+import type { Db } from '@erxes/core-db';
 import { companies } from '@erxes/core-db';
 import { arrayContains, eq, getTableColumns, type SQL } from 'drizzle-orm';
 import { notFound } from '~/http/errors';
-import { customFieldsColumn } from '~/modules/fields/fieldValues';
 import { tagIdsColumn } from '~/modules/tags/tagLinks';
 
-export type CompanyRow = Omit<typeof companies.$inferSelect, 'searchText'> & {
-  tagIds: string[];
-  customFields: Record<string, CustomValue>;
-};
+export type CompanyRow = Omit<typeof companies.$inferSelect, 'searchText'> & { tagIds: string[] };
 
 export const inOrg = (id: string) => eq(companies.id, id);
 
-/** Companies with their tag ids and custom field values. */
+/** Companies with their tag ids. */
 export const selectCompanies = (client: Db) => {
   const { searchText: _searchText, ...columns } = getTableColumns(companies);
 
   return client
-    .select({
-      ...columns,
-      tagIds: tagIdsColumn('company', companies.id),
-      customFields: customFieldsColumn('company', companies.id),
-    })
+    .select({ ...columns, tagIds: tagIdsColumn('company', companies.id) })
     .from(companies);
 };
 

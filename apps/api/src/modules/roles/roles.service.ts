@@ -46,6 +46,8 @@ const BUILTIN_ROLES = [
       'tags.manage',
       'team.view',
       'assistant.chat',
+      'objects.view',
+      'objects.edit',
     ],
   },
 ] as const;

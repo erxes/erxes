@@ -6,10 +6,10 @@ import {
   type TPanelRecordType,
   type TPluginIntegration,
   type TPluginSettingsPage,
-  type TPropertyLimit,
+  type TFieldGroupLimit,
   type TRecordContacts,
+  type TRecordDataFields,
   type TRecordDraftProps,
-  type TRecordProperties,
   type TRecordSection,
   type TRecordSectionProps,
   type TRecordSlotProps,
@@ -168,27 +168,27 @@ const recordTypeSchema = (name: string, bases: string[]) =>
       )
       .optional(),
     activity: z.string().min(1).optional(),
-    properties: z
+    dataFields: z
       .object({
         type: PluginRecordType.refine(
           (type) => type.startsWith(`${name.toLowerCase()}.`),
           `does not start with "${name}."`,
         ),
-        values: z.custom<TRecordProperties['values']>(isFunction),
-        save: z.custom<TRecordProperties['save']>(isFunction),
+        values: z.custom<TRecordDataFields['values']>(isFunction),
+        save: z.custom<TRecordDataFields['save']>(isFunction),
         limits: z
           .array(
             z.object({
               key: z.string().regex(/^[a-z][a-z0-9_]{0,29}$/),
               label: z.string().min(1),
-              options: z.custom<TPropertyLimit['options']>(
+              options: z.custom<TFieldGroupLimit['options']>(
                 (value) => typeof value === 'object' && value !== null,
               ),
             }),
           )
           .max(5)
           .optional(),
-        appliesTo: z.custom<NonNullable<TRecordProperties['appliesTo']>>(isFunction).optional(),
+        appliesTo: z.custom<NonNullable<TRecordDataFields['appliesTo']>>(isFunction).optional(),
       })
       .refine((value) => !value.limits?.length || value.appliesTo, {
         path: ['appliesTo'],

@@ -65,12 +65,10 @@
     "width": "Width (mm)"
   },
   "form": {
-    "add-properties": "Add them in settings",
     "add-tags": "Add tags",
     "name-required": "Enter a name",
     "no-plugins": "No apps installed",
     "all-plugins-chosen": "Every installed app is chosen",
-    "no-properties": "No product properties yet.",
     "open-existing": "Open that product",
     "plugins-placeholder": "Choose the apps that sell or use it",
     "price-invalid": "Enter a price, like 12.50",

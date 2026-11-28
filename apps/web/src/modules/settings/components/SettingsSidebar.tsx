@@ -1,4 +1,4 @@
-import { paths, propertyPaths } from '~/lib/paths';
+import { paths } from '~/lib/paths';
 import {
   IconSourceCode,
   IconBellCog,
@@ -7,6 +7,7 @@ import {
   IconCloudUpload,
   IconApps,
   IconArrowUpRight,
+  IconPlug,
   IconHierarchy2,
   IconLifebuoy,
   IconLock,
@@ -20,7 +21,6 @@ import {
   IconSparkles,
   IconCode,
   IconKey,
-  IconPlug,
   IconTrash,
   IconCertificate,
   IconCreditCard,
@@ -36,11 +36,12 @@ import { Children, type ReactNode, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useCan } from '~/modules/auth/session';
-import { pluginPropertyTypes } from '~/modules/plugins/pluginProperties';
+import { pluginDataFieldsTypes } from '~/modules/plugins/pluginDataFields';
 import { pluginName, usePluginText } from '~/modules/plugins/pluginText';
 import { usePlugins } from '~/modules/plugins/usePlugins';
 import { usePlan } from '~/modules/saas/usePlan';
 import { useMayOpenIntegrations } from '../integrations/catalog';
+import { useSettingsDataModelPaths } from './dataModelPaths';
 
 interface SettingsPath {
   name: string;
@@ -251,17 +252,17 @@ const useSettingsAssistantPaths = (): SettingsPath[] => {
 
 /**
  * One link per plugin the member may use that has settings: to its first settings page, which
- * the plugin draws in its own layout, else to the properties of its first record type.
+ * the plugin draws in its own layout, else to the Data model fields of its first record type.
  */
 function PluginSettingsLinks() {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const { plugins } = usePlugins();
   const text = usePluginText();
-  const propertyTypes = pluginPropertyTypes(plugins);
+  const fieldTypes = pluginDataFieldsTypes(plugins);
 
   const links = plugins.flatMap(({ remote, config }) => {
-    const properties = propertyTypes.find((entry) => entry.plugin === config.name);
-    const to = config.settings[0]?.path ?? (properties && propertyPaths(properties.type).list);
+    const fields = fieldTypes.find((entry) => entry.plugin === config.name);
+    const to = config.settings[0]?.path ?? (fields && paths.settings.dataFieldsOf(fields.type));
 
     return to ? [{ remote, to, name: pluginName(text, config.name), icon: config.icon }] : [];
   });
@@ -289,6 +290,7 @@ export function SettingsSidebar() {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const workspace = useSettingsWorkspacePaths();
   const developer = useSettingsDeveloperPaths();
+  const dataModel = useSettingsDataModelPaths();
   const account = useSettingsAccountPaths();
   const assistant = useSettingsAssistantPaths();
 
@@ -303,6 +305,11 @@ export function SettingsSidebar() {
         </SettingsNavigationGroup>
         <SettingsNavigationGroup name={t('workspace')}>
           {workspace.map((item) => (
+            <NavigationMenuLinkItem key={item.to} to={item.to} name={item.name} icon={item.icon} />
+          ))}
+        </SettingsNavigationGroup>
+        <SettingsNavigationGroup name={t('data-model', 'Data model')}>
+          {dataModel.map((item) => (
             <NavigationMenuLinkItem key={item.to} to={item.to} name={item.name} icon={item.icon} />
           ))}
         </SettingsNavigationGroup>

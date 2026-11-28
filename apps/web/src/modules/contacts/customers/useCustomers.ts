@@ -1,4 +1,4 @@
-import type { Customer, CustomerState } from '@erxes/core-contract';
+import type { CustomerState, CustomerWithValues, DataExtensionValues } from '@erxes/core-contract';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useListFilterParams, useToast } from 'erxes-ui';
 import { messageOf, orpc } from '@erxes/core-contract/client';
@@ -22,7 +22,7 @@ export const useCustomersFilters = (state: CustomerState) => ({
 export const useCustomers = (state: CustomerState) => {
   const filters = useCustomersFilters(state);
 
-  return useCursorList<Customer>({
+  return useCursorList<CustomerWithValues>({
     sessionKey: customersSessionKey(state),
     filters,
     options: (paging) =>
@@ -43,7 +43,7 @@ export const useCustomer = (id: string | null) => {
       placeholderData: () =>
         id
           ? recordInPages(
-              client.getQueriesData<CursorCache<Customer>>({
+              client.getQueriesData<CursorCache<CustomerWithValues>>({
                 queryKey: orpc.customers.list.key(),
               }),
               id,
@@ -76,6 +76,18 @@ export const useCustomerEdit = () => {
         }),
     }),
   );
+};
+
+/** Saves a customer's Data Extensions values; the caller shows a failure on its fields. */
+export const useCustomerValuesSave = (id: string) => {
+  const client = useQueryClient();
+
+  return async (values: DataExtensionValues) => {
+    const customer = await orpc.customers.update.call({ id, values });
+
+    patchCachedRecord(client, orpc.customers.list.key(), customer);
+    client.setQueryData(orpc.customers.get.queryKey({ input: { id } }), customer);
+  };
 };
 
 /** Callers show the failure next to the field it is about (`TAKEN`). */

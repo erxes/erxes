@@ -1,5 +1,10 @@
 import type { ViewRecordType } from '@erxes/core-contract';
-import { ListFilterEmpty, RecordTable, type RecordTableColumnDef } from 'erxes-ui';
+import {
+  ListFilterEmpty,
+  RecordTable,
+  type RecordTableColumnDef,
+  type TRecordTableSort,
+} from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf } from '@erxes/core-contract/client';
@@ -37,6 +42,7 @@ export const CursorRecordTable = <T extends { id: string }>({
   tableId,
   recordType,
   empty = <EmptyList />,
+  sorting,
   ownEmpty = false,
   children,
 }: {
@@ -46,6 +52,12 @@ export const CursorRecordTable = <T extends { id: string }>({
   tableId: string;
   recordType?: ViewRecordType;
   empty?: ReactNode;
+  /** Sorting from the column headers: the order now, the columns that sort, and its change. */
+  sorting?: {
+    sort: TRecordTableSort | null;
+    sortable: readonly string[];
+    onSortChange: (sort: TRecordTableSort | null) => void;
+  };
   /** `empty` says itself what a search found, so it shows filtered or not (3.x's own words). */
   ownEmpty?: boolean;
   children?: ReactNode;
@@ -61,6 +73,7 @@ export const CursorRecordTable = <T extends { id: string }>({
       stickyColumns={stickyColumns}
       className="m-3"
       tableId={tableId}
+      {...sorting}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

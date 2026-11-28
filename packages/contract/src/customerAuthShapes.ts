@@ -3,9 +3,10 @@ import { customerLogins, customerSessions, customers } from '@erxes/core-db/sche
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { CustomFields, EmailAddress, Id, ImageAddress, isoDate, PhoneNumber } from './common';
+import { EmailAddress, Id, ImageAddress, isoDate, PhoneNumber } from './common';
+import { DataExtensionField } from './dataExtensionFields';
+import { DataExtensionValues, DataExtensionValuesInput } from './dataExtensionValues';
 import { COMMON_ERRORS, ERRORS } from './errors';
-import { Field } from './fields';
 
 // What customers' sign-in (`customerAuth.ts`) and account (`customerAccount.ts`) procedures share.
 
@@ -44,8 +45,8 @@ export const CustomerProfile = createSelectSchema(customers, { id: Id, createdAt
     createdAt: true,
   })
   .extend({
-    /** Values of the fields customers fill in (`GET /portal/auth/fields`), by field id. */
-    customFields: CustomFields,
+    /** Values of the fields customers fill in (`GET /portal/auth/fields`), by field key. */
+    values: DataExtensionValues,
   });
 
 export type CustomerProfile = z.infer<typeof CustomerProfile>;
@@ -57,17 +58,17 @@ export const CustomerProfileFields = createUpdateSchema(customers, {
   birthDate: (date) => date.regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD'),
 }).pick({ firstName: true, lastName: true, avatarUrl: true, birthDate: true });
 
-/** A field customers fill in themselves, as a sign-up or profile form shows it. */
-export const CustomerField = Field.pick({
+/** A customer field customers fill in themselves, as a sign-up or profile form shows it. */
+export const CustomerField = DataExtensionField.pick({
   id: true,
-  code: true,
+  key: true,
   label: true,
   description: true,
   type: true,
-  validation: true,
   options: true,
+}).extend({
   /** Sign-up needs a value. */
-  isRequired: true,
+  required: z.boolean(),
 });
 
 export type CustomerField = z.infer<typeof CustomerField>;
@@ -81,8 +82,8 @@ export const SignUpForm = {
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD')
     .optional(),
-  /** Values of `GET /portal/auth/fields`, by field id. */
-  customFields: CustomFields.optional(),
+  /** Values of `GET /portal/auth/fields`, by field key. */
+  values: DataExtensionValuesInput.optional(),
 };
 
 /** What the customer signs in with: an email, a phone, or Google, Apple or Facebook. */

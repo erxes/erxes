@@ -294,7 +294,7 @@ export const AutomationTrigger = z.discriminatedUnion('kind', [
   z.object({
     kind: z.literal('date'),
     subject: z.enum(CONTENT_TYPES),
-    /** `birthDate` or a date custom field's id. */
+    /** A customer's `birthDate`, or a Data Extensions date field, `data.<key>`. */
     field: z.string().min(1).max(64),
     /** Days after (positive) or before (negative) the date. */
     offsetDays: z.int().min(-365).max(365).default(0),

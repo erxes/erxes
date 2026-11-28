@@ -86,9 +86,17 @@
  * then write their values. Members see them read-only and filter by them; no timeline entry or event.
  *
  *   fields: [{ code: 'total_spent', contentType: 'customer', label: 'Total spent', type: 'number' }],
- *   await core.forOrg(orgId).fields.setPluginValues({
+ *   await core.forOrg(orgId).dataValues.setPluginValues({
  *     contentType: 'customer', values: [{ recordId: customerId, code: 'total_spent', value: 150000 }],
  *   });                                   // → { written, skipped }; up to 500, value null clears
+ *
+ * Fields members add to the plugin's own record types (manifest `objects`): keep their values in
+ * the record's `custom_fields` by field id, exposed in the type's view, and check a patch first.
+ *
+ *   const { values } = await core.forOrg(orgId).dataValues.check({
+ *     recordType: 'sales.deal', current: deal.customFields, patch, userId, appliesTo: { board: [id] },
+ *   });                                   // the record's values to save; 400 INVALID_INPUT otherwise
+ *   const { data } = await core.forOrg(orgId).dataFields.list({ recordType: 'sales.deal' });
  *
  * Email and texts go out through core, never the plugin's own SMTP or SMS provider:
  *

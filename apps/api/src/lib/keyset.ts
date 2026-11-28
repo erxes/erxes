@@ -4,6 +4,7 @@ import type { SQL, Subquery } from 'drizzle-orm';
 import { and, count, eq, sql } from 'drizzle-orm';
 import type { PgColumn, PgTable } from 'drizzle-orm/pg-core';
 import { fail } from '~/http/errors';
+import { sortedWalk } from './sortedWalk';
 
 export interface KeysetSource {
   /** A table, or a subquery whose `id` and `createdAt` are its own fields. */
@@ -17,6 +18,8 @@ export interface KeysetSource {
    * large logs page fast.
    */
   countCap?: number;
+  /** Order by this instead of newest first: records without a value last, then by id. */
+  sort?: { expr: SQL; descending: boolean };
 }
 
 type Fetch<Row> = (where: SQL | undefined, orderBy: SQL[], limit: number) => Promise<Row[]>;
@@ -50,6 +53,41 @@ export const wholeList = async <Row>(fetch: (limit: number) => Promise<Row[]>) =
   }
 
   return rows;
+};
+
+/**
+ * The page's order, the rows on its side of the cursor (`page`) and those on the other side
+ * (`back`): newest first over (created_at, id), where "forward" walks to older rows, or by
+ * `sort`. Newest first reads its exact reverse going backward, so the page comes from the index
+ * either way.
+ */
+const walkOf = (source: KeysetSource, query: CursorQuery, cursor: string | undefined) => {
+  const { table, id, createdAt, sort } = source;
+
+  if (sort) {
+    return sortedWalk(
+      { id: sql`${id}`, from: sql`${table}`, sort: sort.expr, descending: sort.descending },
+      query,
+      cursor,
+    );
+  }
+
+  const forward = query.direction === 'forward';
+  const inclusive = query.cursorMode === 'inclusive';
+
+  const position = (operator: '<' | '<=' | '>' | '>=') =>
+    sql`(${createdAt}, ${id}) ${sql.raw(operator)} (select ${createdAt}, ${id} from ${table} where ${id} = ${cursor})`;
+
+  const pageSide = forward ? (inclusive ? '<=' : '<') : inclusive ? '>=' : '>';
+  const otherSide = forward ? (inclusive ? '>' : '>=') : inclusive ? '<' : '<=';
+
+  return {
+    order: forward
+      ? newestFirst(createdAt, id)
+      : [sql`${createdAt} asc nulls first`, sql`${id} asc nulls first`],
+    page: cursor ? position(pageSide) : undefined,
+    back: cursor ? position(otherSide) : undefined,
+  };
 };
 
 /**
@@ -93,7 +131,7 @@ const aroundCursor = async (
 };
 
 /**
- * Newest-first keyset paging over (created_at, id). The cursor is a record id;
+ * Newest-first keyset paging over (created_at, id), or over `sort` and id. The cursor is a record id;
  * comparisons read its position from the table itself, so timestamps keep full
  * precision. `fetch` runs the typed select with the page condition and order.
  */
@@ -104,19 +142,12 @@ export const keysetPage = async <Row extends { id: string }>(
   query: CursorQuery,
   fetch: Fetch<Row>,
 ): Promise<{ data: Row[]; pageInfo: PageInfo; totalCount?: number; totalCapped?: boolean }> => {
-  const { table, id, createdAt, scope } = source;
+  const { table, id, scope } = source;
   const where = and(scope, filters);
   const forward = query.direction === 'forward';
   const inclusive = query.cursorMode === 'inclusive';
 
   let cursor = query.cursor;
-
-  const position = (operator: '<' | '<=' | '>' | '>=') =>
-    sql`(${createdAt}, ${id}) ${sql.raw(operator)} (select ${createdAt}, ${id} from ${table} where ${id} = ${cursor})`;
-
-  // Newest first: "forward" walks to older rows, "backward" to newer ones.
-  const pageSide = forward ? (inclusive ? '<=' : '<') : inclusive ? '>=' : '>';
-  const otherSide = forward ? (inclusive ? '>' : '>=') : inclusive ? '<' : '<=';
 
   // Rows on the other side of the cursor: the page has a neighbour that way.
   let before = false;
@@ -126,7 +157,7 @@ export const keysetPage = async <Row extends { id: string }>(
       client,
       table,
       and(scope, eq(sql`${id}`, cursor)),
-      and(where, position(otherSide)),
+      and(where, walkOf(source, query, cursor).back),
     );
 
     if (!around.anchor) {
@@ -141,15 +172,10 @@ export const keysetPage = async <Row extends { id: string }>(
     before = around.before;
   }
 
+  const walk = walkOf(source, query, cursor);
+
   // One after another: inside a request `client` is its transaction, a single connection.
-  // Newest first, or its exact reverse, so the page reads from the index either way.
-  const rows = await fetch(
-    cursor ? and(where, position(pageSide)) : where,
-    forward
-      ? newestFirst(createdAt, id)
-      : [sql`${createdAt} asc nulls first`, sql`${id} asc nulls first`],
-    query.limit + 1,
-  );
+  const rows = await fetch(and(where, walk.page), walk.order, query.limit + 1);
 
   const totals = await countRows(client, source, where, query);
 

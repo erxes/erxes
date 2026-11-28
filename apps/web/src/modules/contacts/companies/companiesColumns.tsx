@@ -27,12 +27,11 @@ import {
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { withLifecycleColumns } from '~/modules/leads/leadColumns';
-import { customFieldColumns } from '~/modules/properties/customFieldColumns';
-import { useFields } from '~/modules/properties/useFields';
+import { useFields } from '~/modules/dataExtensions/dataQueries';
+import { dataFieldColumns } from '~/modules/dataExtensions/values/dataColumns';
 import { useOpenPanelRecord } from '~/modules/side-panel/useSidePanel';
 import {
   ContactEmailsCell,
-  ContactFieldCell,
   ContactMoreCell,
   ContactOwnerCell,
   ContactPhonesCell,
@@ -198,10 +197,10 @@ const createCompanyColumns = (t: (key: string) => string): RecordTableColumnDef<
   },
 ];
 
-/** The company columns plus one per custom field. */
+/** The company columns plus one per Data Extensions field. */
 export const useCompaniesColumns = (state: 'lead' | 'customer' = 'customer') => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
-  const { fields } = useFields('company');
+  const { fields } = useFields('core.company');
 
   return useMemo(
     () =>
@@ -210,9 +209,7 @@ export const useCompaniesColumns = (state: 'lead' | 'customer' = 'customer') => 
         'primaryName',
         'company',
         state === 'lead',
-        customFieldColumns<Company>(fields, (company, field) => (
-          <ContactFieldCell record={company} field={field} scope={SCOPE} />
-        )),
+        dataFieldColumns<Company>(fields),
       ),
     [fields, t, state],
   );

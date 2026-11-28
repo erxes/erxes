@@ -27,11 +27,8 @@ type Props = {
   disabled?: boolean;
 };
 
-/** The trigger's `field` for a date field: `birthDate`, or a custom field's id. */
-const dateFieldKey = (path: string) =>
-  path === 'subject.birthDate' ? 'birthDate' : path.replace('subject.customFields.', '');
-
-const plainLabel = (field: FieldInfo) => field.label.replace(/ \(custom\)$/, '');
+/** The trigger's `field` for a date field: `birthDate`, or a Data Extensions field's `data.<key>`. */
+const dateFieldKey = (path: string) => path.replace(/^subject\./, '');
 
 /** Mid-sentence: "birthday", but "VIP date" stays as it is. */
 const midSentence = (label: string) =>
@@ -80,8 +77,11 @@ const DateFieldSelect = ({
         {trigger.subject === 'company'
           ? t('no-company-dates', 'Companies have no date fields yet.')
           : t('no-customer-dates', 'Customers have no date fields yet.')}{' '}
-        <Link to={paths.contacts.properties} className="text-primary-text hover:underline">
-          {t('add-date-property', 'Add a date property')}
+        <Link
+          to={paths.settings.dataFieldsOf(`core.${trigger.subject}`)}
+          className="text-primary-text hover:underline"
+        >
+          {t('add-date-field', 'Add a date field')}
         </Link>
       </p>
     );
@@ -99,7 +99,7 @@ const DateFieldSelect = ({
       <Select.Content>
         {dateFields.map((field) => (
           <Select.Item key={field.path} value={dateFieldKey(field.path)}>
-            {plainLabel(field)}
+            {field.label}
           </Select.Item>
         ))}
       </Select.Content>
@@ -194,14 +194,15 @@ export const DateTriggerSettings = (props: Props) => {
   const { t } = useTranslation('automations');
   const { trigger, onChange, disabled } = props;
 
+  // A customer's birthday, or a date field of the record's own.
   const dateFields = useAutomationFields(trigger.subject).fields.filter(
     (field) =>
       field.type === 'date' &&
-      (field.path === 'subject.birthDate' || field.path.startsWith('subject.customFields.')),
+      (field.path === 'subject.birthDate' || field.path.startsWith('subject.data.')),
   );
 
   const current = dateFields.find((field) => dateFieldKey(field.path) === trigger.field);
-  const fieldName = current ? midSentence(plainLabel(current)) : t('the-date', 'the date');
+  const fieldName = current ? midSentence(current.label) : t('the-date', 'the date');
 
   return (
     <>

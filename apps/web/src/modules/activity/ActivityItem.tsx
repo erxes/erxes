@@ -34,13 +34,14 @@ import {
 import { Badge, cn, Skeleton, useOpenRecord } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { ChangeList, type Lookups } from '~/components/ChangeList';
+import type { Lookups } from '~/components/ChangeList';
 import { useActorLabel } from './useActorLabel';
 import { usePluginText, usePluginTitle } from '~/modules/plugins/pluginText';
 import { usePluginRecordType } from '~/modules/plugins/usePluginRecordType';
 import type { ReactNode } from 'react';
-import { readChanges, readWroteIn, verbOf } from './activityData';
+import { readWroteIn, verbOf } from './activityData';
 import { LinkedRecord, Sentence, SentenceLine } from './ActivitySentence';
+import { EntryChanges } from './EntryChanges';
 import { NoteItem } from './NoteEntry';
 import { When } from './timelineTime';
 import { Reactions } from './TimelineExtras';
@@ -142,7 +143,6 @@ const EventItem = ({
     ? (look?.icon && PLUGIN_ICONS[look.icon]) || IconPlug
     : (ICONS[verbOf(activity)] ?? IconHistory);
 
-  const changes = plugin ? null : readChanges(activity);
   const wroteIn = activity.type === 'customer.wrote_in' ? readWroteIn(activity) : null;
 
   return (
@@ -167,7 +167,7 @@ const EventItem = ({
           {onRelated}
           <When iso={activity.occurredAt} className="ml-2" />
         </p>
-        {changes && <ChangeList changes={changes} lookups={lookups} className="mt-1.5" />}
+        <EntryChanges activity={activity} lookups={lookups} />
         {wroteIn && <p className="mt-1 text-sm leading-6 whitespace-pre-line">{wroteIn.message}</p>}
         {(plugin || (activity.link && !own)) && (
           <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">

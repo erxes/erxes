@@ -121,6 +121,34 @@ describe('FieldPicker', () => {
     expect(shown(container)).toEqual(['Orders: count', 'Deals: count']);
   });
 
+  it('lists Data Extensions fields as custom fields: members’ under Properties, a plugin’s on its page', () => {
+    const data: TConditionField[] = [
+      ...FIELDS,
+      { path: 'subject.data.tier', label: 'Tier', type: 'select', group: 'custom' },
+      {
+        path: 'subject.data.total_spent',
+        label: 'Total spent',
+        type: 'number',
+        group: 'plugin',
+        groupLabel: 'Ecommerce',
+      },
+    ];
+
+    const container = render(<FieldPicker fields={data} onSelect={pick()} />);
+
+    expect(items(container)).toEqual(['Ecommerce4', 'Sales1', 'First name', 'VIP', 'Tier']);
+
+    click(container, 'Ecommerce');
+
+    expect(items(container)).toEqual([
+      'All fields',
+      'Loyalty points',
+      'Total spent',
+      'Count',
+      'Total (total)',
+    ]);
+  });
+
   it('matches words, not letters scattered through a field’s path', () => {
     const container = render(<FieldPicker fields={FIELDS} onSelect={pick()} />);
 

@@ -22,12 +22,17 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CustomerAccountsSection } from '~/modules/contacts/customers/CustomerAccountsSection';
 import { sexCodeOf } from '~/modules/contacts/customers/sexCode';
-import { useCustomer, useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
+import {
+  useCustomer,
+  useCustomerEdit,
+  useCustomerValuesSave,
+} from '~/modules/contacts/customers/useCustomers';
 import { LeadPanelSection } from '~/modules/leads/LeadPanelSection';
 import { LeadStageField } from '~/modules/leads/LeadStageField';
 import { PluginRecordSections } from '~/modules/plugins/PluginRecordSections';
 import {
   ContactChannelsSection,
+  ContactDataFields,
   ContactDetailScroll,
   ContactOwnerField,
   ContactTextField,
@@ -156,6 +161,7 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
   const { t: addT } = useTranslation('contact', { keyPrefix: 'customer.add' });
   const { data: customer, isPending } = useCustomer(customerId);
   const edit = useCustomerEdit();
+  const saveValues = useCustomerValuesSave(customerId);
 
   if (isPending) return <Spinner area="lg" />;
 
@@ -192,6 +198,7 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
           />
         )}
       </div>
+      <ContactDataFields recordType="core.customer" values={customer.values} save={saveValues} />
       <ContactPanelTags
         contentType="core:customer"
         contentId={customer.id}

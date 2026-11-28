@@ -2,7 +2,8 @@ import type { ActivityTarget } from '@erxes/core-contract';
 import { activities, actorOf, caller, type Db, newId } from '@erxes/core-db';
 
 export interface CoreActivity {
-  targetType: ActivityTarget;
+  /** A customer or company, or a record type's record (`custom.project`, `hr.employee`). */
+  targetType: ActivityTarget | `${string}.${string}`;
   targetId: string;
   type: string;
   data?: Record<string, unknown>;

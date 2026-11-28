@@ -53,21 +53,16 @@ const CUSTOMER_CASES: [string, { filter?: string; search?: string }][] = [
   ['Email contains', { filter: rule('subject.primaryEmail', 'contains', 'p12345@') }],
   ['Search box', { search: 'p12345@' }],
   ['Has a tag', { filter: rule('subject.tagIds', 'contains', 'tag5') }],
-  ['Custom number > 9900', { filter: rule('subject.customFields.f_spend', 'gt', 9900) }],
-  ['Custom select = gold', { filter: rule('subject.customFields.f_tier', 'eq', 'gold') }],
+  ['Field number > 9900', { filter: rule('subject.data.spend', 'gt', 9900) }],
+  ['Field select = gold', { filter: rule('subject.data.tier', 'eq', 'gold') }],
+  ['Field multi-select has golf', { filter: rule('subject.data.interests', 'contains', 'golf') }],
   [
-    'Custom multi-select has golf',
-    { filter: rule('subject.customFields.f_interests', 'contains', 'golf') },
+    'Field date in the next 30 days',
+    { filter: rule('subject.data.renewal', 'within_next', { amount: 30, unit: 'days' }) },
   ],
   [
-    'Custom date in the next 30 days',
-    {
-      filter: rule('subject.customFields.f_renewal', 'within_next', { amount: 30, unit: 'days' }),
-    },
-  ],
-  [
-    'Custom date anniversary in 7 days',
-    { filter: rule('subject.customFields.f_renewal', 'anniversary_within', { amount: 7 }) },
+    'Field date anniversary in 7 days',
+    { filter: rule('subject.data.renewal', 'anniversary_within', { amount: 7 }) },
   ],
   [
     'No activity for 60 days',
@@ -78,8 +73,8 @@ const CUSTOMER_CASES: [string, { filter?: string; search?: string }][] = [
     { filter: rule('subject.birthDate', 'anniversary_within', { amount: 7 }) },
   ],
   [
-    'Company property: region is north',
-    { filter: rule('subject.company.customFields.f_region', 'eq', 'north') },
+    'Company field: region is north',
+    { filter: rule('subject.company.data.region', 'eq', 'north') },
   ],
   ['First name is', { filter: rule('subject.firstName', 'eq', 'Firstc4ca42') }],
   ['Search box, two words', { search: 'first c4ca 8000' }],
@@ -89,7 +84,7 @@ const CUSTOMER_CASES: [string, { filter?: string; search?: string }][] = [
     {
       filter: allOf(
         { path: 'subject.tagIds', op: 'contains', value: 'tag5' },
-        { path: 'subject.customFields.f_spend', op: 'gt', value: 5000 },
+        { path: 'subject.data.spend', op: 'gt', value: 5000 },
         { path: 'subject.createdAt', op: 'within_last', value: { amount: 12, unit: 'months' } },
       ),
     },
@@ -99,7 +94,7 @@ const CUSTOMER_CASES: [string, { filter?: string; search?: string }][] = [
 const COMPANY_CASES: [string, { filter?: string; search?: string }][] = [
   ['Companies, no filter', {}],
   ['Companies, search', { search: 'company 777' }],
-  ['Companies, region is north', { filter: rule('subject.customFields.f_region', 'eq', 'north') }],
+  ['Companies, region is north', { filter: rule('subject.data.region', 'eq', 'north') }],
   ['Companies, industry is Retail', { filter: rule('subject.industry', 'eq', 'Retail') }],
 ];
 

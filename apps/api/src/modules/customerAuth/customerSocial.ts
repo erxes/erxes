@@ -116,7 +116,7 @@ const firstSignIn = async (
     firstName: input.firstName ?? identity.firstName ?? '',
     lastName: input.lastName ?? identity.lastName,
     birthDate: input.birthDate,
-    customFields: input.customFields,
+    values: input.values,
   });
 
   const { customer, created } = await findOrCreateCustomer(tx, {

@@ -60,58 +60,115 @@ describe('tags and custom fields', () => {
     });
   });
 
-  describe('custom fields', () => {
+  describe('data fields', () => {
     it('only owners and admins define fields; values are checked against them', async () => {
       await expect(
-        t.member().fields.create({ contentType: 'customer', label: 'Tier', type: 'text' }),
+        t.member().dataFields.create({
+          recordType: 'core.customer',
+          key: 'tier',
+          label: 'Tier',
+          type: 'text',
+        }),
       ).rejects.toMatchObject({ status: 403 });
 
-      const tier = await t.owner().fields.create({
-        contentType: 'customer',
+      const tier = await t.owner().dataFields.create({
+        recordType: 'core.customer',
+        key: 'tier',
         label: 'Tier',
         type: 'select',
-        options: ['Bronze', 'Silver'],
+        options: [
+          { value: 'Bronze', label: 'Bronze', color: 'orange' },
+          { value: 'Silver', label: 'Silver', color: 'gray' },
+        ],
       });
 
-      const visits = await t
-        .owner()
-        .fields.create({ contentType: 'customer', label: 'Visits', type: 'number' });
+      const visits = await t.owner().dataFields.create({
+        recordType: 'core.customer',
+        key: 'visits',
+        label: 'Visits',
+        type: 'number',
+      });
 
       const created = await t.member().customers.create({
         firstName: 'Custom',
-        customFields: { [tier.id]: 'Silver', [visits.id]: 3 },
+        values: { tier: 'Silver', visits: 3 },
       });
 
       const { id } = created;
 
-      expect(created.customFields).toEqual({ [tier.id]: 'Silver', [visits.id]: 3 });
+      expect(created.values).toEqual({ tier: 'Silver', visits: 3 });
       await expect(
-        t.member().customers.update({ id, customFields: { [tier.id]: 'Platinum' } }),
-      ).rejects.toMatchObject({
-        status: 400,
-        code: 'INVALID_FIELD_VALUE',
-        data: { fieldId: tier.id },
+        t.member().customers.update({ id, values: { tier: 'Platinum' } }),
+      ).rejects.toMatchObject({ status: 400, code: 'INVALID_INPUT' });
+      expect((await t.member().customers.update({ id, values: { visits: null } })).values).toEqual({
+        tier: 'Silver',
+        visits: null,
       });
       expect(
-        (await t.member().customers.update({ id, customFields: { [visits.id]: null } }))
-          .customFields,
-      ).toEqual({ [tier.id]: 'Silver' });
-      expect(
-        (await t.member().fields.list({ contentType: 'customer' })).data.map((field) => field.id),
+        (await t.member().dataFields.list({ recordType: 'core.customer' })).data.map(
+          (field) => field.id,
+        ),
       ).toEqual([tier.id, visits.id]);
 
-      await t.owner().fields.remove({ id: tier.id });
-      expect((await t.owner().customers.get({ id })).customFields).toEqual({});
+      await t.owner().dataFields.archive({ id: tier.id });
+      await t.owner().dataFields.remove({ id: tier.id });
+      expect((await t.owner().customers.get({ id })).values).toEqual({ visits: null });
     });
 
     it('rejects fields of another record type', async () => {
-      const region = await t
-        .owner()
-        .fields.create({ contentType: 'company', label: 'Region', type: 'text' });
+      await t.owner().dataFields.create({
+        recordType: 'core.company',
+        key: 'region',
+        label: 'Region',
+        type: 'text',
+      });
 
       await expect(
-        t.owner().customers.create({ firstName: 'X', customFields: { [region.id]: 'North' } }),
-      ).rejects.toMatchObject({ code: 'INVALID_FIELD' });
+        t.owner().customers.create({ firstName: 'X', values: { region: 'North' } }),
+      ).rejects.toMatchObject({ code: 'INVALID_INPUT' });
+    });
+
+    it('asks for a required field only while it shows', async () => {
+      const owner = t.owner();
+
+      await owner.dataFields.create({
+        recordType: 'core.customer',
+        key: 'kind',
+        label: 'Kind',
+        type: 'select',
+        options: [
+          { value: 'person', label: 'Person', color: 'gray' },
+          { value: 'reseller', label: 'Reseller', color: 'blue' },
+        ],
+      });
+      await owner.dataFields.create({
+        recordType: 'core.customer',
+        key: 'resellerCode',
+        label: 'Reseller code',
+        type: 'text',
+        settings: {
+          required: true,
+          visibleWhen: { field: 'kind', operator: 'eq', value: 'reseller' },
+        },
+      });
+
+      // Hidden while the customer is a person: it may stay empty.
+      const person = await owner.customers.create({
+        firstName: 'Person',
+        values: { kind: 'person', resellerCode: null },
+      });
+
+      await expect(
+        owner.customers.update({ id: person.id, values: { kind: 'reseller', resellerCode: null } }),
+      ).rejects.toMatchObject({ status: 400, code: 'INVALID_INPUT' });
+      expect(
+        (
+          await owner.customers.update({
+            id: person.id,
+            values: { kind: 'reseller', resellerCode: 'R-1' },
+          })
+        ).values,
+      ).toMatchObject({ kind: 'reseller', resellerCode: 'R-1' });
     });
   });
 });

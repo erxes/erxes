@@ -9,8 +9,9 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
+import type { z } from 'zod';
 import { inList, orgIdColumn, pgTable } from '../table';
-import { createdAt, type CustomValue } from './common';
+import { createdAt } from './common';
 import { customers } from './customers';
 import { organizations } from './organizations';
 import { portals } from './portals';
@@ -27,8 +28,8 @@ export interface CustomerSignUpData {
   lastName?: string | null;
   /** `YYYY-MM-DD` */
   birthDate?: string | null;
-  /** By field id, as `customers.update` takes them. */
-  customFields?: Record<string, CustomValue>;
+  /** Data Extensions values by field key, as `customers.update` takes them. */
+  values?: Record<string, z.core.util.JSONType | null>;
 }
 
 /**

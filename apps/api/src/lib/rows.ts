@@ -1,4 +1,4 @@
-import type { Db, fieldGroups, fields, leadStages } from '@erxes/core-db';
+import type { Db, leadStages } from '@erxes/core-db';
 import { inArray, sql } from 'drizzle-orm';
 
 /**
@@ -16,7 +16,7 @@ export const oneRow = <T>(rows: T[]) => {
 /** Gives each row its `order`, in one update (`case id when … then … end`). */
 export const setOrders = async (
   client: Db,
-  table: typeof fields | typeof fieldGroups | typeof leadStages,
+  table: typeof leadStages,
   orders: { id: string; order: number }[],
 ) => {
   // An id listed twice gets its last order, as one update per item gave it.

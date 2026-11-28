@@ -1,58 +1,60 @@
-import type { CustomValue, CustomerSignUpData, Db } from '@erxes/core-db';
-import { fieldGroups, fields } from '@erxes/core-db';
-import { and, asc, eq, getTableColumns, isNull } from 'drizzle-orm';
+import { type DataExtensionValues, isEmptyValue } from '@erxes/core-contract';
+import type { CustomerSignUpData, Db } from '@erxes/core-db';
 import { fail } from '~/http/errors';
 import { findCustomer } from '~/modules/customers/customerRows';
-import { applyCustomFields, isEmpty } from '~/modules/fields/customValues';
+import { type DataFieldRow, fieldsOf } from '~/modules/dataExtensions/definitions';
+import { allValues } from '~/modules/dataExtensions/hostValues.service';
+import { prepareValues } from '~/modules/dataExtensions/values';
+
+const CUSTOMER = 'core.customer';
+
+type Values = DataExtensionValues;
+
+/** Whether customers fill the field in themselves: theirs, shown, and not read-only. */
+const isTheirs = (field: DataFieldRow) =>
+  Boolean(field.settings.customerEditable) &&
+  !field.settings.hidden &&
+  !field.settings.readOnly &&
+  !field.plugin;
 
 /**
- * The customer fields the organisation lets customers fill in themselves (decision 42): live,
- * in a live group, in order. Nothing else is theirs to read or write.
+ * The customer fields the organisation lets customers fill in themselves (decision 42): active,
+ * in order, each with whether sign-up needs it. Nothing else is theirs to read or write.
  */
-export const customerFieldsOf = (tx: Db) =>
-  tx
-    .select(getTableColumns(fields))
-    .from(fields)
-    .leftJoin(fieldGroups, eq(fieldGroups.id, fields.groupId))
-    .where(
-      and(
-        eq(fields.contentType, 'customer'),
-        eq(fields.customerEditable, true),
-        isNull(fields.archivedAt),
-        isNull(fieldGroups.archivedAt),
-      ),
-    )
-    .orderBy(asc(fields.order), asc(fields.id));
+export const customerFieldsOf = async (tx: Db) =>
+  (await fieldsOf(tx, CUSTOMER))
+    .filter(isTheirs)
+    .map((field) => ({ ...field, required: Boolean(field.settings.required) }));
 
-const idsOf = async (tx: Db) => new Set((await customerFieldsOf(tx)).map((field) => field.id));
+/** 400 INVALID_FIELD for a value of a field customers don't fill in. */
+const assertTheirs = (fields: DataFieldRow[], values: Values) => {
+  const theirs = new Set(fields.filter(isTheirs).map((field) => field.key));
+  const other = Object.keys(values).find((key) => !theirs.has(key));
 
-/** 400 INVALID_FIELD for a field customers don't fill in. */
-const assertTheirs = (values: Record<string, unknown>, theirs: Set<string>) => {
-  const other = Object.keys(values).find((id) => !theirs.has(id));
+  if (other === undefined) return;
 
-  if (other) throw fail('INVALID_FIELD', 'Customers can’t fill in this field', { fieldId: other });
+  const fieldId = fields.find((field) => field.key === other)?.id ?? other;
+
+  throw fail('INVALID_FIELD', 'Customers can’t fill in this field', { fieldId });
 };
 
 /** Values of the fields customers fill in, the rest left out. */
-const theirsOnly = (values: Record<string, CustomValue>, theirs: Set<string>) =>
-  Object.fromEntries(Object.entries(values).filter(([id]) => theirs.has(id)));
+const theirsOnly = (fields: DataFieldRow[], values: Values) =>
+  Object.fromEntries(
+    fields.filter(isTheirs).map((field) => [field.key, values[field.key] ?? null]),
+  );
 
-/** The customer as they see themselves: their custom fields only. */
+/** The customer as they see themselves: the values of their own fields only. */
 export const profileOf = async (tx: Db, customerId: string) => {
   const customer = await findCustomer(tx, customerId);
+  const fields = await fieldsOf(tx, CUSTOMER);
 
-  return { ...customer, customFields: theirsOnly(customer.customFields, await idsOf(tx)) };
+  return { ...customer, values: theirsOnly(fields, await allValues(tx, CUSTOMER, customerId)) };
 };
 
-/** A customer's own field changes, checked by the fields' rules; a field not theirs is refused. */
-export const checkTheirFields = async (
-  tx: Db,
-  current: Record<string, CustomValue>,
-  patch: Record<string, CustomValue | null>,
-) => {
-  assertTheirs(patch, await idsOf(tx));
-
-  return applyCustomFields(tx, 'customer', current, patch);
+/** A customer's own value changes: a field not theirs is refused, the rest checked on write. */
+export const checkTheirValues = async (tx: Db, patch: Values) => {
+  assertTheirs(await fieldsOf(tx, CUSTOMER), patch);
 };
 
 /**
@@ -63,25 +65,27 @@ export const checkSignUp = async (
   tx: Db,
   form: CustomerSignUpData,
 ): Promise<CustomerSignUpData> => {
-  const theirs = await customerFieldsOf(tx);
-  const given = form.customFields ?? {};
+  const fields = await fieldsOf(tx, CUSTOMER);
+  const given = form.values ?? {};
 
-  assertTheirs(given, new Set(theirs.map((field) => field.id)));
+  assertTheirs(fields, given);
 
-  const missing = theirs.find((field) => {
-    const value = given[field.id];
-
-    return field.isRequired && (value === undefined || isEmpty(value));
-  });
+  const missing = fields.find(
+    (field) => isTheirs(field) && field.settings.required && isEmptyValue(given[field.key]),
+  );
 
   if (missing) {
     throw fail('INVALID_FIELD', `${missing.label} is required`, { fieldId: missing.id });
   }
 
+  // Checked now, so a bad form gets no code; written (and checked again) when it is confirmed.
+  // Their fields hold no relations, so no relation sides.
+  await prepareValues(tx, fields, new Map(), given, false);
+
   return {
     firstName: form.firstName,
     lastName: form.lastName || null,
     birthDate: form.birthDate || null,
-    customFields: await applyCustomFields(tx, 'customer', {}, given),
+    values: given,
   };
 };

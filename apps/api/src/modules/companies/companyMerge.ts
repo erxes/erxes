@@ -4,9 +4,9 @@ import { COMPANY_MERGE_FIELDS } from '@erxes/core-db/enums';
 import { asc, inArray, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
-import { combineContacts, combineCustomFields, pickedRow, pickFields } from '~/lib/merge';
+import { combineContacts, pickedRow, pickFields } from '~/lib/merge';
 import { contactsMerged } from '~/modules/activities/contactHistory';
-import { saveCustomFields } from '~/modules/fields/fieldValues';
+import { mergeHostValues } from '~/modules/dataExtensions/hostRecords';
 import { copyTags } from '~/modules/tags/tagLinks';
 import { type CompanyRow, findCompany, inOrg, selectCompanies } from './companyRows';
 
@@ -89,19 +89,13 @@ export const mergeCompanies = async (input: CompanyMerge) => {
   const otherIds = others.map((other) => other.id);
 
   await moveRelations(tx, keep.id, otherIds);
+  await mergeHostValues(tx, 'core.company', keep.id, otherIds);
   await tx.delete(companies).where(inArray(companies.id, otherIds));
 
   await tx
     .update(companies)
     .set(mergedColumns(keep, others, input.fields))
     .where(inOrg(keep.id));
-
-  const combined = combineCustomFields(
-    keep.customFields,
-    others.map((other) => other.customFields),
-  );
-
-  await saveCustomFields(tx, 'company', keep.id, combined, Object.keys(combined));
 
   const merged = await findCompany(tx, keep.id);
 

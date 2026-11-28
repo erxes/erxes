@@ -132,13 +132,13 @@ export const useCustomers = () => {
     const join = async (
       value: string,
       kind: 'email' | 'phone' = 'email',
-      form: { firstName?: string; customFields?: Record<string, string> } = {},
+      form: { firstName?: string; values?: Record<string, string> } = {},
     ) => {
       await api.customerAuth.signUp({
         kind,
         value,
         firstName: form.firstName ?? 'Test',
-        ...(form.customFields && { customFields: form.customFields }),
+        ...(form.values && { values: form.values }),
       });
 
       return api.customerAuth.confirmSignUp({

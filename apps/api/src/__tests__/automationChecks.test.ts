@@ -159,9 +159,15 @@ describe('automation checks', { timeout: 180_000 }, () => {
         steps: [tagCustomer],
       }),
     ).toEqual(['Step tu (Tag the customer) needs a customer, but runs are about a company']);
+    await t.owner().dataFields.create({
+      recordType: 'core.company',
+      key: 'founded',
+      label: 'Founded',
+      type: 'date',
+    });
     expect(
       await problemsOf({
-        trigger: { kind: 'date', subject: 'company', field: 'birthDate' },
+        trigger: { kind: 'date', subject: 'company', field: 'data.founded' },
         steps: [tagCustomer],
       }),
     ).toEqual(['Step tu (Tag the customer) needs a customer, but runs are about a company']);
@@ -203,19 +209,26 @@ describe('automation checks', { timeout: 180_000 }, () => {
   });
 
   it('needs a date trigger on a date field', async () => {
-    const text = await t
-      .owner()
-      .fields.create({ contentType: 'customer', label: 'Nickname', type: 'text' });
+    const owner = t.owner();
+    const needsDate = ['The date trigger needs a date field (`birthDate` or `data.<key>`)'];
 
-    const renewal = await t
-      .owner()
-      .fields.create({ contentType: 'customer', label: 'Renewal', type: 'date' });
+    await owner.dataFields.create({
+      recordType: 'core.customer',
+      key: 'nickname',
+      label: 'Nickname',
+      type: 'text',
+    });
+    await owner.dataFields.create({
+      recordType: 'core.customer',
+      key: 'renewal',
+      label: 'Renewal',
+      type: 'date',
+    });
 
     expect(await problemsOf(onDate('birthDate'))).toEqual([]);
-    expect(await problemsOf(onDate(renewal.id))).toEqual([]);
-    expect(await problemsOf(onDate(text.id))).toEqual(['The date trigger needs a date field']);
-    expect(await problemsOf(onDate('no-such-field'))).toEqual([
-      'The date trigger needs a date field',
-    ]);
+    expect(await problemsOf(onDate('data.renewal'))).toEqual([]);
+    expect(await problemsOf(onDate('data.nickname'))).toEqual(needsDate);
+    expect(await problemsOf(onDate('data.noSuchField'))).toEqual(needsDate);
+    expect(await problemsOf(onDate('renewal'))).toEqual(needsDate);
   });
 });

@@ -16,6 +16,8 @@ import { pruneNotifications } from '~/modules/notifications/inbox.service';
 import { refreshAllEntitlements } from '~/modules/saas/entitlements';
 import { defineSchedule } from '~/modules/jobs/jobs';
 import { purgeExpiredTrash } from '~/modules/trash/trash.service';
+import { sweepRemovedRecords } from '~/modules/dataExtensions/hostRecords';
+import { purgeDeletedRecords } from '~/modules/dataExtensions/recycleBin';
 import { pruneDeliveries } from '~/modules/webhooks/webhookDelivery';
 
 const log = logger.child({ component: 'maintenance' });
@@ -58,6 +60,8 @@ const cleanup = async () => {
   );
 
   await withSystem('cleanup: recycle bin', (tx) => purgeExpiredTrash(tx));
+  await purgeDeletedRecords();
+  await sweepRemovedRecords();
   // Read-only plugins past their grace period turn off here.
   await refreshAllEntitlements();
   await withSystem('cleanup: deletion counters', (tx) =>

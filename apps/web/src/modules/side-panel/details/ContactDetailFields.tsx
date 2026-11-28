@@ -10,7 +10,9 @@ import {
 } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useCan } from '~/modules/auth/session';
 import { ContactEmails, ContactPhones } from '~/modules/contacts/components/ContactFields';
+import { RecordFields, type RecordFieldsProps } from '~/modules/dataExtensions/values/RecordFields';
 
 /**
  * A record's Detail tab scrolling under the panel header. `fill` makes the content at least as
@@ -160,3 +162,17 @@ export const ContactChannelsSection = ({
     </PanelField>
   </PanelSection>
 );
+
+/**
+ * A customer's or company's Data Extensions fields under their groups, below its own fields:
+ * members who may edit contacts change them. Nothing while the type has no fields.
+ */
+export const ContactDataFields = (props: Omit<RecordFieldsProps, 'readOnly'>) => {
+  const canEdit = useCan()('contacts.edit');
+
+  return (
+    <div className="border-b px-3 py-2 empty:hidden">
+      <RecordFields {...props} readOnly={!canEdit} />
+    </div>
+  );
+};

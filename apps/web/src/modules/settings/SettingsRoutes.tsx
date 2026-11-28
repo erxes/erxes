@@ -21,9 +21,9 @@ import { SecuritySettingsPage } from './profile/SecuritySettingsPage';
 import { SettingsLayout } from './SettingsLayout';
 import { TeamMemberSettingsRoutes } from './team-members/TeamMemberSettingsRoutes';
 
-const PluginPropertiesSettings = lazyNamed(
-  () => import('./properties/PluginPropertiesSettings'),
-  'PluginPropertiesSettings',
+const DataModelRoutes = lazyNamed(
+  () => import('~/modules/dataExtensions/settings/DataModelRoutes'),
+  'DataModelRoutes',
 );
 
 const AssistantModelPage = lazyNamed(
@@ -143,7 +143,7 @@ export const SettingsRoutes = () => (
       <Route path="agents/:id" element={<AgentPage />} />
       <Route path="assistant-code-mode" element={<AssistantCodeModePage />} />
       <Route path="assistant-appearance" element={<AssistantAppearancePage />} />
-      <Route path="properties/*" element={<PluginPropertiesSettings />} />
+      <Route path="data-model/*" element={<DataModelRoutes />} />
       <Route path="*" element={<NotFoundPage />} />
     </Route>
   </Routes>

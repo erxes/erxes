@@ -79,6 +79,30 @@ const ownTransfers = (plugin: string, manifest: PluginManifest) => {
   }
 };
 
+/** Objects are the plugin's own record types, read and changed with its own permissions. */
+const ownObjects = (plugin: string, manifest: PluginManifest) => {
+  const objects = manifest.objects ?? [];
+  const declared = new Set(manifest.permissions?.map((item) => item.action));
+
+  namespaced(
+    plugin,
+    objects.map((object) => object.type),
+    'Object types',
+  );
+
+  const unknown = objects
+    .flatMap((object) => [object.permission, object.updatePermission])
+    .find((action) => action !== undefined && !declared.has(action));
+
+  if (unknown) {
+    throw fail(
+      'UNKNOWN_PERMISSION',
+      `An object needs ${unknown}, which the manifest's permissions don't declare`,
+      { permissions: [unknown] },
+    );
+  }
+};
+
 /** Its integrations need one of its own permissions; its actions name only its own integrations. */
 const ownIntegrations = (manifest: PluginManifest) => {
   const declared = new Set(manifest.permissions?.map((item) => item.action));
@@ -169,6 +193,7 @@ export const checkManifest = (plugin: string, manifest: PluginManifest) => {
   );
 
   ownRelations(plugin, manifest);
+  ownObjects(plugin, manifest);
   ownIntegrations(manifest);
   othersReads(plugin, manifest);
   usableConnections(manifest);

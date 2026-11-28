@@ -36,7 +36,7 @@ const room = {
   detailPath: (id: string) => `/pms/rooms/${id}`,
   activity: 'pms:room',
   contacts: (id: string) => ({ queryKey: ['room-contacts', id] }),
-  properties: {
+  dataFields: {
     type: 'pms.room',
     values: async () => ({}),
     save: async () => undefined,
@@ -129,41 +129,41 @@ describe('a plugin’s record types', () => {
     ['a page that is no address', { detailPath: () => 42 }],
     ['contacts that are no function', { contacts: 'room-contacts' }],
     ['an empty activity type', { activity: '' }],
-    ['properties of another plugin', { properties: { ...room.properties, type: 'hr.room' } }],
-    ['limits without appliesTo', { properties: { ...room.properties, appliesTo: undefined } }],
+    ['fields of another plugin', { dataFields: { ...room.dataFields, type: 'hr.room' } }],
+    ['limits without appliesTo', { dataFields: { ...room.dataFields, appliesTo: undefined } }],
     [
       'a limit key that is not snake case',
       {
-        properties: {
-          ...room.properties,
-          limits: [{ ...room.properties.limits[0], key: 'room type' }],
+        dataFields: {
+          ...room.dataFields,
+          limits: [{ ...room.dataFields.limits[0], key: 'room type' }],
         },
       },
     ],
     [
       'a limit key that starts with a capital',
       {
-        properties: {
-          ...room.properties,
-          limits: [{ ...room.properties.limits[0], key: 'Room' }],
+        dataFields: {
+          ...room.dataFields,
+          limits: [{ ...room.dataFields.limits[0], key: 'Room' }],
         },
       },
     ],
     [
       'limit options that are missing',
       {
-        properties: {
-          ...room.properties,
-          limits: [{ ...room.properties.limits[0], options: null }],
+        dataFields: {
+          ...room.dataFields,
+          limits: [{ ...room.dataFields.limits[0], options: null }],
         },
       },
     ],
     [
       'limit options that are text',
       {
-        properties: {
-          ...room.properties,
-          limits: [{ ...room.properties.limits[0], options: 'room-types' }],
+        dataFields: {
+          ...room.dataFields,
+          limits: [{ ...room.dataFields.limits[0], options: 'room-types' }],
         },
       },
     ],

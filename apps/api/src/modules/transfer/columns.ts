@@ -1,15 +1,13 @@
 import type { TransferColumn, TransferRecordType } from '@erxes/core-contract';
-import { type Db, fields } from '@erxes/core-db';
-import { eq } from 'drizzle-orm';
+import type { Db } from '@erxes/core-db';
+import { type DataColumnField, dataColumns } from './dataColumns';
 import { type CoreRecordType, isCoreType, pluginTransfer } from './pluginTransfer';
-
-type FieldType = (typeof fields.$inferSelect)['type'];
 
 export interface Column extends TransferColumn {
   /** Other header names that mean this column (auto-mapping), lower case. */
   aliases: string[];
-  /** Custom fields: their type, for converting cells. */
-  fieldType?: FieldType;
+  /** Data Extensions fields (`data.<key>`): the field, for converting cells. */
+  dataField?: DataColumnField;
 }
 
 const column = (key: string, label: string, extra: Partial<Column> = {}): Column => ({
@@ -130,31 +128,9 @@ export const transferColumns = async (
 
   const isCompany = recordType === 'company';
 
-  const builtIn = isCompany ? COMPANY_COLUMNS : customerColumns(recordType);
-
-  const custom = await client
-    .select({
-      id: fields.id,
-      label: fields.label,
-      type: fields.type,
-      code: fields.code,
-      plugin: fields.plugin,
-    })
-    .from(fields)
-    .where(eq(fields.contentType, isCompany ? 'company' : 'customer'));
-
   return [
-    ...builtIn,
-    ...custom.map((field) =>
-      column(`customFields.${field.id}`, field.label, {
-        group: 'custom',
-        default: false,
-        fieldType: field.type,
-        // A plugin's fields export; their values are the plugin's to write.
-        importable: !field.plugin,
-        aliases: field.code && !field.plugin ? [field.code.toLowerCase()] : [],
-      }),
-    ),
+    ...(isCompany ? COMPANY_COLUMNS : customerColumns(recordType)),
+    ...(await dataColumns(client, recordType)),
     ...relationColumns(isCompany),
   ];
 };
@@ -225,7 +201,7 @@ export const parseDate = (value: string): string => {
 const YES = new Set(['yes', 'y', 'true', '1', 'тийм', 'үнэн', 'x', '✓']);
 const NO = new Set(['no', 'n', 'false', '0', 'үгүй', 'худал']);
 
-const parseBoolean = (value: string) => {
+export const parseBoolean = (value: string) => {
   const text = value.trim().toLowerCase();
 
   if (YES.has(text)) return true;
@@ -243,26 +219,8 @@ export const parseNumber = (value: string) => {
   return number;
 };
 
-/** A custom field's cell as the field stores it. */
-export const customValue = (type: FieldType | undefined, value: string): unknown => {
-  switch (type) {
-    case 'number':
-      return parseNumber(value);
-    case 'date':
-      return parseDate(value);
-    case 'boolean':
-      return parseBoolean(value);
-    case 'multiselect':
-    case 'check':
-    case 'list':
-      return splitList(value);
-    default:
-      return value.trim();
-  }
-};
-
-/** A stored custom value as one cell. */
-export const customCell = (value: unknown): string | number => {
+/** A stored value as one cell. */
+export const valueCell = (value: unknown): string | number => {
   if (Array.isArray(value)) return value.join('; ');
 
   if (value === true) return 'yes';

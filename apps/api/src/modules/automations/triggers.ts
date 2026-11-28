@@ -1,13 +1,13 @@
 import type { Audience, AutomationDefinition, ConditionGroup } from '@erxes/core-contract';
-import { automations, customers, type Db, newId, withOrg, withSystem } from '@erxes/core-db';
+import { automations, type Db, newId, withOrg, withSystem } from '@erxes/core-db';
 import { and, eq, inArray, isNotNull, lte, type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { addDays, isoDay, orgTimezone, zonedDate } from '~/lib/orgTime';
 import { inOrder } from '~/lib/sequence';
-import { valuesTable } from '~/modules/fields/fieldValues';
 import { defineJob } from '~/modules/jobs/jobs';
 import { automationChecker } from './conditionCheck';
 import { dateConditions } from './conditions';
+import { dateKeyOf, onDate } from './dateFields';
 import { startRun, startRuns } from './consumer';
 import { rememberTriggerData } from './eventData';
 import { type FiringEvent, firing } from './firing';
@@ -83,29 +83,15 @@ const audienceEnrollment = (
   startOf: (subject) => ({ eventId: `${startKey}:${subject.id}`, event }),
 });
 
-const CustomFields = z.record(z.string(), z.unknown());
-
-/** Month * 100 + day of a `YYYY-MM-DD` day, as the birthday and value month-day columns hold it. */
-const monthDayOf = (iso: string) => Number(iso.slice(5, 7)) * 100 + Number(iso.slice(8, 10));
-
-/** The records whose date is `iso` (any year: its month and day), through the date's index. */
-const onDate = (trigger: DateTrigger, iso: string): SQL => {
-  if (trigger.field === 'birthDate' && trigger.subject === 'customer')
-    return trigger.yearly
-      ? sql`${customers.birthMonthDay} = ${monthDayOf(iso)}`
-      : sql`${customers.birthDate} = ${iso}::date`;
-
-  const v = valuesTable(trigger.subject);
-
-  const day = trigger.yearly
-    ? sql`${v.monthDay} = ${monthDayOf(iso)}`
-    : sql`${v.dateValue} = ${iso}::date`;
-
-  return sql`exists (select 1 from ${v} where ${v.recordId} = ${SUBJECT_TABLES[trigger.subject].id} and ${v.fieldId} = ${trigger.field} and ${v.dateValue} is not null and ${day})`;
-};
+const DataValues = z.record(z.string(), z.unknown());
 
 /** The records whose date (moved by the offset) is today in the organisation's time zone. */
-const dateEnrollment = (trigger: DateTrigger, at: string, timeZone: string): Enrollment => {
+const dateEnrollment = async (
+  tx: Db,
+  trigger: DateTrigger,
+  at: string,
+  timeZone: string,
+): Promise<Enrollment> => {
   const today = zonedDate(new Date(at), timeZone);
   // The record's date + offset = today → the record's date = today − offset.
   const iso = isoDay(addDays(today, -trigger.offsetDays));
@@ -116,7 +102,7 @@ const dateEnrollment = (trigger: DateTrigger, at: string, timeZone: string): Enr
 
   return {
     type: trigger.subject,
-    where: onDate(trigger, iso),
+    where: await onDate(tx, trigger, iso),
     conditions: dateConditions(trigger),
     event,
     startOf: (subject) => ({
@@ -128,7 +114,7 @@ const dateEnrollment = (trigger: DateTrigger, at: string, timeZone: string): Enr
           date:
             trigger.field === 'birthDate'
               ? subject.birthDate
-              : CustomFields.safeParse(subject.customFields).data?.[trigger.field],
+              : DataValues.safeParse(subject.data).data?.[dateKeyOf(trigger.field) ?? ''],
         },
       },
     }),
@@ -193,7 +179,7 @@ const enrollmentFor = async (tx: Db, definition: AutomationDefinition, payload: 
   const { trigger } = definition;
   const at = payload.scheduledFor;
 
-  if (trigger.kind === 'date') return dateEnrollment(trigger, at, await orgTimezone(tx));
+  if (trigger.kind === 'date') return dateEnrollment(tx, trigger, at, await orgTimezone(tx));
 
   if (trigger.kind !== 'schedule' && trigger.kind !== 'manual') return null;
 

@@ -1016,6 +1016,41 @@
       "when": 1795764520940,
       "tag": "0144_identities_and_server_license",
       "breakpoints": true
+    },
+    {
+      "idx": 145,
+      "version": "7",
+      "when": 1795841456695,
+      "tag": "0145_data_extensions",
+      "breakpoints": true
+    },
+    {
+      "idx": 146,
+      "version": "7",
+      "when": 1795841929331,
+      "tag": "0146_data_plugins",
+      "breakpoints": true
+    },
+    {
+      "idx": 147,
+      "version": "7",
+      "when": 1795842827868,
+      "tag": "0147_data_field_groups",
+      "breakpoints": true
+    },
+    {
+      "idx": 148,
+      "version": "7",
+      "when": 1795844297662,
+      "tag": "0148_copy_properties",
+      "breakpoints": true
+    },
+    {
+      "idx": 149,
+      "version": "7",
+      "when": 1795844298678,
+      "tag": "0149_drop_properties",
+      "breakpoints": true
     }
   ]
 }

@@ -59,7 +59,7 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   `type`: number, date, text, select or multiselect). Core shows it read-only
   and members filter and save views by it; `filterable: false` keeps it a
   column and sort key only, when a relation filters by the same records. Write values with
-  `core.forOrg(orgId).fields.setPluginValues({ contentType, values })` (scope
+  `core.forOrg(orgId).dataValues.setPluginValues({ contentType, values })` (scope
   `fields:write`, up to 500, `value: null` clears) after the change commits; it
   adds nothing to the timeline and sends no event. Members see the fields only
   while the plugin has `fields:write` there, so fill the values that existed
@@ -79,6 +79,14 @@ Node 26 runs the TypeScript directly; imports carry `.ts` and `#/` is `src/`.
   `GRANT SELECT ON sales_customer_deals TO erxes_core_reader;`. It reads the
   plugin's tables as their owner, so their row level security keeps it to the
   organisation. Index what it joins on (`org_id`, the customer id).
+- Fields members add to the plugin's own records (Data Extensions) go on a record type in
+  the manifest's `objects`, each naming a view `<plugin>_*` its role owns and grants to
+  `erxes_core_reader`, with `id`, a column per own field and `custom_fields jsonb`.
+  Keep the values in a `custom_fields` jsonb column by field id, and before saving check
+  the patch with `core.forOrg(orgId).dataValues.check({ recordType, current, patch,
+  create, userId, appliesTo })`: it answers the record's values to save, or 400
+  INVALID_INPUT naming each value. Read the fields with `dataFields.list` and their
+  groups with `dataFieldGroups.list`; filter and sort lists by `custom_fields`.
 - A segment (a price list's audience, a campaign's) is a shared view members
   build in core. Store its id; `views.list({ recordType })` lists the shared
   ones and `views.matches({ viewId, recordIds })` says which records it

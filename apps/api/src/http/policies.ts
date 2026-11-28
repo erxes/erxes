@@ -3,6 +3,7 @@ import { AUTH_ACCESS } from './authPolicies';
 import { MESSAGING_ACCESS } from './messagingPolicies';
 import { MEMBER, needs, type Policy, type ProcedurePath, PUBLIC } from './policyRules';
 import { CUSTOMER_ACCESS } from './customerPolicies';
+import { DATA_EXTENSION_ACCESS } from './dataExtensionPolicies';
 import { PAYMENT_ACCESS } from './paymentPolicies';
 import { SUPPORT_ACCESS } from './supportPolicies';
 import { INTEGRATION_ACCESS } from './integrationPolicies';
@@ -140,29 +141,7 @@ export const ACCESS = {
   'events.retryFailures': needs('events.view'),
   'events.dismissFailures': needs('events.view'),
 
-  // Plugins read product groups (with products:read) and their own record types' (the service checks).
-  'fieldGroups.list': { member: 'any', plugin: 'installed' },
-  'fieldGroups.create': needs('properties.manage'),
-  'fieldGroups.update': needs('properties.manage'),
-  'fieldGroups.reorder': needs('properties.manage'),
-  'fieldGroups.archive': needs('properties.manage'),
-  'fieldGroups.restore': needs('properties.manage'),
-  'fieldGroups.remove': needs('properties.manage'),
-
-  // Plugins read product fields (with products:read) and their own record types' (the service checks).
-  'fields.list': { member: 'any', plugin: 'installed' },
-  'fields.usage': MEMBER,
-  'fields.create': needs('properties.manage'),
-  'fields.update': needs('properties.manage'),
-  'fields.reorder': needs('properties.manage'),
-  'fields.archive': needs('properties.manage'),
-  'fields.restore': needs('properties.manage'),
-  'fields.removeUnused': needs('properties.manage'),
-  'fields.remove': needs('properties.manage'),
-  // A plugin writes its own fields' values (the manifest's `fields`).
-  'fields.setPluginValues': { plugin: 'fields:write' },
-  // A plugin checks values of its own record types' fields, which it keeps (the service checks the type).
-  'fields.check': { plugin: 'installed' },
+  ...DATA_EXTENSION_ACCESS,
 
   'files.createUpload': { member: 'any', plugin: 'files:write' },
   'files.complete': { member: 'any', plugin: 'files:write' },

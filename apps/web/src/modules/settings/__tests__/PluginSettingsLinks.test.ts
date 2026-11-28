@@ -33,7 +33,7 @@ beforeEach(resetSettings);
 afterEach(unmount);
 
 describe('plugins in core’s settings', () => {
-  it('links each plugin with settings once, to its first page, else to its properties', async () => {
+  it('links each plugin with settings once, to its first page, else to its fields', async () => {
     const container = await renderSettings();
 
     const group = [...container.querySelectorAll('[data-sidebar="group"]')].find((element) =>
@@ -42,7 +42,7 @@ describe('plugins in core’s settings', () => {
 
     expect(group && links(group)).toEqual([
       ['Pms', '/pms/settings'],
-      ['Tms', '/settings/properties/tms.booking'],
+      ['Tms', '/settings/data-model/fields/tms.booking'],
     ]);
     expect(container.textContent).not.toContain('Property management');
     // Core's own Exchange Rates link stays; the plugin's second page, Rates, doesn't show.

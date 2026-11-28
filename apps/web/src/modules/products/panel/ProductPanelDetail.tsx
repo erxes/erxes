@@ -1,4 +1,4 @@
-import type { Product } from '@erxes/core-contract';
+import type { Product, ProductWithValues } from '@erxes/core-contract';
 import { useTranslation } from 'react-i18next';
 import {
   PanelDescriptionEditor,
@@ -17,6 +17,7 @@ import {
   ProductTagsRow,
   ProductTextRow,
 } from './ProductPanelFields';
+import { ProductPanelData } from './ProductPanelData';
 import { ProductPanelVariants } from './ProductPanelVariants';
 import { ProductPanelImages } from './ProductPanelImages';
 import { ProductPriceRows, ProductSizeRows } from './ProductPanelMeasures';
@@ -53,8 +54,9 @@ export const ProductDescription = ({
   );
 };
 
-// The product's fields as record table cells: click a value to edit it.
-export const ProductPanelDetail = ({ product }: { product: Product }) => {
+// The product's fields as record table cells: click a value to edit it. Its Data Extensions
+// fields follow, under their groups.
+export const ProductPanelDetail = ({ product }: { product: ProductWithValues }) => {
   const { t } = useTranslation('product');
   const expanded = usePanelExpanded();
 
@@ -89,6 +91,9 @@ export const ProductPanelDetail = ({ product }: { product: Product }) => {
             <ProductTagsRow product={product} />
           </PanelSection>
           {!expanded && <ProductDescription product={product} />}
+        </div>
+        <div className="border-b px-3 py-2">
+          <ProductPanelData product={product} />
         </div>
         <PanelSection title={t('fields.images', 'Images')}>
           <ProductPanelImages product={product} />

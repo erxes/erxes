@@ -4,8 +4,6 @@ export * from './companies';
 
 export * from './customers';
 
-export * from './fields';
-
 export * from './organizations';
 
 export * from './tags';
@@ -44,8 +42,6 @@ export * from './views';
 
 export * from './transfer';
 
-export * from './fieldValues';
-
 export * from './leadStages';
 
 export * from './leads';
@@ -63,6 +59,10 @@ export * from './rateLimits';
 export * from './assistant';
 
 export * from './agent';
+
+export * from './dataExtensions';
+
+export * from './dataFieldGroups';
 
 export * from './agents';
 

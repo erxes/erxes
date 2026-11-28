@@ -58,7 +58,15 @@ import { searchRouter } from '~/modules/search/search.router';
 import { supportAccessRouter } from '~/modules/supportAccess/supportAccess.router';
 import { tagsRouter } from '~/modules/tags/tags.router';
 import { unitTypesRouter, unitsRouter } from '~/modules/units/units.router';
-import { fieldsRouter, fieldGroupsRouter } from '~/modules/fields/fields.router';
+import {
+  dataChangesRouter,
+  dataFieldsRouter,
+  dataObjectsRouter,
+  dataPluginsRouter,
+} from '~/modules/dataExtensions/dataModel.router';
+import { dataRecordsRouter, dataValuesRouter } from '~/modules/dataExtensions/dataRecords.router';
+import { dataFieldGroupsRouter } from '~/modules/dataExtensions/fieldGroups.router';
+import { recordTypesRouter } from '~/modules/recordTypes/recordTypes.router';
 import { unscoped } from '~/orpc';
 
 /** Implements `@erxes/core-contract`; inputs are already validated by its schemas. */
@@ -116,6 +124,12 @@ export const coreRouter = unscoped.router({
   tags: tagsRouter,
   units: unitsRouter,
   unitTypes: unitTypesRouter,
-  fields: fieldsRouter,
-  fieldGroups: fieldGroupsRouter,
+  recordTypes: recordTypesRouter,
+  dataObjects: dataObjectsRouter,
+  dataPlugins: dataPluginsRouter,
+  dataFields: dataFieldsRouter,
+  dataFieldGroups: dataFieldGroupsRouter,
+  dataRecords: dataRecordsRouter,
+  dataValues: dataValuesRouter,
+  dataChanges: dataChangesRouter,
 });

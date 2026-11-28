@@ -18,7 +18,6 @@ import type { PgTable } from 'drizzle-orm/pg-core';
 import { pgCode } from '~/http/errors';
 import { inOrder } from '~/lib/sequence';
 import { recordAudit } from '~/modules/audit/audit.service';
-import { saveCustomFields } from '~/modules/fields/fieldValues';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { type Snapshot, tableOf, tagTableOf, type TrashRow } from '~/modules/trash/trash.service';
 
@@ -33,7 +32,7 @@ const LINK_KEYS = {
 
 /**
  * Inserts snapshot rows again: Postgres reads each column from its JSON value
- * (ISO dates, arrays, jsonb). Keys that are no column (`customFields`) and
+ * (ISO dates, arrays, jsonb). Keys that are no column (an older snapshot's `customFields`) and
  * generated columns are left out; columns added since keep their defaults.
  */
 const reinsert = async (
@@ -153,16 +152,12 @@ const restoreReactions = async (tx: Db, rows: Snapshot['reactions']) => {
   );
 };
 
-/** One record back, with its custom field values (of fields still existing), relations and timeline. */
+/** One record back, with its relations and timeline; its Data Extensions values never left. */
 const restoreItem = async (tx: Db, item: TrashRow) => {
   const type = item.recordType;
   const { row, activities: entries, notes: noteRows, noteVersions: versions } = item.snapshot;
 
   await reinsert(tx, tableOf(type), [row], { skipExisting: false });
-
-  const customFields = row.customFields ?? {};
-
-  await saveCustomFields(tx, type, item.recordId, customFields, Object.keys(customFields));
   await restoreRelations(tx, item);
 
   await reinsert(tx, activities, entries, { skipExisting: true });

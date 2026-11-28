@@ -101,6 +101,70 @@ describe(
       expect(await nextRunOf(scheduled)).toBeGreaterThan(Date.now());
     });
 
+    it('runs around a company’s date field, days before it, and sets a field', async () => {
+      const owner = t.owner();
+      const inThree = new Date(Date.now() + 3 * 86_400_000).toISOString().slice(0, 10);
+
+      await owner.dataFields.create({
+        recordType: 'core.company',
+        key: 'renewal',
+        label: 'Renewal',
+        type: 'date',
+      });
+      await owner.dataFields.create({
+        recordType: 'core.company',
+        key: 'stage',
+        label: 'Stage',
+        type: 'text',
+      });
+
+      const due = await owner.companies.create({
+        primaryName: 'Due',
+        values: { renewal: inThree },
+      });
+
+      await owner.companies.create({ primaryName: 'Later', values: { renewal: '2099-01-01' } });
+
+      const renewal = await t.active('Renewal', {
+        trigger: {
+          kind: 'date',
+          subject: 'company',
+          field: 'data.renewal',
+          yearly: false,
+          offsetDays: -3,
+          at: '00:01',
+        },
+        steps: [
+          {
+            id: 'set',
+            type: 'action',
+            action: 'core.company.set_data_value',
+            input: { field: 'stage', value: 'Renewing {{event.payload.date}}' },
+          },
+        ],
+      });
+
+      await adminDb().execute(
+        sql`update core_automations set next_run_at = now() - interval '1 minute' where id = ${renewal}`,
+      );
+      await tickAutomations();
+      await settle();
+
+      expect((await t.runsOf(renewal)).map((run) => run.subjectId)).toEqual([due.id]);
+      expect((await owner.companies.get({ id: due.id })).values).toMatchObject({
+        stage: `Renewing ${inThree}`,
+      });
+      // A field that isn't a date is refused.
+      await expect(
+        owner.automations.check({
+          definition: {
+            trigger: { kind: 'date', subject: 'company', field: 'data.stage', offsetDays: 0 },
+            steps: [{ id: 'stop', type: 'stop' }],
+          },
+        }),
+      ).resolves.toMatchObject({ problems: [expect.stringContaining('date field')] });
+    });
+
     it('waits for an event about the record (or gives up), and lets records leave at their goal', async () => {
       const waiter = await t.active('Wait for update', {
         trigger: {

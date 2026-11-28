@@ -1,4 +1,4 @@
-import type { Company, Customer, Field } from '@erxes/core-contract';
+import type { Company, Customer } from '@erxes/core-contract';
 import { memberQueries } from '@erxes/core-contract/client';
 import { IconEdit } from '@tabler/icons-react';
 import {
@@ -10,7 +10,6 @@ import {
   SelectMember,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { CustomFieldCell } from '~/modules/properties/CustomFieldCell';
 import { useOpenPanelRecord } from '~/modules/side-panel/useSidePanel';
 import { TagsSelect } from '~/modules/tags/TagsSelect';
 import { useCompanyEdit } from '../companies/useCompanies';
@@ -111,20 +110,6 @@ export const ContactTagsCell = ({ record, scope }: CellProps) => {
       scope={scope}
       value={record.tagIds}
       onValueChange={(tagIds) => save({ id: record.id, tagIds })}
-    />
-  );
-};
-
-/** A custom field's value, edited in place. */
-export const ContactFieldCell = ({ record, field, scope }: CellProps & { field: Field }) => {
-  const save = useContactEdit(record);
-
-  return (
-    <CustomFieldCell
-      field={field}
-      scope={`${scope}.${record.id}.${field.id}`}
-      value={record.customFields[field.id]}
-      onSave={(value) => save({ id: record.id, customFields: { [field.id]: value } })}
     />
   );
 };

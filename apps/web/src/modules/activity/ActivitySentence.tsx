@@ -334,6 +334,10 @@ export const Sentence = ({ activity, actor, lookups }: SentenceProps) => {
       return <LinkSentence activity={activity} actor={actor} verb={verb} />;
     case 'lead':
       return <LeadSentence activity={activity} actor={actor} />;
+    // Data Extensions values (`data.values.changed`), and a custom record's first ones.
+    case 'values.changed':
+    case 'record.created':
+      return <SentenceLine name={`data-${verb.split('.')[1]}`} values={{ actor }} />;
     case 'emailed':
       return <EmailedSentence activity={activity} />;
     case 'wrote_in':

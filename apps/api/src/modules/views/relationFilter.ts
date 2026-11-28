@@ -1,6 +1,5 @@
 import type { ConditionGroup, ConditionRule } from '@erxes/core-contract';
 import { companies, customers, type Db } from '@erxes/core-db';
-import { RELATION_VIEW_KINDS } from '@erxes/core-db/enums';
 import {
   compileColumn,
   compileFilter,
@@ -8,70 +7,21 @@ import {
   type FilterContext,
   type FilterFields,
   invalidFilter,
-  textArray,
 } from '@erxes/plugin-sdk/filter';
 import { type SQL, sql } from 'drizzle-orm';
-import type { FieldSpec, RelatedSpec, RelationField } from './fieldSpec';
-
-/** A view's columns: their type category (`N` number, `D` date, `S` text, `B` yes/no, `A` array) and name. */
-type ViewColumns = Map<string, { category: string; type: string }>;
+import {
+  columnFits,
+  pluginViewColumns,
+  pluginViewKey,
+  type ViewColumns,
+} from '~/modules/plugins/pluginViews';
+import type { FieldSpec, RelatedSpec } from './fieldSpec';
 
 /** The relations' views, by plugin and view name. */
 export type RelationViews = Map<string, ViewColumns>;
 
-const viewKey = ({ plugin, relation }: RelatedSpec) => `${plugin}:${relation.view}`;
-
-const CATEGORY: Record<RelationField['type'], string> = {
-  number: 'N',
-  date: 'D',
-  boolean: 'B',
-  text: 'S',
-  select: 'S',
-  member: 'S',
-  product: 'S',
-};
-
-const ROLE_PREFIX = 'erxes_plugin_';
-
-/**
- * The columns of each relation's view, by `viewKey`, where the plugin's own role owns the view,
- * so a manifest can't name core's tables (or another plugin's), and has granted it to core.
- */
-const viewColumns = async (client: Db, related: RelatedSpec[]): Promise<RelationViews> => {
-  const owned = related.map(({ plugin, relation }) => `${ROLE_PREFIX}${plugin}:${relation.view}`);
-
-  const { rows } = await client.execute<{
-    key: string;
-    name: string;
-    category: string;
-    type: string;
-  }>(sql`
-    select substr(r.rolname, ${ROLE_PREFIX.length + 1}) || ':' || c.relname as key,
-      a.attname as name, t.typcategory as category, t.typname as type
-    from pg_class c
-    join pg_namespace n on n.oid = c.relnamespace and n.nspname = 'public'
-    join pg_roles r on r.oid = c.relowner
-    join pg_attribute a on a.attrelid = c.oid and a.attnum > 0 and not a.attisdropped
-    join pg_type t on t.oid = a.atttypid
-    where c.relkind::text = any(${textArray([...RELATION_VIEW_KINDS])})
-      and has_table_privilege(c.oid, 'SELECT')
-      and r.rolname || ':' || c.relname = any(${textArray(owned)})`);
-
-  const views: RelationViews = new Map(related.map((spec) => [viewKey(spec), new Map()]));
-
-  for (const row of rows) {
-    views.get(row.key)?.set(row.name, { category: row.category, type: row.type });
-  }
-
-  return views;
-};
-
-/** Whether a view's column holds what the field says: `amount` a number, `stage` text. */
-const fits = (column: { category: string; type: string } | undefined, field: RelationField) =>
-  !!column &&
-  (field.array
-    ? column.category === 'A' && column.type === '_text'
-    : column.category === CATEGORY[field.type]);
+const viewKey = ({ plugin, relation }: RelatedSpec) =>
+  pluginViewKey({ plugin, view: relation.view });
 
 /** A relation's view is the plugin's and has `record_id` and its fields' columns, or the filter is refused. */
 const checkView = (spec: RelatedSpec, columns: ViewColumns) => {
@@ -82,7 +32,7 @@ const checkView = (spec: RelatedSpec, columns: ViewColumns) => {
   if (columns.get('record_id')?.category !== 'S')
     throw invalidFilter(`${relation.label}: the plugin's view has no record_id`);
 
-  const wrong = relation.fields.find((field) => !fits(columns.get(field.key), field));
+  const wrong = relation.fields.find((field) => !columnFits(columns.get(field.key), field));
 
   if (wrong)
     throw invalidFilter(
@@ -109,7 +59,10 @@ export const relationViews = async (
 
   if (!related.size) return new Map();
 
-  const views = await viewColumns(client, [...related.values()]);
+  const views = await pluginViewColumns(
+    client,
+    [...related.values()].map(({ plugin, relation }) => ({ plugin, view: relation.view })),
+  );
 
   for (const [key, spec] of related) checkView(spec, views.get(key) ?? new Map());
 

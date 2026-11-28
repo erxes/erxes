@@ -73,7 +73,7 @@ describe('saved views', { timeout: 300_000 }, () => {
     );
     expect(fields).toContainEqual(
       expect.objectContaining({
-        path: `subject.customFields.${t.fields.spend}`,
+        path: t.fields.spend,
         label: 'Spend',
         type: 'number',
         group: 'custom',

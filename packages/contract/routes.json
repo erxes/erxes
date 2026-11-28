@@ -1441,6 +1441,420 @@
       }
     }
   },
+  "dataFields": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/data-fields"
+        }
+      }
+    },
+    "create": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-fields"
+        }
+      }
+    },
+    "relate": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-fields/relations"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/data-fields/{id}"
+        }
+      }
+    },
+    "preview": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-fields/preview"
+        }
+      }
+    },
+    "reorder": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-fields/reorder"
+        }
+      }
+    },
+    "archive": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-fields/{id}/archive"
+        }
+      }
+    },
+    "restore": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-fields/{id}/restore"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/data-fields/{id}"
+        }
+      }
+    }
+  },
+  "dataObjects": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/data-objects"
+        }
+      }
+    },
+    "get": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/data-objects/{key}"
+        }
+      }
+    },
+    "create": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-objects"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/data-objects/{key}"
+        }
+      }
+    },
+    "archive": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-objects/{key}/archive"
+        }
+      }
+    },
+    "restore": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-objects/{key}/restore"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/data-objects/{key}"
+        }
+      }
+    }
+  },
+  "dataFieldGroups": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/data-field-groups"
+        }
+      }
+    },
+    "create": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-field-groups"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/data-field-groups/{id}"
+        }
+      }
+    },
+    "reorder": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-field-groups/reorder"
+        }
+      }
+    },
+    "archive": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-field-groups/{id}/archive"
+        }
+      }
+    },
+    "restore": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-field-groups/{id}/restore"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/data-field-groups/{id}"
+        }
+      }
+    }
+  },
+  "dataPlugins": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/data-plugins"
+        }
+      }
+    },
+    "connect": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-plugins/{plugin}/connect"
+        }
+      }
+    },
+    "disconnect": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-plugins/{plugin}/disconnect"
+        }
+      }
+    }
+  },
+  "dataChanges": {
+    "history": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/data-history/{recordType}/{recordId}"
+        }
+      }
+    },
+    "convert": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-fields/{id}/convert"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-values/{recordType}/remove"
+        }
+      }
+    }
+  },
+  "dataRecords": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/data-objects/{objectKey}/records"
+        }
+      }
+    },
+    "get": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/data-objects/{objectKey}/records/{id}"
+        }
+      }
+    },
+    "create": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-objects/{objectKey}/records"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/data-objects/{objectKey}/records/{id}"
+        }
+      }
+    },
+    "remove": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "DELETE",
+          "path": "/data-objects/{objectKey}/records/{id}"
+        }
+      }
+    },
+    "restore": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-objects/{objectKey}/records/{id}/restore"
+        }
+      }
+    }
+  },
+  "dataValues": {
+    "get": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/data-values/{recordType}/{recordId}"
+        }
+      }
+    },
+    "lookup": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-values/{recordType}/lookup"
+        }
+      }
+    },
+    "update": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "PATCH",
+          "path": "/data-values/{recordType}/{recordId}"
+        }
+      }
+    },
+    "check": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-values/{recordType}/check"
+        }
+      }
+    },
+    "setPluginValues": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "POST",
+          "path": "/data-values/plugin-values"
+        }
+      }
+    }
+  },
   "favorites": {
     "list": {
       "~orpc": {
@@ -2065,190 +2479,6 @@
         "route": {
           "method": "POST",
           "path": "/exchange-rates/remove"
-        }
-      }
-    }
-  },
-  "fieldGroups": {
-    "list": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "GET",
-          "path": "/field-groups"
-        }
-      }
-    },
-    "create": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "POST",
-          "path": "/field-groups"
-        }
-      }
-    },
-    "update": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "PATCH",
-          "path": "/field-groups/{id}"
-        }
-      }
-    },
-    "reorder": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "POST",
-          "path": "/field-groups/order"
-        }
-      }
-    },
-    "archive": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "POST",
-          "path": "/field-groups/{id}/archive"
-        }
-      }
-    },
-    "restore": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "POST",
-          "path": "/field-groups/{id}/restore"
-        }
-      }
-    },
-    "remove": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "DELETE",
-          "path": "/field-groups/{id}"
-        }
-      }
-    }
-  },
-  "fields": {
-    "list": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "GET",
-          "path": "/fields"
-        }
-      }
-    },
-    "usage": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "GET",
-          "path": "/fields/usage"
-        }
-      }
-    },
-    "create": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "POST",
-          "path": "/fields"
-        }
-      }
-    },
-    "update": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "PATCH",
-          "path": "/fields/{id}"
-        }
-      }
-    },
-    "reorder": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "POST",
-          "path": "/fields/order"
-        }
-      }
-    },
-    "archive": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "POST",
-          "path": "/fields/archive"
-        }
-      }
-    },
-    "restore": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "POST",
-          "path": "/fields/{id}/restore"
-        }
-      }
-    },
-    "removeUnused": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "POST",
-          "path": "/fields/remove"
-        }
-      }
-    },
-    "remove": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "DELETE",
-          "path": "/fields/{id}"
-        }
-      }
-    },
-    "setPluginValues": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "POST",
-          "path": "/fields/plugin-values"
-        }
-      }
-    },
-    "check": {
-      "~orpc": {
-        "errorMap": {},
-        "meta": {},
-        "route": {
-          "method": "POST",
-          "path": "/fields/check"
         }
       }
     }
@@ -3113,6 +3343,18 @@
         "route": {
           "method": "POST",
           "path": "/products/{id}/restore"
+        }
+      }
+    }
+  },
+  "recordTypes": {
+    "list": {
+      "~orpc": {
+        "errorMap": {},
+        "meta": {},
+        "route": {
+          "method": "GET",
+          "path": "/record-types"
         }
       }
     }

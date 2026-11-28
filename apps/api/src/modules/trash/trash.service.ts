@@ -19,7 +19,6 @@ import {
 import { and, eq, getTableColumns, inArray, lt, sql } from 'drizzle-orm';
 import { keysetPage } from '~/lib/keyset';
 import { recordAudit } from '~/modules/audit/audit.service';
-import { customFieldsColumn } from '~/modules/fields/fieldValues';
 
 const TRASH_DAYS = 30;
 
@@ -88,11 +87,8 @@ export const moveToTrash = async (tx: Db, type: ContentType, ids: string[]) => {
 
   const table = tableOf(type);
 
-  // Custom field values ride along in the row (`customFields`), as they did when they were a column.
-  const rows = await tx
-    .select({ ...getTableColumns(table), customFields: customFieldsColumn(type, table.id) })
-    .from(table)
-    .where(inArray(table.id, ids));
+  // Data Extensions values stay in their table until the record is purged (`sweepRemovedRecords`).
+  const rows = await tx.select(getTableColumns(table)).from(table).where(inArray(table.id, ids));
 
   if (!rows.length) return;
 

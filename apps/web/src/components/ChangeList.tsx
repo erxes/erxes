@@ -1,8 +1,9 @@
-import type { ContentType, Field, Tag } from '@erxes/core-contract';
+import type { ContentType, DataExtensionField, Tag } from '@erxes/core-contract';
 import { memberQueries } from '@erxes/core-contract/client';
+import { useQuery } from '@tanstack/react-query';
 import { cn, editorText, type Member, memberName, textOf, useMembersById } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useAllFields } from '~/modules/properties/useFields';
+import { fieldsQuery } from '~/modules/dataExtensions/dataQueries';
 import { useTags } from '~/modules/tags/useTags';
 
 /** Labels for the fields core records changes of. */
@@ -35,7 +36,7 @@ const FIELD_LABELS: Record<string, string> = {
 export interface Lookups {
   members: Map<string, Member>;
   tags: Map<string, Tag>;
-  fields: Map<string, Field>;
+  fields: Map<string, DataExtensionField>;
 }
 
 const listOf = (values: string[]) => values.join(', ');
@@ -150,7 +151,7 @@ export const ChangeList = ({
 
 /**
  * Names for the values in `changes` of a customer or company: owners, tags
- * and custom fields (archived ones too).
+ * and the fields older entries name by id (archived ones too).
  */
 export const useChangeLookups = (
   contentType: ContentType,
@@ -158,8 +159,9 @@ export const useChangeLookups = (
   extraMemberIds: (string | null)[] = [],
 ): Lookups => {
   const { tags } = useTags(contentType);
-  const { fields } = useAllFields(contentType);
-  const { fields: archivedFields } = useAllFields(contentType, { archived: true });
+  // Older entries name properties by id, which their Data Extensions fields kept.
+  const fields = useQuery(fieldsQuery(`core.${contentType}`)).data?.data ?? [];
+  const archivedFields = useQuery(fieldsQuery(`core.${contentType}`, true)).data?.data ?? [];
 
   const owners = changes.flatMap((change) =>
     (change?.ownerId ?? []).map((id) => (typeof id === 'string' ? id : null)),

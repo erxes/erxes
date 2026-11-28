@@ -16,9 +16,9 @@ import { and, asc, eq, inArray, sql } from 'drizzle-orm';
 import { inOrder } from '~/lib/sequence';
 import { fail, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
-import { combineContacts, combineCustomFields, pickedRow, pickFields } from '~/lib/merge';
+import { combineContacts, pickedRow, pickFields } from '~/lib/merge';
 import { contactsMerged } from '~/modules/activities/contactHistory';
-import { saveCustomFields } from '~/modules/fields/fieldValues';
+import { mergeHostValues } from '~/modules/dataExtensions/hostRecords';
 import { copyTags } from '~/modules/tags/tagLinks';
 import { type CustomerRow, findCustomer, inOrg, selectCustomers } from './customerRows';
 
@@ -149,7 +149,7 @@ const mergedColumns = (
  * Merges customers into `keepId`: each field in `fields` takes the value of
  * the customer picked for it, other empty fields are filled from the others
  * (in the given order), emails, phones, tags and companies are combined,
- * custom field values are added where it has none, and the others are deleted.
+ * Data Extensions values are added where it has none, and the others are deleted.
  * Their ids keep resolving to the kept customer (`mergedIds`).
  */
 export const mergeCustomers = async (input: CustomerMerge) => {
@@ -180,6 +180,7 @@ export const mergeCustomers = async (input: CustomerMerge) => {
   const otherIds = others.map((other) => other.id);
 
   await moveRelations(tx, keep.id, otherIds);
+  await mergeHostValues(tx, 'core.customer', keep.id, otherIds);
   // Deleting first frees their primary email and phone for the kept customer.
   await tx.delete(customers).where(inArray(customers.id, otherIds));
 
@@ -187,13 +188,6 @@ export const mergeCustomers = async (input: CustomerMerge) => {
     .update(customers)
     .set(mergedColumns(keep, others, input.fields))
     .where(inOrg(keep.id));
-
-  const combined = combineCustomFields(
-    keep.customFields,
-    others.map((other) => other.customFields),
-  );
-
-  await saveCustomFields(tx, 'customer', keep.id, combined, Object.keys(combined));
 
   const merged = await findCustomer(tx, keep.id);
 

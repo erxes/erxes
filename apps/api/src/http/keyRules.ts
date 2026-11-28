@@ -50,14 +50,22 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   customerAccounts: null,
   customerAuth: null,
   customerNotifications: null,
+  dataFields: { lookup: true, writes: 'settings' },
+  dataFieldGroups: { lookup: true, writes: 'settings' },
+  dataObjects: { lookup: true, writes: 'settings' },
+  dataPlugins: { lookup: true, writes: 'settings' },
+  // History follows its record type's rights; converting is a data model change.
+  dataChanges: null,
+  // Records and values follow their record type's rights, which a key's areas don't map; a
+  // plugin's checks of the values it keeps are its own.
+  dataRecords: null,
+  dataValues: null,
   emails: null,
   sms: null,
   secrets: null,
   // The event stream carries contacts' data.
   events: null,
   exchangeRates: { lookup: true, writes: 'settings' },
-  fieldGroups: { lookup: true, writes: 'settings' },
-  fields: { lookup: true, writes: 'settings' },
   files: 'files',
   integrations: 'settings',
   // A member's own GitHub sign-in picks the installation: no key does it for them.
@@ -71,6 +79,7 @@ const GROUP_RULES: Record<Group, GroupRule> = {
   productCategories: 'products',
   productInventories: 'products',
   products: 'products',
+  recordTypes: { lookup: true, writes: 'settings' },
   roles: 'team',
   saas: 'settings',
   license: 'settings',

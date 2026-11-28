@@ -13,6 +13,7 @@ import { type ComponentType, type ElementType, type ReactNode, Suspense } from '
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { SharedTimeline } from '~/modules/activity/SharedTimeline';
+import { useDataValuesTab } from '~/modules/dataExtensions/values/useDataValuesTab';
 import { ContactDetailScroll } from '~/modules/side-panel/details/ContactDetailFields';
 import { RecordPageHeader } from '~/modules/side-panel/RecordPageHeader';
 import { type IRecordSidePanelTab, RecordSidePanel } from '~/modules/side-panel/RecordSidePanel';
@@ -20,14 +21,14 @@ import type { IRecordViewProps } from '~/modules/side-panel/recordView';
 import { useCreatedPanelRecord } from '~/modules/side-panel/useCreatedPanelRecord';
 import { useSidePanel, useSidePanelDraft } from '~/modules/side-panel/useSidePanel';
 import { PluginBoundary } from './PluginBoundary';
-import { propertiesOf } from './pluginProperties';
-import { PluginRecordProperties } from './PluginRecordProperties';
+import { dataFieldsOf } from './pluginDataFields';
+import { PluginRecordFields } from './PluginRecordFields';
 import { usePluginRelationTabs } from './PluginRelationTabs';
 import { pluginName, usePluginText } from './pluginText';
 import { usePluginRecordType } from './usePluginRecordType';
 
 const DETAIL_TAB = 'detail';
-const PROPERTIES_TAB = 'properties';
+const FIELDS_TAB = 'fields';
 const ACTIVITY_TAB = 'activity';
 
 /** One of the plugin's slots, kept apart if it crashes; the rest of the panel stays. */
@@ -59,8 +60,8 @@ const useRecordContacts = (type: TPanelRecordType, contentId: string) => {
 };
 
 /**
- * Detail, the type's own tabs, Properties (when it has `properties`), every allowed plugin's
- * relation tabs, then Activity: the order a customer's tabs have. A type's tab
+ * Detail, the type's own tabs, Fields (editable when it has `dataFields`, else read only), every
+ * allowed plugin's relation tabs, then Activity: the order a customer's tabs have. A type's tab
  * `after: 'activity'` goes last.
  */
 const useRecordTabs = (
@@ -72,9 +73,10 @@ const useRecordTabs = (
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const contacts = useRecordContacts(type, record.contentId);
   const relationTabs = usePluginRelationTabs({ ...record, contacts });
+  const dataTabs = useDataValuesTab(record.contentType, record.contentId);
   const text = usePluginText();
   const own = type.tabs?.filter((tab) => expanded || !tab.expandedOnly) ?? [];
-  const properties = propertiesOf(plugin, type);
+  const dataFields = dataFieldsOf(plugin, type);
 
   const ownTab = (tab: TRecordTab): IRecordSidePanelTab => ({
     value: tab.value,
@@ -99,16 +101,16 @@ const useRecordTabs = (
       ),
     },
     ...own.filter((tab) => tab.after !== 'activity').map(ownTab),
-    ...(properties
+    ...(dataFields
       ? [
           {
-            value: PROPERTIES_TAB,
-            label: t('properties', 'Properties'),
+            value: FIELDS_TAB,
+            label: t('fields', 'Fields'),
             icon: IconHierarchy2,
-            content: <PluginRecordProperties type={properties} contentId={record.contentId} />,
+            content: <PluginRecordFields type={dataFields} contentId={record.contentId} />,
           },
         ]
-      : []),
+      : dataTabs),
     ...relationTabs,
     ...(type.activity
       ? [

@@ -65,7 +65,7 @@ const distinctOf = async (client: Db, column: SQL<string>) =>
     (row) => row.value,
   );
 
-/** What the products list filters by (custom fields come with every list's). */
+/** What the products list filters by (its Data Extensions fields come with every list's). */
 export const productFields = async (client: Db): Promise<FieldSpec[]> => [
   field('name', 'Name', 'text', sql`${products.name}`),
   field('code', 'Code', 'text', sql`${products.code}`),
