@@ -244,6 +244,17 @@ const seed = async (client: Client) => {
     ],
   );
   await q(
+    `insert into core_views (id, org_id, record_type, name, filter, created_by)
+      values ('v2', $1, 'hr:employee', 'Night shift', $2, 'u1')`,
+    [
+      ORG,
+      JSON.stringify({
+        match: 'all',
+        rules: [{ path: 'subject.customFields.fShift', op: 'eq', value: 'Night' }],
+      }),
+    ],
+  );
+  await q(
     `insert into core_automations (id, org_id, name, definition, trigger_event)
       values ('a1', $1, 'Birthday', $2, 'date')`,
     [ORG, JSON.stringify(DEFINITION)],

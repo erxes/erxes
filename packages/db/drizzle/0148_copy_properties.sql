@@ -441,8 +441,10 @@ BEGIN
     END IF;
   END LOOP;
 
+  -- Every field's, a plugin record type's too: a plugin's list (a ticket view) filters and sorts
+  -- by `data.<key>` as core's do. Ids are unique, so each path names one field.
   SELECT jsonb_object_agg(old_id, key) INTO v_keys
-  FROM core_props_map(p_org) WHERE record_type LIKE 'core.%';
+  FROM core_props_map(p_org);
   IF v_keys IS NULL THEN
     RETURN;
   END IF;

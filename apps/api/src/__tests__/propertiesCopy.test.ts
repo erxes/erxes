@@ -169,7 +169,10 @@ describe('copying custom properties into Data Extensions', { timeout: 300_000 },
   });
 
   it('names the fields by their keys in views, automations, imports and exports', async () => {
-    const [view] = await rows(`select filter, columns, sort from core_views`);
+    const [view, pluginView] = await rows(
+      `select filter, columns, sort from core_views order by id`,
+    );
+
     const [automation] = await rows(`select definition from core_automations`);
     const [imported] = await rows(`select mapping from core_imports`);
     const [exported] = await rows(`select columns, query from core_exports`);
@@ -186,6 +189,11 @@ describe('copying custom properties into Data Extensions', { timeout: 300_000 },
       filter,
       columns: ['firstName', 'data.nickname'],
       sort: { field: 'data.score', direction: 'asc' },
+    });
+    // A plugin's list names its own fields the same way.
+    expect(pluginView?.filter).toEqual({
+      match: 'all',
+      rules: [{ path: 'subject.data.shift', op: 'eq', value: 'Night' }],
     });
     expect(automation?.definition).toEqual({
       trigger: { kind: 'date', subject: 'customer', field: 'data.joined', offsetDays: 0 },
