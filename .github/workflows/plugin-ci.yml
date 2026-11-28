@@ -1,0 +1,434 @@
+# CI for an erxes plugin repository. A plugin's .github/workflows/ci.yml calls it:
+#
+#   jobs:
+#     ci:
+#       uses: erxes/erxes/.github/workflows/plugin-ci.yml@postgre
+#       secrets: inherit
+#
+# and adds the `Check` job that branch protection requires (create-erxes' template has it).
+# What runs follows the plugin's files, so there is nothing to configure:
+# - static: `vp run check`, migrations against the schema, applied migrations unchanged, and
+#   no critical advisory in production dependencies.
+# - integration: `pnpm check:rls` and `vp run test` on Postgres; a pull request runs the test files
+#   its changes reach (`--changed`), a push every file.
+# - image: the image, its Trivy scan and, with deploy/docker-compose.yml, the smoke test and
+#   core's tenancy guard on core's published images plus the plugin.
+# - flows: with deploy/docker-compose.yml and e2e/playwright.config.ts, the daily flows split
+#   across one runner for every four spec files, up to four, each with its own stack.
+# - push: on the default branch, the tested image to docker.io/erxes/<repository>.
+#
+# Caches are written by pushes to the default branch and by manual runs, and read by everything
+# else: a pull request's writes would evict the default branch's entries from the repository's
+# 10 GB.
+name: Plugin CI
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+env:
+  # The plugin's image as the stack runs it and the push job loads it.
+  IMAGE: ${{ github.event.repository.name }}:ci
+  DATA_TEST_URL: postgres://ci:ci-only-password@127.0.0.1:5432/postgres
+  PUSH: ${{ github.repository_owner == 'erxes' && github.event_name == 'push' && github.ref_name == github.event.repository.default_branch }}
+  WRITE_CACHE: ${{ (github.event_name == 'push' && github.ref_name == github.event.repository.default_branch) || github.event_name == 'workflow_dispatch' }}
+  VP_GIT_HOOKS: '0'
+
+jobs:
+  static:
+    name: Static checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # What the applied-migrations check compares with: the pull request's or merge group's
+      # base, or the push's previous head.
+      BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Every commit and tree, so the base is here; file contents come when read.
+          fetch-depth: 0
+          filter: blob:none
+      - &pnpm
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - &node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+      - &modules-paths
+        name: Where pnpm puts node_modules
+        id: modules-paths
+        run: |
+          {
+            echo 'paths<<EOF'
+            echo node_modules
+            yq '.packages[] + "/node_modules"' pnpm-workspace.yaml
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+      - &modules-restore
+        name: Restore node_modules
+        id: modules
+        uses: actions/cache/restore@v6
+        with:
+          path: ${{ steps.modules-paths.outputs.paths }}
+          key: modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.node-version', 'pnpm-lock.yaml', 'pnpm-workspace.yaml', 'patches/**') }}
+      # injectWorkspacePackages gives a package that depends on a sibling a hard-linked copy of
+      # the sibling's files. The cache holds the default branch's copy and pnpm install keeps it,
+      # so link this commit's files in its place, as an install would.
+      - &modules-relink
+        name: Link this commit's workspace packages into node_modules
+        if: steps.modules.outputs.cache-hit == 'true'
+        run: |
+          for injected in node_modules/.pnpm/*@file+*/; do
+            [ -d "$injected" ] || continue
+            dir=${injected%/}; dir=${dir##*@file+}; dir=${dir%%_*}; dir=${dir//+//}
+            copy="$injected/node_modules/$(jq -r .name "$dir/package.json")"
+            find "$copy" -mindepth 1 -maxdepth 1 ! -name node_modules -exec rm -rf {} +
+            (cd "$dir" && pnpm pack --dry-run --json) | jq -r '.files[].path' | while read -r file; do
+              mkdir -p "$copy/$(dirname "$file")"
+              ln "$dir/$file" "$copy/$file"
+            done
+          done
+      - &install
+        if: steps.modules.outputs.cache-hit != 'true'
+        run: pnpm install --frozen-lockfile
+      - name: Save node_modules
+        if: steps.modules.outputs.cache-hit != 'true' && env.WRITE_CACHE == 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ${{ steps.modules-paths.outputs.paths }}
+          key: ${{ steps.modules.outputs.cache-primary-key }}
+      - name: The deploy stack keeps Postgres off the host's ports
+        if: hashFiles('deploy/docker-compose.yml') != ''
+        run: |
+          docker compose -f deploy/docker-compose.yml config --no-interpolate --format json |
+            jq -e '[.services[] | select(.image | startswith("postgres")) | select(.ports or .network_mode == "host")] == []' > /dev/null ||
+            { echo "::error file=deploy/docker-compose.yml::a postgres service publishes a port to the host"; exit 1; }
+      - name: Format, lint, types and the plugin's own checks
+        run: pnpm exec vp run check
+      - name: Migrations match the Drizzle schema
+        run: |
+          pnpm db:check
+          pnpm db:generate
+          if [ -n "$(git status --porcelain -- api/drizzle)" ]; then
+            git status --porcelain -- api/drizzle
+            echo '::error::Schema changed without a migration: run pnpm db:generate and commit api/drizzle'
+            exit 1
+          fi
+      # A database that applied a migration never sees a later edit to it. New migrations are fine.
+      - name: Applied migrations unchanged
+        run: |
+          if [[ -z "$BASE_SHA" || "$BASE_SHA" =~ ^0+$ ]]; then
+            echo 'No base commit: nothing to compare.'
+            exit 0
+          fi
+          changed=$(git diff --name-only --diff-filter=MDR "$BASE_SHA" -- 'api/drizzle/*.sql' 'api/drizzle/meta/*_snapshot.json')
+          journal=$(git show "$BASE_SHA:api/drizzle/meta/_journal.json" 2>/dev/null || echo '{"entries":[]}')
+          if ! jq -e --argjson old "$journal" '.entries[:($old.entries | length)] == $old.entries' api/drizzle/meta/_journal.json > /dev/null; then
+            changed+=$'\napi/drizzle/meta/_journal.json (an existing entry)'
+          fi
+          if [[ -n "${changed//[$'\n']/}" ]]; then
+            echo "$changed"
+            echo '::error::Applied migrations changed. Add a new migration instead (pnpm db:generate).'
+            exit 1
+          fi
+          echo "Migrations at ${BASE_SHA::12} are unchanged."
+      - name: No critical advisories in production dependencies
+        run: pnpm audit --prod --audit-level critical
+
+  integration:
+    name: Tests on Postgres
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      # First, so Postgres boots while the job installs.
+      - name: Start Postgres
+        run: |
+          docker run -d --name postgres -p 5432:5432 \
+            -e POSTGRES_USER=ci -e POSTGRES_PASSWORD=ci-only-password -e POSTGRES_DB=postgres \
+            --health-cmd 'pg_isready -U ci' --health-interval 1s --health-retries 60 \
+            postgres:18
+      - uses: actions/checkout@v7
+        with:
+          # A pull request's checkout is its merge commit; its first parent is the base.
+          fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 1 }}
+          filter: blob:none
+      - *pnpm
+      - *node
+      - *modules-paths
+      - *modules-restore
+      - *modules-relink
+      - *install
+      - name: Wait for Postgres
+        run: timeout 60 sh -c 'until [ "$(docker inspect -f "{{.State.Health.Status}}" postgres)" = healthy ]; do sleep 1; done'
+      # What lets queries rely on withOrg() instead of org filters (tools/check-rls.sql).
+      - name: Every table has org_id with forced row level security, or is listed
+        run: pnpm check:rls
+      # A pull request runs the test files its changes reach through imports, and every file when
+      # it changes an input the plugin's vite.config.ts lists in forceRerunTriggers. Pushes run every file.
+      - name: Tests (each file on its own database, as a role without BYPASSRLS)
+        run: pnpm exec vp run test ${{ github.event_name == 'pull_request' && '--changed=HEAD^1 --passWithNoTests' || '' }}
+
+  image:
+    name: Image, scan, smoke test and tenancy guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TRIVY: aquasec/trivy:0.76.2@sha256:8f6bb947dbc528902e11f2f5be52f7b519f6a39d5d148f41166f2040499768fb
+    steps:
+      - name: Pull Trivy in the background
+        run: docker pull --quiet "$TRIVY" > /dev/null 2>&1 &
+      - uses: actions/checkout@v7
+      # First, so core's images download and core migrates while the job installs and builds.
+      # Every service but the plugin's, whose image the job has yet to build.
+      - &core-up
+        name: Start core in the background
+        if: hashFiles('deploy/docker-compose.yml') != ''
+        run: |
+          export COMPOSE_FILE=deploy/docker-compose.yml COMPOSE_ENV_FILES=deploy/.env
+          if [ -f e2e/compose.yml ]; then COMPOSE_FILE+=:e2e/compose.yml; fi
+          deploy/make-secrets.sh
+          if [ -x deploy/make-env.sh ]; then deploy/make-env.sh; fi
+          # The plugin's service runs docker.io/erxes/<repository> unless <SERVICE>_IMAGE says otherwise.
+          config=$(docker compose config --format json)
+          service=$(jq -r --arg repo "${GITHUB_REPOSITORY#*/}" \
+            '.services | to_entries[] | select(.value.image | test("/" + $repo + ":")) | .key' <<< "$config")
+          [ -n "$service" ] || { echo "::error file=deploy/docker-compose.yml::no service runs docker.io/erxes/${GITHUB_REPOSITORY#*/}"; exit 1; }
+          {
+            echo "COMPOSE_FILE=$COMPOSE_FILE"
+            echo "COMPOSE_ENV_FILES=$COMPOSE_ENV_FILES"
+            echo "${service^^}_IMAGE=$IMAGE"
+            echo "PLUGIN_SERVICE=$service"
+            # Migrations, the plugin's role and its password: the plugin starts once they are done.
+            echo "ONE_SHOTS=$(jq -r '[.services | to_entries[] | select(.value.restart == "no") | .key] | join(" ")' <<< "$config")"
+            echo "PLUGIN_PORT=$(jq -r --arg s "$service" '.services[$s].ports[0].published' <<< "$config")"
+            echo "PLUGIN_ID=$(jq -r '.services["plugin-role"].command[-1]' <<< "$config")"
+          } >> "$GITHUB_ENV"
+          mapfile -t core < <(jq -r --arg s "$service" '.services | keys[] | select(. != $s)' <<< "$config")
+          {
+            status=0
+            docker compose pull --quiet "${core[@]}" && docker compose up -d "${core[@]}" || status=$?
+            echo "$status" > "$RUNNER_TEMP/core-up.status"
+          } > "$RUNNER_TEMP/stack.log" 2>&1 &
+      - *pnpm
+      - *node
+      - *modules-paths
+      - *modules-restore
+      - *modules-relink
+      - *install
+      - &image-context
+        name: Build the API and the UI for the image
+        run: pnpm image:context
+      - &buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+        with:
+          # The runner is thrown away after the job.
+          cleanup: false
+      # Every job builds from the same layer cache; this one writes it.
+      - &build
+        name: Build the image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          load: true
+          tags: ${{ env.IMAGE }}
+          build-args: VERSION=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: ${{ env.WRITE_CACHE == 'true' && github.job == 'image' && 'type=gha,mode=max' || '' }}
+      # `up` alone would run the finished one-shot services again, so the plugin starts on its own.
+      - &plugin-up
+        name: Start the plugin in the background
+        if: hashFiles('deploy/docker-compose.yml') != ''
+        run: |
+          {
+            until [ -f "$RUNNER_TEMP/core-up.status" ]; do sleep 1; done
+            status=$(cat "$RUNNER_TEMP/core-up.status")
+            if [ "$status" = 0 ]; then
+              while [ -n "$ONE_SHOTS" ] && [ -n "$(docker compose ps -q --status running $ONE_SHOTS)" ]; do sleep 1; done
+              docker compose up -d --no-deps "$PLUGIN_SERVICE" || status=$?
+            fi
+            echo "$status" > "$RUNNER_TEMP/up.status"
+          } >> "$RUNNER_TEMP/stack.log" 2>&1 &
+      - name: Today's date, which keys Trivy's database
+        id: trivy-date
+        run: echo "date=$(date -u +%F)" >> "$GITHUB_OUTPUT"
+      - name: Restore Trivy's database
+        id: trivy-db
+        uses: actions/cache/restore@v6
+        with:
+          path: ${{ runner.temp }}/trivy
+          key: trivy-db-${{ steps.trivy-date.outputs.date }}
+          restore-keys: trivy-db-
+      - name: No HIGH or CRITICAL vulnerabilities that have a fix
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$RUNNER_TEMP/trivy:/root/.cache/trivy" "$TRIVY" \
+            image --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 --no-progress "$IMAGE"
+          sudo chown -R "$(id -u):$(id -g)" "$RUNNER_TEMP/trivy"
+      - name: Save Trivy's database
+        if: steps.trivy-db.outputs.cache-hit != 'true' && env.WRITE_CACHE == 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ${{ runner.temp }}/trivy
+          key: ${{ steps.trivy-db.outputs.cache-primary-key }}
+      - &stack-ready
+        name: Wait for the stack
+        if: hashFiles('deploy/docker-compose.yml') != ''
+        run: |
+          timeout 300 sh -c 'until [ -f "$RUNNER_TEMP/up.status" ]; do sleep 1; done'
+          cat "$RUNNER_TEMP/stack.log"
+          [ "$(cat "$RUNNER_TEMP/up.status")" = 0 ]
+          timeout 180 sh -c "until curl -fsS http://localhost:8080/core/v1/setup > /dev/null && curl -fsS http://localhost:$PLUGIN_PORT/health > /dev/null; do sleep 1; done"
+      - name: Smoke test
+        if: hashFiles('deploy/docker-compose.yml') != ''
+        run: deploy/smoke.sh http://localhost:8080 "http://localhost:$PLUGIN_PORT"
+      - name: Core's tenancy guard passes the plugin's tables
+        if: hashFiles('deploy/docker-compose.yml') != ''
+        run: |
+          problems="$(docker compose exec -T postgres psql -U erxes -d erxes -AtX -v ON_ERROR_STOP=1 \
+            -c "SELECT * FROM core_plugin_tenancy_problems('$PLUGIN_ID')")"
+          if [ -n "$problems" ]; then
+            echo "$problems"
+            exit 1
+          fi
+      - &stack-logs
+        name: Stack logs
+        if: failure() && hashFiles('deploy/docker-compose.yml') != ''
+        run: docker compose logs --no-color --tail 300 || true
+      - name: Keep the tested image for the push
+        if: env.PUSH == 'true'
+        run: docker save "$IMAGE" | gzip -1 > image.tar.gz
+      - if: env.PUSH == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: image
+          path: image.tar.gz
+          compression-level: 0
+          retention-days: 3
+
+  # The daily flows' runners: one for every four spec files, up to four, none without a stack
+  # to run them on. A few seconds that save the flows minutes.
+  plan:
+    name: Daily flows' runners
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      shards: ${{ steps.shards.outputs.shards }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            deploy
+            e2e
+      - id: shards
+        run: |
+          shards=[]
+          if [ -f deploy/docker-compose.yml ] && [ -f e2e/playwright.config.ts ]; then
+            shopt -s globstar nullglob
+            specs=(e2e/**/*.spec.ts)
+            n=$(( (${#specs[@]} + 3) / 4 ))
+            n=$(( n < 1 ? 1 : n > 4 ? 4 : n ))
+            shards="[$(seq -s , 1 "$n")]"
+            echo "${#specs[@]} spec files: $n runners."
+          fi
+          echo "shards=$shards" >> "$GITHUB_OUTPUT"
+
+  flows:
+    name: Daily flows ${{ matrix.shard }}/${{ strategy.job-total }}
+    needs: plan
+    if: needs.plan.outputs.shards != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      # Every runner reports its failures.
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(needs.plan.outputs.shards) }}
+    steps:
+      - uses: actions/checkout@v7
+      - *core-up
+      - *pnpm
+      - *node
+      - *modules-paths
+      - *modules-restore
+      - *modules-relink
+      - *install
+      - *image-context
+      - *buildx
+      - *build
+      - *plugin-up
+      - name: Playwright's version, which keys the browser cache
+        id: playwright
+        run: echo "version=$(pnpm exec playwright --version | cut -d ' ' -f 2)" >> "$GITHUB_OUTPUT"
+      - name: Restore Chromium
+        id: chromium
+        uses: actions/cache/restore@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ runner.arch }}-${{ steps.playwright.outputs.version }}
+      # The runner image has Chrome, so the headless shell's system libraries are there.
+      - name: Chromium (headless shell)
+        if: steps.chromium.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --only-shell chromium
+      - name: Save Chromium
+        if: steps.chromium.outputs.cache-hit != 'true' && env.WRITE_CACHE == 'true' && matrix.shard == 1
+        uses: actions/cache/save@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ steps.chromium.outputs.cache-primary-key }}
+      - *stack-ready
+      # Each runner's stack starts on a fresh database; e2e/owner.setup.ts makes its owner, with a
+      # password for this run only.
+      - name: Daily flows in Chromium, light and dark, with axe
+        run: |
+          password="E2e-$(openssl rand -hex 16)"
+          echo "::add-mask::$password"
+          E2E_OWNER_PASSWORD=$password pnpm e2e --shard="$SHARD"
+        env:
+          SHARD: ${{ matrix.shard }}/${{ strategy.job-total }}
+          E2E_BASE_URL: http://localhost:8080
+          E2E_PLUGIN_URL: http://localhost:${{ env.PLUGIN_PORT }}
+          E2E_OWNER_EMAIL: owner@e2e.test
+          # Playwright configs that keep their results under $TMPDIR/<plugin>-e2e.
+          TMPDIR: ${{ runner.temp }}
+      - name: Traces and screenshots of failed specs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-traces-${{ matrix.shard }}
+          path: |
+            e2e/test-results/
+            ${{ runner.temp }}/*-e2e/results/
+          if-no-files-found: ignore
+          retention-days: 14
+      - *stack-logs
+
+  push:
+    # The image the image job scanned, once every job passed (the flows are skipped for a plugin
+    # without them). Only erxes' own plugins publish to docker.io/erxes, with the
+    # DOCKERHUB_USERNAME and DOCKERHUB_TOKEN secrets.
+    name: Push the image to Docker Hub
+    needs: [static, integration, image, plan, flows]
+    if: >-
+      always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') &&
+      github.repository_owner == 'erxes' && github.event_name == 'push' &&
+      github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: image
+      - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Tag and push sha-<12 chars> and main
+        run: |
+          gunzip -c image.tar.gz | docker load
+          image="docker.io/erxes/${GITHUB_REPOSITORY#*/}"
+          for tag in "sha-${GITHUB_SHA::12}" main; do
+            docker tag "$IMAGE" "$image:$tag"
+            docker push "$image:$tag"
+          done

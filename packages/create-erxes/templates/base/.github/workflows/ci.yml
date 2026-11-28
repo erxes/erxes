@@ -1,44 +1,36 @@
+# erxes core's plugin CI, which reads this repository's files to decide what runs: static checks,
+# tests on Postgres, the image and its vulnerability scan, and with deploy/docker-compose.yml and
+# e2e/playwright.config.ts the smoke test and the daily flows on core's published images.
+# Require the `Check` job in branch protection.
 name: CI
 
 on:
+  pull_request:
   push:
     branches: [main]
-  pull_request:
+  merge_group:
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
   group: ci-${{ github.ref }}
+  # A new push to a pull request supersedes its running checks; branch runs always finish.
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  ci:
+    uses: erxes/erxes/.github/workflows/plugin-ci.yml@postgre
+    secrets: inherit
+
   check:
+    # Green only when every job of the plugin CI passed.
+    name: Check
+    needs: ci
+    if: always()
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:18
-        env:
-          POSTGRES_USER: ci
-          POSTGRES_PASSWORD: ci-only-password
-          POSTGRES_DB: postgres
-        ports: ['5432:5432']
-        options: --health-cmd "pg_isready -U ci" --health-interval 5s --health-timeout 3s --health-retries 10
     steps:
-      - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
-      - uses: actions/setup-node@v7
-        with:
-          node-version-file: .node-version
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm exec vp run check
-      - run: pnpm exec vp run test
+      - run: test "$RESULT" = success
         env:
-          DATA_TEST_URL: postgres://ci:ci-only-password@127.0.0.1:5432/postgres
-      # What lets queries rely on withOrg() instead of org filters (tools/check-rls.sql).
-      - run: pnpm check:rls
-        env:
-          DATA_TEST_URL: postgres://ci:ci-only-password@127.0.0.1:5432/postgres
-      - run: pnpm image:context
-      - run: docker build --build-arg VERSION=${{ github.sha }} -t __id__-plugin .
+          RESULT: ${{ needs.ci.result }}
