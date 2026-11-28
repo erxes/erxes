@@ -2,7 +2,10 @@ import {
   CONDITION_MATCHES,
   CONDITION_OPERATORS,
   CONTENT_TYPES,
+  DECISION_PROVIDERS,
   DELAY_UNITS,
+  HOOK_COMPANY_KEYS,
+  HOOK_CUSTOMER_KEYS,
   REENTRY_RULES,
   RELATIVE_DATE_UNITS,
   SCHEDULE_INTERVALS,
@@ -15,11 +18,17 @@ import { z } from 'zod';
 
 // ─── Definition ─────────────────────────────────────────────────────────────
 
+const KEY = String.raw`[^.{}|\s](?:[^.{}|]{0,58}[^.{}|\s])?`;
+
+export const DATA_KEY = new RegExp(`^${KEY}$`);
+
+export const dataPath = (deeper: number) => new RegExp(`^${KEY}(\\.${KEY}){0,${deeper}}$`);
+
 /** Where a condition or template reads from: `event.payload.amount`, `subject.primaryEmail`, `steps.s2.output.id`. */
 export const ContextPath = z
   .string()
   .trim()
-  .regex(/^(event|subject|steps|run)(\.[A-Za-z0-9_-]+)*$/, 'a path like subject.primaryEmail');
+  .regex(new RegExp(`^(event|subject|steps|run)(\\.${KEY})*$`), 'a path like subject.primaryEmail');
 
 export { CONDITION_OPERATORS };
 
@@ -116,7 +125,50 @@ export type AutomationStep =
       paths: { label?: string; weight: number; steps: AutomationStep[] }[];
       label?: string;
     }
+  | {
+      id: string;
+      type: 'decide';
+      provider: (typeof DECISION_PROVIDERS)[number];
+      connection?: string;
+      model?: string;
+      question: string;
+      state: string;
+      minConfidence?: number;
+      paths: { label: string; meaning?: string; steps: AutomationStep[] }[];
+      otherwise: AutomationStep[];
+      label?: string;
+    }
   | { id: string; type: 'stop'; label?: string };
+
+const decideStep = (step: z.ZodType<AutomationStep>) =>
+  z.object({
+    id: StepId,
+    type: z.literal('decide'),
+    provider: z.enum(DECISION_PROVIDERS),
+    connection: z.string().max(64).optional(),
+    model: z.string().trim().max(100).optional(),
+    question: z.string().trim().max(2000),
+    state: z.string().max(20_000),
+    minConfidence: z.number().min(0).max(1).optional(),
+    paths: z
+      .array(
+        z.object({
+          label: z.string().trim().min(1, 'Name the path').max(60),
+          meaning: z.string().trim().max(500).optional(),
+          steps: z.array(step).max(100),
+        }),
+      )
+      .min(2)
+      .max(10)
+      .refine(
+        (paths) =>
+          new Set(['otherwise', ...paths.map((path) => path.label.toLowerCase())]).size ===
+          paths.length + 1,
+        'Give each path its own name, other than “otherwise”',
+      ),
+    otherwise: z.array(step).max(100),
+    label: Label,
+  });
 
 export const AutomationStep: z.ZodType<AutomationStep> = z.lazy(
   () =>
@@ -184,6 +236,7 @@ export const AutomationStep: z.ZodType<AutomationStep> = z.lazy(
           .max(5),
         label: Label,
       }),
+      decideStep(AutomationStep),
       z.object({ id: StepId, type: z.literal('stop'), label: Label }),
     ]) as z.ZodType<AutomationStep>,
 );
@@ -200,6 +253,25 @@ export const Audience = z.object({
 
 export type Audience = z.infer<typeof Audience>;
 
+export const HookField = z
+  .string()
+  .max(200)
+  .regex(new RegExp(`^(body|query)(\\.${KEY}){1,4}$`), 'body.<key> or query.<key>');
+
+const AppField = z.string().max(200).regex(dataPath(4), '<key> of the event');
+
+const subjectFrom = (field: z.ZodString) =>
+  z.discriminatedUnion('type', [
+    z.object({ type: z.literal('customer'), by: z.enum(HOOK_CUSTOMER_KEYS), field }),
+    z.object({ type: z.literal('company'), by: z.enum(HOOK_COMPANY_KEYS), field }),
+  ]);
+
+export const HookSubject = subjectFrom(HookField);
+
+export const AppSubject = subjectFrom(AppField);
+
+export type HookSubject = z.infer<typeof HookSubject>;
+
 export const AutomationTrigger = z.discriminatedUnion('kind', [
   /** When an event happens (`core.customer.created`, `hr.leave.approved`). */
   z.object({
@@ -207,10 +279,11 @@ export const AutomationTrigger = z.discriminatedUnion('kind', [
     event: z.string().regex(/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/),
     conditions: ConditionGroup.optional(),
   }),
-  /** On a schedule: every hour, day, week (on weekdays) or month (on a day), at a time in the organisation's time zone. */
+  /** On a schedule: every N minutes or hours, or every day, week (on weekdays) or month (on a day), at a time in the organisation's time zone. */
   z.object({
     kind: z.literal('schedule'),
     every: z.enum(SCHEDULE_INTERVALS),
+    interval: z.int().min(1).max(59).optional(),
     at: TimeOfDay.default('09:00'),
     /** 1 = Monday … 7 = Sunday (week). */
     weekdays: z.array(z.int().min(1).max(7)).max(7).optional(),
@@ -233,6 +306,20 @@ export const AutomationTrigger = z.discriminatedUnion('kind', [
   }),
   /** Started by a member: on chosen records, or on every record that matches. */
   z.object({ kind: z.literal('manual'), audience: Audience.optional() }),
+  z.object({
+    kind: z.literal('webhook'),
+    subject: HookSubject.optional(),
+    conditions: ConditionGroup.optional(),
+  }),
+  z.object({
+    kind: z.literal('app'),
+    app: z.string().regex(/^[a-z][a-z0-9-]{0,39}$/, 'Choose an app event'),
+    trigger: z.string().regex(/^[a-z][a-z0-9_]{0,59}$/, 'Choose an app event'),
+    connectionId: z.string().min(1, 'Choose a connection').max(64),
+    params: z.record(z.string(), z.json()).default({}),
+    subject: AppSubject.optional(),
+    conditions: ConditionGroup.optional(),
+  }),
 ]);
 
 export type AutomationTrigger = z.infer<typeof AutomationTrigger>;

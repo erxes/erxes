@@ -1,4 +1,4 @@
-import { dataExtensionValueSchema, type RecordType } from '@erxes/core-contract';
+import { dataExtensionValueSchema, type ExtendableRecordType } from '@erxes/core-contract';
 import {
   caller,
   type Db,
@@ -91,6 +91,36 @@ export const assertPluginKeeps = (
   }
 };
 
+/** Types a customer can't fill in on a portal form: links to records, members, files, given values. */
+const STAFF_TYPES: ReadonlySet<string> = new Set([
+  'relation',
+  'member',
+  'files',
+  'json',
+  'autoNumber',
+  'formula',
+  'rollup',
+]);
+
+/**
+ * 400 INVALID_INPUT for `customerEditable` on anything but a customer field customers can fill
+ * in: one of core's customers', of a type a portal form can ask for.
+ */
+export const assertCustomerEditable = (
+  recordType: string,
+  field: Pick<FieldDefinition, 'type' | 'settings'>,
+) => {
+  if (!field.settings.customerEditable) return;
+
+  if (recordType !== 'core.customer') {
+    throw invalid('settings.customerEditable', 'Only customer fields are filled in by customers');
+  }
+
+  if (STAFF_TYPES.has(field.type)) {
+    throw invalid('settings.customerEditable', `Customers can't fill in a ${field.type} field`);
+  }
+};
+
 /**
  * A record type fields may be added to: core's, an installed plugin's, or an active custom
  * object. 400 INVALID_REFERENCE for any other.
@@ -99,7 +129,7 @@ export const extendableType = async (
   client: Db,
   recordType: string,
   field = 'recordType',
-): Promise<RecordType> => {
+): Promise<ExtendableRecordType> => {
   const key = customKeyOf(recordType);
 
   if (key) await activeObject(client, key);

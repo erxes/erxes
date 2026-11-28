@@ -1,13 +1,5 @@
-import { PAYMENT_GATEWAYS } from '@erxes/core-contract';
-import {
-  actorOf,
-  caller,
-  type Db,
-  newId,
-  paymentGateways,
-  paymentInvoices,
-  paymentRefunds,
-} from '@erxes/core-db';
+import type { RefundRequest } from '@erxes/core-contract';
+import { actorOf, caller, type Db, newId, paymentInvoices, paymentRefunds } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { fail, notFound } from '~/http/errors';
@@ -15,20 +7,13 @@ import { oneRow } from '~/lib/rows';
 import { logger } from '~/logger';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { publishCoreEvents } from '~/modules/events/events.service';
-import { driverOf, type GatewayRow } from './gateways.service';
-import { eventPayload, type InvoiceRow, shownInvoice } from './invoiceState';
+import { gatewayOf } from '~/modules/integrations/registry';
+import { gatewayAt, type GatewayRow } from './gateways.service';
+import { eventPayload, type InvoiceRow, invoiceWithGateway, shownInvoice } from './invoiceState';
 
 const log = logger.child({ component: 'payments' });
 
 type RefundRow = typeof paymentRefunds.$inferSelect;
-
-interface RefundInput {
-  id: string;
-  amount?: number;
-  reason: string;
-  manual: boolean;
-  dedupeKey?: string;
-}
 
 /** Plugins only ever see their own invoices. */
 const hiddenFromCaller = (invoice: { source: string }) => {
@@ -38,15 +23,9 @@ const hiddenFromCaller = (invoice: { source: string }) => {
 };
 
 const ownInvoice = async (client: Db, id: string) => {
-  const [row] = await client
-    .select({ invoice: paymentInvoices, gateway: paymentGateways })
-    .from(paymentInvoices)
-    .leftJoin(paymentGateways, eq(paymentGateways.id, paymentInvoices.gatewayId))
-    .where(eq(paymentInvoices.id, id))
-    .for('update', { of: paymentInvoices })
-    .limit(1);
+  const row = await invoiceWithGateway(client, id, true);
 
-  if (!row || hiddenFromCaller(row.invoice)) throw notFound('Invoice');
+  if (hiddenFromCaller(row.invoice)) throw notFound('Invoice');
 
   return row;
 };
@@ -62,7 +41,7 @@ const refundByDedupeKey = async (client: Db, invoiceId: string, key: string) => 
 };
 
 /** How much is refunded, checked against what is left and what the gateway can refund. */
-const refundAmount = (invoice: InvoiceRow, gateway: GatewayRow | null, input: RefundInput) => {
+const refundAmount = (invoice: InvoiceRow, gateway: GatewayRow | null, input: RefundRequest) => {
   const left =
     invoice.status === 'paid' ? (invoice.paidAmount ?? invoice.amount) - invoice.refundedAmount : 0;
 
@@ -85,7 +64,7 @@ const refundAmount = (invoice: InvoiceRow, gateway: GatewayRow | null, input: Re
     );
   }
 
-  const { refunds } = PAYMENT_GATEWAYS[gateway.kind];
+  const { refunds } = gatewayOf(gateway.key).payments;
 
   if (refunds === 'none')
     throw fail(
@@ -113,7 +92,8 @@ const gatewayRefund = async (
   input: { paymentId: string; amount: number; note: string },
 ) => {
   try {
-    const result = await driverOf(gateway).refund(input, invoice.payment);
+    const { payments, client } = await gatewayAt(gateway);
+    const result = await payments.refund(client, { ...input, state: invoice.payment });
 
     return { status: 'succeeded' as const, gatewayRefundId: result.refundId, error: null };
   } catch (error) {
@@ -183,7 +163,7 @@ const applyRefund = async (
  * payments only — or `manual` to record money paid back outside erxes. A
  * gateway's refusal is kept as a failed refund and changes nothing else.
  */
-export const refundInvoice = async (client: Db, input: RefundInput) => {
+export const refundInvoice = async (client: Db, input: RefundRequest) => {
   const { invoice, gateway } = await ownInvoice(client, input.id);
 
   const existing = input.dedupeKey

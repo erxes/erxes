@@ -26,6 +26,7 @@ const ToggleGroupRoot = <Value extends string>({
       className={cn(
         'flex items-center justify-center gap-1 isolate',
         variant === 'outline' && 'gap-0 bg-muted rounded',
+        variant === 'chip' && 'gap-2',
         className,
       )}
       {...props}
@@ -35,12 +36,15 @@ const ToggleGroupRoot = <Value extends string>({
   );
 };
 
+/** `capitalize` starts its label with a capital, for words kept in lower case (3.x's tab names). */
 const ToggleGroupItem = <Value extends string>({
   className,
   variant,
   size,
+  capitalize,
   ...props
-}: TogglePrimitive.Props<Value> & VariantProps<typeof toggleVariants>) => {
+}: TogglePrimitive.Props<Value> &
+  VariantProps<typeof toggleVariants> & { capitalize?: boolean }) => {
   const context = React.use(ToggleGroupContext);
 
   return (
@@ -53,6 +57,7 @@ const ToggleGroupItem = <Value extends string>({
             context.variant === 'outline' &&
             'shadow-none bg-transparent data-pressed:bg-background data-pressed:shadow-xs relative data-pressed:z-10 hover:text-foreground',
         }),
+        capitalize && 'capitalize',
         className,
       )}
       {...props}

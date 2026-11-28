@@ -1,4 +1,5 @@
-import type { CUSTOMER_STATES } from '@erxes/core-db/enums';
+import type { coreContract } from '@erxes/core-contract';
+import type { InferContractRouterInputs } from '@orpc/contract';
 import { callerUserId, customers, type Db, newId, requestOrgId } from '@erxes/core-db';
 import { arrayContains, eq, or, sql } from 'drizzle-orm';
 import { normalizeEmail, normalizePhone } from '~/lib/contacts';
@@ -8,15 +9,7 @@ import { contactCreated } from '~/modules/activities/contactHistory';
 import { planLeadOnCreate, recordLeadSteps } from '~/modules/leads/lifecycle';
 import { findCustomer } from './customerRows';
 
-interface Contact {
-  primaryEmail?: string;
-  primaryPhone?: string;
-  firstName?: string;
-  lastName?: string;
-  state?: (typeof CUSTOMER_STATES)[number];
-  source?: string | null;
-  sourceDetails?: Record<string, string>;
-}
+type Contact = InferContractRouterInputs<typeof coreContract>['customers']['findOrCreate'];
 
 /** The customer with this email or phone, as a primary one or among the others. */
 const findByContact = async (client: Db, email: string | null, phone: string | null) => {

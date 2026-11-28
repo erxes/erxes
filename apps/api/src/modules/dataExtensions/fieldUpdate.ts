@@ -1,5 +1,7 @@
 import { isDeepStrictEqual } from 'node:util';
+import type { DataExtensionFieldUpdate } from '@erxes/core-contract';
 import type { Db, DataFieldOption, DataFieldSettings } from '@erxes/core-db';
+import type { z } from 'zod';
 import { dataFields } from '@erxes/core-db';
 import { textArray } from '@erxes/plugin-sdk/filter';
 import { eq, sql } from 'drizzle-orm';
@@ -10,7 +12,12 @@ import { assertUnread, checkComputed } from './computedRules';
 import { changeSchema, setUnique } from './ddl';
 import { type DataFieldRow, findField, qualified, tableOf } from './definitions';
 import { assertGroupOf } from './fieldGroups.service';
-import { assertFieldDefinition, assertMemberField, assertPluginKeeps } from './fieldRules';
+import {
+  assertCustomerEditable,
+  assertFieldDefinition,
+  assertMemberField,
+  assertPluginKeeps,
+} from './fieldRules';
 import { assertSettings, renameInConditions } from './writeRules';
 
 type FieldType = DataFieldRow['type'];
@@ -84,20 +91,7 @@ const withoutHidden = ({ hidden: _hidden, ...settings }: DataFieldSettings) => s
  */
 export const updateField = async (
   client: Db,
-  {
-    id,
-    ...changes
-  }: {
-    id: string;
-    key?: string;
-    label?: string;
-    description?: string | null;
-    icon?: string | null;
-    type?: Exclude<FieldType, 'relation'>;
-    options?: DataFieldOption[];
-    settings?: DataFieldSettings;
-    groupId?: string | null;
-  },
+  { id, ...changes }: z.infer<typeof DataExtensionFieldUpdate>,
 ) => {
   const field = await findField(client, id);
 
@@ -129,6 +123,7 @@ export const updateField = async (
   if (field.type !== 'relation') assertFieldDefinition(next);
 
   assertPluginKeeps(field.recordType, next);
+  assertCustomerEditable(field.recordType, next);
 
   if (changes.settings) {
     await assertSettings(client, { ...field, key: changes.key ?? field.key, ...next });

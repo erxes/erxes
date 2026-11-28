@@ -44,6 +44,23 @@ const Code = z
 
 const GroupId = z.object({ id: Id });
 
+/** A new field group, added after the record type's others. */
+export const DataExtensionFieldGroupCreate = z.object({
+  recordType: DataExtensionRecordType,
+  label: Label,
+  code: Code,
+  description: Description.optional(),
+  appliesTo: AppliesTo.optional(),
+});
+
+/** A field group's changes. */
+export const DataExtensionFieldGroupUpdate = GroupId.extend({
+  label: Label.optional(),
+  code: Code.optional(),
+  description: Description.nullable().optional(),
+  appliesTo: AppliesTo.optional(),
+});
+
 const base = dataExtensionsBase.errors({
   GROUP_IN_USE: ERRORS.GROUP_IN_USE,
   INVALID_FIELD_GROUP: ERRORS.INVALID_FIELD_GROUP,
@@ -58,7 +75,9 @@ export const dataFieldGroupsContract = {
     .route({
       method: 'GET',
       path: '/data-field-groups',
-      summary: 'Groups of a record type, in order; the archived ones with `archived=true`',
+      summary: 'List a record type’s field groups',
+      description:
+        'The field groups of a record type, in their order. `archived: true` lists the archived ones instead.',
     })
     .input(z.object({ recordType: DataExtensionRecordType, archived: QueryBoolean.optional() }))
     .output(listOf(DataExtensionFieldGroup)),
@@ -67,39 +86,28 @@ export const dataFieldGroupsContract = {
       method: 'POST',
       path: '/data-field-groups',
       successStatus: 201,
-      summary:
-        'Add a group at the end. 409 TAKEN for a code the record type has; 400 INVALID_FIELD_GROUP for `appliesTo` on a record type that isn’t a plugin’s',
+      summary: 'Add a field group',
+      description:
+        'Adds a group after the record type’s others. 409 TAKEN for a code the record type has; 400 INVALID_FIELD_GROUP for `appliesTo` on a record type that isn’t a plugin’s.',
     })
-    .input(
-      z.object({
-        recordType: DataExtensionRecordType,
-        label: Label,
-        code: Code,
-        description: Description.optional(),
-        appliesTo: AppliesTo.optional(),
-      }),
-    )
+    .input(DataExtensionFieldGroupCreate)
     .output(DataExtensionFieldGroup),
   update: base
     .route({
       method: 'PATCH',
       path: '/data-field-groups/{id}',
-      summary: 'Rename a group or change the records it applies to',
+      summary: 'Change a field group',
+      description:
+        'Renames a group, changes its code or description, or the records it applies to.',
     })
-    .input(
-      GroupId.extend({
-        label: Label.optional(),
-        code: Code.optional(),
-        description: Description.nullable().optional(),
-        appliesTo: AppliesTo.optional(),
-      }),
-    )
+    .input(DataExtensionFieldGroupUpdate)
     .output(DataExtensionFieldGroup),
   reorder: base
     .route({
       method: 'POST',
       path: '/data-field-groups/reorder',
-      summary: 'Put a record type’s groups in this order',
+      summary: 'Reorder a record type’s field groups',
+      description: 'Puts a record type’s groups in the order of `ids` and answers them in it.',
     })
     .input(z.object({ recordType: DataExtensionRecordType, ids: z.array(Id).min(1).max(200) }))
     .output(listOf(DataExtensionFieldGroup)),
@@ -107,7 +115,8 @@ export const dataFieldGroupsContract = {
     .route({
       method: 'POST',
       path: '/data-field-groups/{id}/archive',
-      summary: 'Hide a group and its fields; their values stay',
+      summary: 'Archive a field group',
+      description: 'Hides a group and its fields. Their values stay.',
     })
     .input(GroupId)
     .output(DataExtensionFieldGroup),
@@ -115,7 +124,8 @@ export const dataFieldGroupsContract = {
     .route({
       method: 'POST',
       path: '/data-field-groups/{id}/restore',
-      summary: 'Bring back an archived group and its fields',
+      summary: 'Restore an archived field group',
+      description: 'Brings back an archived group and its fields.',
     })
     .input(GroupId)
     .output(DataExtensionFieldGroup),
@@ -123,8 +133,9 @@ export const dataFieldGroupsContract = {
     .route({
       method: 'DELETE',
       path: '/data-field-groups/{id}',
-      summary:
-        'Delete an empty group. 409 GROUP_IN_USE while any field, archived ones too, is in it',
+      summary: 'Delete an empty field group',
+      description:
+        'Deletes a group with no fields. 409 GROUP_IN_USE while any field, archived ones too, is in it.',
     })
     .input(GroupId)
     .output(z.object({ id: Id })),

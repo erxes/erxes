@@ -14,19 +14,36 @@ const limitList = (ids: readonly string[] | null) => (ids === null ? '' : ids.jo
 
 const rowLimitsOf = (who: Caller) => (who.type === 'user' ? who.key?.rows : undefined);
 
-const NO_LIMITS: RowLimits = { owners: null, tags: null };
+/**
+ * A key's row limits (`RowLimits`) for the transaction. Row level security on contacts reads
+ * them as erxes_core_keyed (drizzle/0109_key_row_role.sql), which the transaction becomes in the
+ * same statement, so a key never runs without its limits and other callers never pay for them.
+ * Empty settings mean no limit; `-` matches no id.
+ */
+const rowLimitSettings = (rows: RowLimits) =>
+  sql`set_config('role', 'erxes_core_keyed', true), set_config('app.key_owners', ${limitList(rows.owners)}, true), set_config('app.key_tags', ${limitList(rows.tags)}, true)`;
+
+const NO_LIMIT_SETTINGS = sql`set_config('app.key_owners', '', true), set_config('app.key_tags', '', true)`;
+
+const applyRowLimits = (tx: Transaction, rows: RowLimits) =>
+  tx.execute(sql`select ${rowLimitSettings(rows)}`);
+
+/** No row limits, as the connection's own role again. */
+const clearRowLimits = async (tx: Transaction) => {
+  await tx.execute(sql`reset role`);
+  await tx.execute(sql`select ${NO_LIMIT_SETTINGS}`);
+};
 
 /**
- * A key's row limits (`RowLimits`) for the transaction: row level security on contacts reads
- * them. Empty settings mean no limit; `-` matches no id.
+ * Starts the transaction's work for the organisation, in one statement: its id for row level
+ * security, the key's row limits, and no JIT compilation. Row level security puts a subquery
+ * on every contact row, so the planner prices even a 100-row page above `jit_above_cost`, and
+ * compiling took 70–230 ms of queries that run in a few.
  */
-const applyRowLimits = async (tx: Transaction, rows: RowLimits | undefined) => {
-  if (!rows) return;
-
-  await tx.execute(
-    sql`select set_config('app.key_owners', ${limitList(rows.owners)}, true), set_config('app.key_tags', ${limitList(rows.tags)}, true)`,
+const enterOrg = (tx: Transaction, orgId: string, rows: RowLimits | undefined) =>
+  tx.execute(
+    sql`select set_config('app.org_id', ${orgId}, true), set_config('jit', 'off', true)${rows ? sql`, ${rowLimitSettings(rows)}` : sql``}`,
   );
-};
 
 /** Runs `fn` in a savepoint that sees only the rows `rows` leaves (checking what a key would see). */
 export const withRowLimits = <T>(rows: RowLimits, fn: (tx: Transaction) => Promise<T>) => {
@@ -38,8 +55,9 @@ export const withRowLimits = <T>(rows: RowLimits, fn: (tx: Transaction) => Promi
     await applyRowLimits(sp, rows);
 
     const result = await fn(sp);
+    const own = rowLimitsOf(current.caller);
 
-    await applyRowLimits(sp, rowLimitsOf(current.caller) ?? NO_LIMITS);
+    await (own ? applyRowLimits(sp, own) : clearRowLimits(sp));
 
     return result;
   });
@@ -85,15 +103,15 @@ export const withOrg = async <T>(
       // RESET ROLE goes back to the connection's role (the runtime role). On
       // an error the savepoint's rollback undoes both settings.
       await sp.execute(sql`reset role`);
-      await sp.execute(sql`select set_config('app.org_id', ${orgId}, true)`);
       const rows = rowLimitsOf(current.caller);
 
-      await applyRowLimits(sp, rows);
+      await enterOrg(sp, orgId, rows);
 
       const result = await scopeStorage.run({ ...current, tx: sp, orgId }, () => fn(sp));
 
-      await sp.execute(sql`select set_config('app.org_id', '', true)`);
-      await applyRowLimits(sp, rows && NO_LIMITS);
+      await sp.execute(
+        sql`select set_config('app.org_id', '', true)${rows ? sql`, ${NO_LIMIT_SETTINGS}` : sql``}`,
+      );
       await sp.execute(sql`set local role erxes_core_system`);
 
       return result;
@@ -103,8 +121,7 @@ export const withOrg = async <T>(
   const who = callerFor('background');
 
   return rootDb().transaction(async (tx) => {
-    await tx.execute(sql`select set_config('app.org_id', ${orgId}, true)`);
-    await applyRowLimits(tx, rowLimitsOf(who));
+    await enterOrg(tx, orgId, rowLimitsOf(who));
 
     return scopeStorage.run({ caller: who, tx, orgId }, () => fn(tx));
   });

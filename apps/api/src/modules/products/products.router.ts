@@ -8,6 +8,13 @@ import {
 import { findProduct } from '~/modules/products/productChecks';
 import { listProducts, lookupProducts } from '~/modules/products/productList';
 import {
+  increaseInventories,
+  listInventories,
+  productRemainders,
+  productStock,
+  setInventories,
+} from '~/modules/products/productInventories.service';
+import {
   createProduct,
   setProductStatus,
   updateProduct,
@@ -53,4 +60,17 @@ export const productCategoriesRouter = {
     updateCategory(db(), id, changes),
   ),
   remove: scoped.productCategories.remove.handler(({ input }) => removeCategory(db(), input.id)),
+};
+
+/** Stock by branch and department: everyone with the catalog reads it, the plugin that keeps it writes. */
+export const productInventoriesRouter = {
+  list: scoped.productInventories.list.handler(({ input }) => listInventories(db(), input)),
+  remainders: scoped.productInventories.remainders.handler(({ input }) =>
+    productRemainders(db(), input),
+  ),
+  stock: scoped.productInventories.stock.handler(({ input }) => productStock(db(), input.ids)),
+  set: scoped.productInventories.set.handler(({ input }) => setInventories(db(), input)),
+  increase: scoped.productInventories.increase.handler(({ input }) =>
+    increaseInventories(db(), input),
+  ),
 };

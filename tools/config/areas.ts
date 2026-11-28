@@ -10,7 +10,7 @@ export const areas = [
       'apps/api/**',
       'packages/db/**',
       'packages/plugin-sdk/**',
-      'packages/payment-gateways/**',
+      'packages/integrations/**',
       'packages/create-erxes/**',
       '{tools,e2e}/**',
     ],
@@ -53,6 +53,7 @@ export const areas = [
       'apps/web/**',
       'packages/db/**',
       'packages/contract/**',
+      'packages/integrations/**',
       'packages/plugin-sdk/**',
       'packages/ui/**',
     ],
@@ -66,7 +67,7 @@ export const areas = [
       'packages/contract/**',
       'packages/db/**',
       'packages/plugin-sdk/**',
-      'packages/payment-gateways/**',
+      'packages/integrations/**',
     ],
     rules: { 'no-await-in-loop': 'error' },
   },
@@ -80,6 +81,11 @@ export const areas = [
       // Drizzle's .set() and .values() skip undefined keys.
       'erxes/no-undefined-spread': 'error',
     },
+  },
+  {
+    // A route's summary is a short title; its rules and error codes go in description, required too.
+    files: ['packages/contract/src/**'],
+    rules: { 'core/route-docs': 'error' },
   },
   {
     // A procedure's permission is its ACCESS policy (src/http/policies.ts), checked before it runs.

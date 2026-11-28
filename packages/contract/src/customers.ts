@@ -1,9 +1,10 @@
-import { CUSTOMER_STATES } from '@erxes/core-db/enums';
-import { companies, customerCompanies, customers } from '@erxes/core-db/schema';
+import { CUSTOMER_MERGE_FIELDS, CUSTOMER_STATES } from '@erxes/core-db/enums';
+import { companies, customers } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { COMMON_ERRORS, ERRORS } from './errors';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
+import { ContactLink, ContactLinkInput } from './contactLinks';
 import { CompanyId, CustomerId } from './records';
 import {
   DataExtensionValues,
@@ -22,6 +23,9 @@ import {
   ImageAddress,
   isoDate,
   listOf,
+  MERGE_IDS_MESSAGE,
+  MergeIds,
+  namesMerged,
 } from './common';
 import { LIFECYCLE_COLUMNS, LIFECYCLE_INPUT_COLUMNS, lifecycleInput, lifecycleRow } from './leads';
 
@@ -69,6 +73,8 @@ export type Customer = z.infer<typeof Customer>;
 
 /** A customer as its get, list, create and update answer: with the Data Extensions values the caller may read. */
 export const CustomerWithValues = Customer.extend({ values: DataExtensionValues });
+
+export type CustomerWithValues = z.infer<typeof CustomerWithValues>;
 
 export const CustomerFields = createUpdateSchema(customers, {
   firstName: (name) => name.trim().max(100),
@@ -128,31 +134,6 @@ const identifies = (value: CustomerInput) =>
     value.phones?.length,
   );
 
-/** What links a person and a company: their role there, main contact, left. */
-export const ContactLink = createSelectSchema(customerCompanies, {
-  endedAt: isoDate,
-  createdAt: isoDate,
-}).pick({
-  role: true,
-  /** The company's main contact (one per company). */
-  isPrimaryContact: true,
-  /** No longer there; the link stays as history. */
-  endedAt: true,
-  createdAt: true,
-});
-
-export type ContactLink = z.infer<typeof ContactLink>;
-
-/** Setting a link: any of its attributes (others stay; a new link starts with none). */
-export const ContactLinkInput = createUpdateSchema(customerCompanies, {
-  role: (role) => role.trim().max(100),
-})
-  .pick({ role: true, isPrimaryContact: true })
-  .extend({
-    /** `true`: left now; `false`: back (current again). */
-    ended: z.boolean().optional(),
-  });
-
 /** A company as listed on a customer, with the link. */
 export const CompanyRef = createSelectSchema(companies, { id: CompanyId })
   .pick({ id: true, primaryName: true, avatarUrl: true, website: true })
@@ -164,15 +145,25 @@ const ID = z.object({ id: Id });
 const changes = (value: Record<string, unknown>) => Object.keys(value).some((key) => key !== 'id');
 const Ids = z.object({ ids: z.array(Id).min(1).max(100) });
 
-const MergeInput = z
-  .object({ ids: z.array(Id).min(2).max(10), keepId: Id })
-  .refine((value) => value.ids.includes(value.keepId), 'keepId must be one of ids');
+/** Fields whose value a merge can take from any of the merged customers. */
+export const CustomerMergeField = z.enum(CUSTOMER_MERGE_FIELDS);
 
-const TagChange = z.object({
+export type CustomerMergeField = z.infer<typeof CustomerMergeField>;
+
+const MergeInput = MergeIds.extend({
+  fields: z.partialRecord(CustomerMergeField, Id).default({}),
+}).refine(namesMerged, MERGE_IDS_MESSAGE);
+
+export type CustomerMerge = z.infer<typeof MergeInput>;
+
+/** Tags to add to and remove from some customers or companies. */
+export const TagChange = z.object({
   ids: z.array(Id).min(1).max(100),
   add: z.array(Id).max(50).default([]),
   remove: z.array(Id).max(50).default([]),
 });
+
+export type TagChange = z.infer<typeof TagChange>;
 
 const {
   INVALID_ACTOR,
@@ -203,7 +194,8 @@ export const customersContract = {
     .route({
       method: 'GET',
       path: '/customers',
-      summary: 'Customers of the organisation, newest first',
+      summary: 'List customers',
+      description: 'Customers of the organisation, newest first',
     })
     .input(
       CursorQuery.extend({
@@ -226,7 +218,8 @@ export const customersContract = {
     .route({
       method: 'POST',
       path: '/customers/find-or-create',
-      summary:
+      summary: 'Find or create a customer',
+      description:
         'The customer with this email or phone, or a new one (members with contacts.create; plugins with customers:write). Safe to call twice at once. With only a name there is nothing to match, so it always creates one',
     })
     .input(
@@ -252,7 +245,8 @@ export const customersContract = {
     .route({
       method: 'GET',
       path: '/customers/{id}',
-      summary: 'A customer; ids merged into another customer resolve to it',
+      summary: 'Get a customer',
+      description: 'A customer; ids merged into another customer resolve to it',
     })
     .input(ID)
     .output(CustomerWithValues),
@@ -261,19 +255,26 @@ export const customersContract = {
       method: 'POST',
       path: '/customers',
       successStatus: 201,
-      summary: 'Create a customer. 409 TAKEN (data.field) when the primary email or phone is taken',
+      summary: 'Create a customer',
+      description: '409 TAKEN (data.field) when the primary email or phone is taken',
     })
     .input(CustomerFields.refine(identifies, 'a name, an email or a phone is required'))
     .output(CustomerWithValues),
   update: base
-    .route({ method: 'PATCH', path: '/customers/{id}' })
+    .route({
+      method: 'PATCH',
+      path: '/customers/{id}',
+      summary: 'Change a customer',
+      description: 'Change the fields sent; custom fields merge into the stored ones',
+    })
     .input(CustomerFields.extend({ id: Id }).refine(changes, 'nothing to update'))
     .output(CustomerWithValues),
   remove: base
     .route({
       method: 'POST',
       path: '/customers/remove',
-      summary: 'Delete customers (owners and admins)',
+      summary: 'Delete customers',
+      description: 'Delete customers (owners and admins)',
     })
     .input(Ids)
     .output(z.object({ removed: z.int() })),
@@ -281,8 +282,9 @@ export const customersContract = {
     .route({
       method: 'POST',
       path: '/customers/merge',
-      summary:
-        'Merge customers into `keepId`: empty fields are filled from the others, emails, phones, tags and companies are combined, the others are deleted (owners and admins)',
+      summary: 'Merge customers',
+      description:
+        'Merge customers into `keepId`: each field in `fields` takes that customer’s value, other empty fields are filled from the others, emails, phones, tags and companies are combined, the others are deleted (owners and admins)',
     })
     .input(MergeInput)
     .output(Customer),
@@ -290,7 +292,8 @@ export const customersContract = {
     .route({
       method: 'POST',
       path: '/customers/tag',
-      summary: 'Add and remove tags on many customers',
+      summary: 'Tag or untag customers',
+      description: 'Add and remove tags on many customers',
     })
     .input(TagChange)
     .output(z.object({ updated: z.int() })),
@@ -298,7 +301,8 @@ export const customersContract = {
     .route({
       method: 'GET',
       path: '/customers/{id}/companies',
-      summary: "The customer's companies",
+      summary: 'List a customer’s companies',
+      description: "The customer's companies",
     })
     .input(ID)
     .output(listOf(CompanyRef)),
@@ -306,12 +310,18 @@ export const customersContract = {
     .route({
       method: 'PUT',
       path: '/customers/{id}/companies/{companyId}',
-      summary: 'Link (or change the link: role, main contact, left)',
+      summary: 'Link a customer to a company',
+      description: 'Link, or change the link: role, main contact, left',
     })
     .input(ContactLinkInput.extend({ id: Id, companyId: Id }))
     .output(z.object({ ok: z.literal(true) })),
   unlinkCompany: base
-    .route({ method: 'DELETE', path: '/customers/{id}/companies/{companyId}' })
+    .route({
+      method: 'DELETE',
+      path: '/customers/{id}/companies/{companyId}',
+      summary: 'Unlink a customer from a company',
+      description: 'Remove the link between the customer and the company; both records stay',
+    })
     .input(z.object({ id: Id, companyId: Id }))
     .output(z.object({ ok: z.literal(true) })),
 };

@@ -1,6 +1,12 @@
-import { type AppliesTo, DataExtensionValues, groupApplies } from '@erxes/core-contract';
+import {
+  type AppliesTo,
+  DataExtensionValues,
+  type DataExtensionValuesCheck,
+  groupApplies,
+} from '@erxes/core-contract';
 import { type Caller, caller, dataFieldGroups, type Db, roles, runAs, users } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
+import type { z } from 'zod';
 import { fail } from '~/http/errors';
 import { objectsPlugins } from '~/modules/recordTypes/recordTypes.service';
 import { pluginOf } from './columns';
@@ -95,17 +101,7 @@ const applyingFields = async (client: Db, recordType: string, appliesTo: Applies
  * be allowed to change what the patch changes. 400 INVALID_INPUT names each value that isn't
  * valid, 403 NOT_ALLOWED for another's record type.
  */
-export const checkValues = async (
-  client: Db,
-  input: {
-    recordType: string;
-    current: Values;
-    patch: Values;
-    create?: boolean;
-    userId?: string;
-    appliesTo?: Record<string, string[]>;
-  },
-) => {
+export const checkValues = async (client: Db, input: z.infer<typeof DataExtensionValuesCheck>) => {
   await assertOwnType(client, input.recordType);
 
   const fields = await applyingFields(client, input.recordType, input.appliesTo ?? {});
@@ -122,7 +118,7 @@ export const checkValues = async (
   }
 
   const sides = await relationSides(client, fields);
-  const create = input.create === true;
+  const create = input.create;
   const written = byKey(byId, create ? { ...input.current, ...input.patch } : input.patch);
   const check = () => prepareValues(client, fields, sides, written, create, AT_PATCH);
 

@@ -1,8 +1,14 @@
-import type { Company, DataExtensionValues } from '@erxes/core-contract';
+import type { CompanyWithValues, DataExtensionValues } from '@erxes/core-contract';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useListFilterParams, useToast } from 'erxes-ui';
 import { messageOf, orpc } from '@erxes/core-contract/client';
-import { patchCachedRecord, removeCachedRecords, useCursorList } from '~/lib/cursorList';
+import {
+  type CursorCache,
+  patchCachedRecord,
+  recordInPages,
+  removeCachedRecords,
+  useCursorList,
+} from '~/lib/cursorList';
 
 type CompanyState = 'lead' | 'customer';
 
@@ -19,7 +25,7 @@ export const useCompaniesFilters = (state: CompanyState = 'customer') => ({
 export const useCompanies = (state: CompanyState = 'customer') => {
   const filters = useCompaniesFilters(state);
 
-  return useCursorList<Company>({
+  return useCursorList<CompanyWithValues>({
     sessionKey: companiesSessionKey(state),
     filters,
     options: (paging) =>
@@ -30,8 +36,25 @@ export const useCompanies = (state: CompanyState = 'customer') => {
   });
 };
 
-export const useCompany = (id: string | null) =>
-  useQuery(orpc.companies.get.queryOptions({ input: id ? { id } : skipToken }));
+/** A company; a row a list already loaded shows at once, until the company itself arrives. */
+export const useCompany = (id: string | null) => {
+  const client = useQueryClient();
+
+  return useQuery(
+    orpc.companies.get.queryOptions({
+      input: id ? { id } : skipToken,
+      placeholderData: () =>
+        id
+          ? recordInPages(
+              client.getQueriesData<CursorCache<CompanyWithValues>>({
+                queryKey: orpc.companies.list.key(),
+              }),
+              id,
+            )
+          : undefined,
+    }),
+  );
+};
 
 export const useCompanyEdit = () => {
   const client = useQueryClient();

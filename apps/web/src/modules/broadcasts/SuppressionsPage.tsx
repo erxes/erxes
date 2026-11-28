@@ -11,11 +11,11 @@ import {
   ScrollArea,
   useConfirm,
   useFormat,
+  AppBreadcrumb,
 } from 'erxes-ui';
 import { useDeferredValue, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { forwardPaging } from '~/lib/cursorList';
 import { paths } from '~/lib/paths';

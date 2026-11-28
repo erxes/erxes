@@ -6,11 +6,18 @@ import type {
 import { orpc } from '@erxes/core-contract/client';
 import { IconBox, IconHistory, IconId, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, PageContainer, PageHeader, ScrollArea, Tabs, useConfirm } from 'erxes-ui';
+import {
+  AppBreadcrumb,
+  Button,
+  PageContainer,
+  PageHeader,
+  ScrollArea,
+  Tabs,
+  useConfirm,
+} from 'erxes-ui';
 import { useQueryState } from 'nuqs';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { paths } from '~/lib/paths';
 import { useCan } from '~/modules/auth/session';

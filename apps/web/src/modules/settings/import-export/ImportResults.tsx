@@ -24,7 +24,7 @@ const saveErrorsCsv = (headers: string[], rows: z.infer<typeof ImportRow>[]) => 
 };
 
 const Counts = ({ imp }: { imp: Import }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'import-export' });
   const fmt = useFormat();
   const finished = imp.status === 'done' || imp.status === 'undone';
 
@@ -73,7 +73,7 @@ const Counts = ({ imp }: { imp: Import }) => {
 
 /** The first rows with errors; mounted per status so a new check shows its own. */
 export const ErrorRows = ({ imp }: { imp: Import }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'import-export' });
   const { toast } = useToast();
 
   const rows = useQuery(
@@ -140,7 +140,7 @@ export const ErrorRows = ({ imp }: { imp: Import }) => {
 
 /** Reading, checking or importing in the background, with how far it got. */
 export const ImportProgress = ({ imp }: { imp: Import }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'import-export' });
   const fmt = useFormat();
   const percent = imp.counts.rows ? Math.round((imp.processed / imp.counts.rows) * 100) : 0;
 
@@ -182,7 +182,7 @@ export const ImportProgress = ({ imp }: { imp: Import }) => {
 
 /** What a check found, or what the import did. */
 export const ImportSummary = ({ imp, noun }: { imp: Import; noun: string }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'import-export' });
 
   if (imp.status !== 'checked' && imp.status !== 'done' && imp.status !== 'undone') return null;
 

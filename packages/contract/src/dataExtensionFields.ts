@@ -173,6 +173,11 @@ export const DataExtensionFieldSettings = z.object({
   readOnly: z.boolean().optional(),
   /** Kept with its values, but shown on no record, form or list column. */
   hidden: z.boolean().optional(),
+  /**
+   * Customer fields only: customers fill it in themselves, on portal sign-up and their profile
+   * (`GET /portal/auth/fields`). Staff still see and change it.
+   */
+  customerEditable: z.boolean().optional(),
   /** Offered in list filters; on unless false. */
   filterable: z.boolean().optional(),
   /** Shown on a form only while the record's other values meet it. */

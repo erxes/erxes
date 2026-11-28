@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { config } from '~/config';
 import { chat, errorsOf, resultsOf, textOf, userMessage } from './assistantChat';
 import { useTestDatabase } from './db';
-import { fakeModel, lastToolResult } from './fakeModel';
+import { connectProvider, fakeModel, lastToolResult } from './fakeModel';
 import { useTwoOrgs } from './support';
 
 const KEY = 'fake-kimi-key-for-tests-0006';
@@ -33,7 +33,7 @@ describe('assistant artifacts', () => {
   beforeAll(async () => {
     model = await fakeModel(KEY);
     Object.assign(config.assistant.endpoints, { kimi: model.url });
-    await t.owner().assistant.saveConnection({ provider: 'kimi', apiKey: KEY });
+    await connectProvider(t.owner(), KEY);
   });
 
   afterAll(() => model.close());

@@ -11,6 +11,9 @@ import {
 
 export const TEAM_MEMBER_CURSOR_SESSION_KEY = 'core_team_members_cursor';
 
+/** The team members list's id: its filter's, and the key its conditions live under in the address. */
+export const TEAM_MEMBER_LIST = 'team-members';
+
 export const TEAM_MEMBERS_HOTKEY_SCOPE = 'core-team-members-page';
 
 export const USER_LINK_FIELDS: { label: string; name: UserLinkName; Icon: Icon }[] = [

@@ -1,202 +1,36 @@
 // @vitest-environment happy-dom
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { NuqsAdapter } from 'nuqs/adapters/react-router/v7';
-import { act, createElement, lazy } from 'react';
-import { createRoot, type Root } from 'react-dom/client';
-import { I18nextProvider } from 'react-i18next';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { afterEach, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
-import type { IntegrationPage as KeyPage } from '../integrations/IntegrationPage';
-import type { IntegrationsSettingsPage as Catalog } from '../integrations/IntegrationsSettingsPage';
-import type { SettingsLayout as Layout } from '../SettingsLayout';
-
-const Icon = () => null;
-
-const Page = () => null;
-
-const MetaOverview = () => createElement('p', null, 'Conversations from Facebook pages');
-
-const MetaApp = () => createElement('p', null, 'App id and secret');
-
-const dataFields = (type: string) => ({
-  type,
-  values: async () => ({}),
-  save: async () => undefined,
-});
-
-// The `./config` each plugin remote exposes.
-const CONFIGS: Record<string, unknown> = {
-  'pms_ui/config': {
-    name: 'pms',
-    path: 'pms',
-    icon: Icon,
-    settings: [
-      { path: '/pms/settings', label: 'Property management', icon: Icon },
-      { path: '/pms/settings/rates', label: 'Rates', icon: Icon },
-    ],
-    recordTypes: [
-      {
-        contentType: 'pms:room',
-        title: 'Room',
-        icon: Icon,
-        detailPath: (id: string) => `/pms/rooms/${id}`,
-        Title: Page,
-        Detail: Page,
-        dataFields: dataFields('pms.room'),
-      },
-    ],
-  },
-  'tms_ui/config': {
-    name: 'tms',
-    path: 'tms',
-    recordTypes: [
-      {
-        contentType: 'tms:booking',
-        title: 'Booking',
-        icon: Icon,
-        detailPath: (id: string) => `/tms/bookings/${id}`,
-        Title: Page,
-        Detail: Page,
-        dataFields: dataFields('tms.booking'),
-      },
-    ],
-  },
-  'blog_ui/config': { name: 'blog', path: 'blog' },
-  'chat_ui/config': {
-    name: 'chat',
-    path: 'chat',
-    integrations: [
-      {
-        key: 'meta',
-        name: 'Messenger',
-        summary: 'Facebook and Instagram messages in your inbox.',
-        icon: Icon,
-        category: 'messaging',
-        permission: 'chat.integrations.manage',
-        tabs: [
-          { value: 'overview', label: 'Overview', component: MetaOverview },
-          {
-            value: 'app',
-            label: 'Meta app',
-            component: lazy(async () => ({ default: MetaApp })),
-          },
-        ],
-      },
-      {
-        key: 'zalo',
-        name: 'Zalo',
-        summary: 'Zalo messages in your inbox.',
-        icon: Icon,
-        category: 'messaging',
-        countries: ['VN'],
-        permission: 'chat.integrations.manage',
-        tabs: [{ value: 'overview', label: 'Overview', component: Page }],
-      },
-      {
-        key: 'vault',
-        name: 'Vault',
-        summary: 'Secrets only some members see.',
-        icon: Icon,
-        category: 'messaging',
-        permission: 'chat.vault.manage',
-        tabs: [{ value: 'overview', label: 'Overview', component: Page }],
-      },
-      { key: 'Telegram bot', name: 'Telegram', summary: 'Broken.', icon: Icon, tabs: [] },
-    ],
-  },
-};
+import { act } from 'react';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
+import {
+  links,
+  member,
+  renderSettings,
+  resetSettings,
+  setUpSettings,
+  unmount,
+} from './settingsHarness';
 
 vi.mock('@module-federation/enhanced/runtime', () => ({
   registerRemotes: () => undefined,
-  loadRemote: async (id: string) => ({ CONFIG: CONFIGS[id] }),
+  loadRemote: async (id: string) => ({
+    CONFIG: (await import('./settingsHarness')).CONFIGS[id],
+  }),
 }));
 
-// A member who may manage integrations, but not payments or the chat plugin's vault.
-vi.mock('~/modules/auth/session', () => ({
-  useCan: () => (action: string) => action !== 'payments.manage' && action !== 'chat.vault.manage',
-  useSession: () => ({ organization: { country: 'MN' } }),
-}));
+vi.mock('~/modules/auth/session', async () => {
+  const harness = await import('./settingsHarness');
 
-let root: Root | undefined;
-let SettingsLayout: typeof Layout;
-let IntegrationsSettingsPage: typeof Catalog;
-let IntegrationPage: typeof KeyPage;
-
-beforeAll(async () => {
-  Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
-  vi.stubEnv(
-    'PUBLIC_PLUGINS',
-    ['pms_ui', 'tms_ui', 'blog_ui', 'chat_ui']
-      .map((name) => `${name}@http://plugins.test/${name}.js`)
-      .join(),
-  );
-  // No core here: the registry fails and the local plugins still load.
-  vi.stubGlobal('fetch', async () => Promise.reject(new Error('offline')));
-  vi.spyOn(console, 'error').mockImplementation(() => undefined);
-  ({ SettingsLayout } = await import('../SettingsLayout'));
-  ({ IntegrationsSettingsPage } = await import('../integrations/IntegrationsSettingsPage'));
-  ({ IntegrationPage } = await import('../integrations/IntegrationPage'));
+  return {
+    useCan: () => (action: string) => harness.member.can(action),
+    useSession: () => ({ organization: { country: 'MN' } }),
+  };
 });
 
-afterEach(() => {
-  act(() => root?.unmount());
-  document.body.innerHTML = '';
-});
+beforeAll(setUpSettings);
 
-/** Core's settings at `path`, once `text` shows. */
-const renderSettings = async (path = '/settings/general', text = 'Tms') => {
-  const { i18n, i18nReady } = await import('~/i18n');
+beforeEach(resetSettings);
 
-  await i18nReady;
-
-  const container = document.createElement('div');
-
-  document.body.append(container);
-  root = createRoot(container);
-  window.history.replaceState(null, '', path);
-
-  const app = createElement(
-    BrowserRouter,
-    null,
-    createElement(
-      NuqsAdapter,
-      null,
-      createElement(
-        Routes,
-        null,
-        createElement(
-          Route,
-          { path: '/settings', element: createElement(SettingsLayout) },
-          createElement(Route, { path: 'general', element: createElement('p', null, 'General') }),
-          createElement(Route, {
-            path: 'integrations',
-            element: createElement(IntegrationsSettingsPage),
-          }),
-          createElement(Route, {
-            path: 'integrations/:key',
-            element: createElement(IntegrationPage),
-          }),
-        ),
-      ),
-    ),
-  );
-
-  await act(async () => {
-    root?.render(
-      createElement(
-        QueryClientProvider,
-        { client: new QueryClient() },
-        createElement(I18nextProvider, { i18n }, app),
-      ),
-    );
-  });
-  await vi.waitFor(() => expect(container.textContent).toContain(text));
-
-  return container;
-};
-
-const links = (container: Element) =>
-  [...container.querySelectorAll('a')].map((link) => [link.textContent, link.getAttribute('href')]);
+afterEach(unmount);
 
 describe('plugins in core’s settings', () => {
   it('links each plugin with settings once, to its first page, else to its fields', async () => {
@@ -211,31 +45,48 @@ describe('plugins in core’s settings', () => {
       ['Tms', '/settings/data-model/fields/tms.booking'],
     ]);
     expect(container.textContent).not.toContain('Property management');
-    expect(container.textContent).not.toContain('Rates');
+    // Core's own Exchange Rates link stays; the plugin's second page, Rates, doesn't show.
+    expect(links(container).map(([text]) => text)).not.toContain('Rates');
     expect(container.textContent).not.toContain('Properties');
   });
 
-  it('lists a plugin’s integrations the member may open, by region, beside core’s', async () => {
-    const container = await renderSettings('/settings/integrations', 'Messenger');
+  it('lists a plugin’s integrations beside core’s, a section per category with the connected first', async () => {
+    const container = await renderSettings('/settings/integrations?tab=browse', 'Messenger');
+
+    const sections = [...container.querySelectorAll('section')];
 
     const section = (title: string) =>
-      [...container.querySelectorAll('section')].find(
-        (element) => element.querySelector('h2')?.textContent === title,
-      );
+      sections.find((element) => element.querySelector('h2')?.textContent === title);
 
-    expect(section('Available') && links(section('Available') ?? container)).toEqual([
-      [expect.stringContaining('eBarimt'), '/settings/integrations/ebarimt'],
+    expect(sections.map((element) => element.querySelector('h2')?.textContent)).toEqual([
+      'Social media',
+      'Messaging',
+      'Government',
+    ]);
+    expect(links(section('Social media') ?? container)).toEqual([
       [expect.stringContaining('Messenger'), '/settings/integrations/chat.meta'],
     ]);
-    expect(section('Available')?.textContent).toContain(
+    expect(section('Social media')?.textContent).toContain(
       'Facebook and Instagram messages in your inbox.',
     );
-    expect(section('Other regions')?.textContent).toContain('Zalo');
-    expect(section('Other regions')?.textContent).toContain('Made for Vietnam');
-    // Payment gateways need payments.manage; the vault its own permission; a malformed tile drops.
-    expect(container.textContent).not.toContain('Payment gateways');
-    expect(container.textContent).not.toContain('Vault');
-    expect(container.textContent).not.toContain('Telegram');
+    expect(links(section('Messaging') ?? container)).toEqual([
+      [expect.stringContaining('LINE'), '/settings/integrations/chat.line'],
+      [expect.stringContaining('Zalo'), '/settings/integrations/chat.zalo'],
+    ]);
+    expect(section('Messaging')?.textContent).toContain('Connected');
+    expect(section('Messaging')?.textContent).toContain('Made for Vietnam');
+    expect(links(section('Government') ?? container)).toEqual([
+      [expect.stringContaining('eBarimt'), '/settings/integrations/ebarimt'],
+    ]);
+    // Made for the organisation's country, or for any: nothing to say where it works.
+    expect(section('Government')?.textContent).not.toContain('Made for');
+    expect(section('Social media')?.textContent).not.toContain('Made for');
+    expect(
+      [...container.querySelectorAll('[aria-label="Categories"] button')].map(
+        (item) => item.textContent,
+      ),
+    ).toEqual(['All4', 'Social media1', 'Messaging2', 'Government1']);
+    expect(container.textContent).not.toContain('Archive');
   });
 
   it('opens a plugin’s integration under core’s header, a tab at a time', async () => {
@@ -246,6 +97,8 @@ describe('plugins in core’s settings', () => {
     expect(container.textContent).toContain('Works in any country');
     expect(tabs.map((tab) => tab.textContent)).toEqual(['Overview', 'Meta app']);
     expect(container.textContent).not.toContain('App id and secret');
+    expect(container.textContent).toContain('In automations');
+    expect(container.textContent).toContain('Reply on Messenger');
 
     await act(async () => {
       tabs[1]?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
@@ -254,12 +107,32 @@ describe('plugins in core’s settings', () => {
     // The address names the tab, so a reload opens it again.
     await vi.waitFor(() => expect(window.location.search).toBe('?tab=app'));
     expect(container.textContent).not.toContain('Conversations from Facebook pages');
+    expect(container.textContent).not.toContain('Reply on Messenger');
   });
 
-  it('sends a member without the integration’s permission back to the catalog', async () => {
-    const container = await renderSettings('/settings/integrations/chat.vault', 'Messenger');
+  it.each([
+    ['integrations', (action: string) => action === 'integrations.manage'],
+    ['payments', (action: string) => action === 'payments.manage'],
+  ])('lets a member who manages only %s open the catalog', async (_case, can) => {
+    member.can = can;
+
+    const container = await renderSettings('/settings/integrations', 'LINE');
+
+    expect(links(container)).toContainEqual(['Integrations', '/settings/integrations']);
+  });
+
+  it('links no catalog for a member who manages neither', async () => {
+    member.can = () => false;
+
+    const container = await renderSettings();
+
+    expect(links(container).map(([, href]) => href)).not.toContain('/settings/integrations');
+  });
+
+  it('sends a member to the catalog from an integration core does not list them', async () => {
+    const container = await renderSettings('/settings/integrations/chat.archive', 'LINE');
 
     expect(window.location.pathname).toBe('/settings/integrations');
-    expect(container.textContent).not.toContain('Vault');
+    expect(container.textContent).not.toContain('Archive');
   });
 });

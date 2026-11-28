@@ -29,6 +29,10 @@ export interface ExportQuery {
   search?: string;
   tagIds?: string[];
   ownerId?: string;
+  /** Only these records: the rows the member selected. */
+  ids?: string[];
+  /** A plugin list's own filter, passed to the plugin as it is. */
+  params?: Record<string, string | number | boolean | null | string[]>;
 }
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
@@ -72,7 +76,7 @@ export const imports = pgTable(
     fileName: text().notNull(),
     status: text({ enum: IMPORT_STATUSES }).default('parsing').notNull(),
     headers: jsonb().$type<string[]>().default([]).notNull(),
-    /** Column index (as text) → field key (`firstName`, `customFields.<id>`, `tags`, …); missing: ignored. */
+    /** Column index (as text) → field key (`firstName`, `data.<key>`, `tags`, …); missing: ignored. */
     mapping: jsonb().$type<Record<string, string>>().default({}).notNull(),
     options: jsonb().$type<ImportOptions>().notNull(),
     counts: jsonb()

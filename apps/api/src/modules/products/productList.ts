@@ -7,6 +7,7 @@ import { hasAnyTag } from '~/modules/tags/tagLinks';
 import { type DataSortInput, dataSort } from '~/modules/views/dataFilterFields';
 import { compileRecordFilter } from '~/modules/views/recordFilter';
 import { productColumns } from './productChecks';
+import { remainderFilter } from './productInventories.service';
 
 interface ProductQuery {
   search?: string;
@@ -18,6 +19,10 @@ interface ProductQuery {
   plugin?: string;
   all: boolean;
   filter?: string;
+  branchId?: string;
+  departmentId?: string;
+  minRemainder?: number;
+  maxRemainder?: number;
 }
 
 /** Products in a category or any of its subcategories. */
@@ -71,6 +76,7 @@ export const listProducts = async (
       query.parentId ? eq(products.parentId, query.parentId) : undefined,
       query.tagIds?.length ? hasAnyTag('product', products.id, query.tagIds) : undefined,
       usedBy(query),
+      remainderFilter(query),
       query.search ? productSearch(query.search) : undefined,
     ),
     query,

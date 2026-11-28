@@ -2,7 +2,7 @@ import type { CUSTOMER_STATES } from '@erxes/core-db/enums';
 import type { ConditionGroup, CursorQuery } from '@erxes/core-contract';
 import { companies, customerCompanies, customers, type Db } from '@erxes/core-db';
 import { and, eq, ilike, inArray, or, type SQL, sql } from 'drizzle-orm';
-import { boundedList, LIST_COUNT_CAP } from '~/lib/boundedList';
+import { boundedList } from '~/lib/boundedList';
 import { keysetPage } from '~/lib/keyset';
 import { matchEveryWord } from '~/lib/search';
 import { linkColumns, linkOrder } from '~/modules/customers/customerLinks';
@@ -76,7 +76,6 @@ export const listCompanies = (client: Db, query: CursorQuery & CompanyQuery & Da
         table: companies,
         id: companies.id,
         createdAt: companies.createdAt,
-        countCap: LIST_COUNT_CAP,
         sort: await dataSort(client, query.state === 'lead' ? 'company_lead' : 'company', query),
       },
       await companyListWhere(client, query),

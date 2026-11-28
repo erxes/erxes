@@ -2,11 +2,19 @@ import type { ApiKey } from '@erxes/core-contract';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { IconKey } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Alert, PageContainer, PageHeader, ScrollArea, Spinner, Tabs, useToast } from 'erxes-ui';
+import {
+  Alert,
+  PageContainer,
+  PageHeader,
+  ScrollArea,
+  Spinner,
+  Tabs,
+  useToast,
+  AppBreadcrumb,
+} from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { ShownOnce } from '~/components/ShownOnce';
 import { paths } from '~/lib/paths';

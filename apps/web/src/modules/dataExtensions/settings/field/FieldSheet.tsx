@@ -123,7 +123,12 @@ const FieldSettings = ({
         />
       </Section>
       <Section title={t('rules', 'Rules and access')}>
-        <AccessSettings type={draft.type} settings={draft.settings} setSettings={setSettings} />
+        <AccessSettings
+          recordType={recordType}
+          type={draft.type}
+          settings={draft.settings}
+          setSettings={setSettings}
+        />
       </Section>
     </>
   );

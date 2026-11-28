@@ -163,6 +163,20 @@ export const dateConditions = (trigger: DateTrigger) =>
   trigger.conditions &&
   renamePath(trigger.conditions, 'event.payload.date', `subject.${trigger.field}`);
 
+export const triggerConditions = (trigger: AutomationDefinition['trigger']) => {
+  switch (trigger.kind) {
+    case 'event':
+    case 'webhook':
+    case 'app':
+      return trigger.conditions;
+    case 'date':
+      return dateConditions(trigger);
+    case 'schedule':
+    case 'manual':
+      return trigger.audience?.conditions;
+  }
+};
+
 export const evaluateGroup = (
   group: ConditionGroup | undefined,
   context: Record<string, unknown>,

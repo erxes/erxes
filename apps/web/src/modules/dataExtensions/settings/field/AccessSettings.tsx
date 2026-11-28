@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Label, LookupPicker } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { rolesQuery, useRoleText } from '~/modules/settings/roles/useRoles';
-import { canBeUnique, isComputedType } from '../../fieldTypes';
+import { canBeUnique, customersCanFill, isComputedType } from '../../fieldTypes';
 import { SwitchRow } from '../SettingRow';
 import type { SetSettings } from './fieldDraft';
 
@@ -51,18 +51,24 @@ const RolesRow = ({
   );
 };
 
-/** Whether a record needs the field, keeps it unique, who changes it and who sees it. */
+/**
+ * Whether a record needs the field, keeps it unique, who changes it and who sees it; on a
+ * customer field, whether customers fill it in on portals.
+ */
 export const AccessSettings = ({
+  recordType,
   type,
   settings,
   setSettings,
 }: {
+  recordType: string;
   type: DataExtensionFieldType;
   settings: DataExtensionFieldSettings;
   setSettings: SetSettings;
 }) => {
   const { t } = useTranslation('data', { keyPrefix: 'access' });
   const computed = isComputedType(type);
+  const customers = recordType === 'core.customer' && customersCanFill(type);
 
   return (
     <div className="flex flex-col gap-3">
@@ -94,6 +100,17 @@ export const AccessSettings = ({
             onCheckedChange={(show) => setSettings({ showInCreate: show ? undefined : false })}
           />
         </>
+      )}
+      {customers && (
+        <SwitchRow
+          label={t('customer-editable', 'Customers fill it in')}
+          hint={t(
+            'customer-editable-hint',
+            'Portal sign-up and profile forms ask for it. Customers see only these fields.',
+          )}
+          checked={Boolean(settings.customerEditable)}
+          onCheckedChange={(on) => setSettings({ customerEditable: on || undefined })}
+        />
       )}
       <RolesRow
         label={t('visible-to', 'Who sees it')}

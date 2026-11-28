@@ -1,298 +1,177 @@
-import {
-  IconBolt,
-  IconBraces,
-  IconBuilding,
-  IconClock,
-  IconRoute,
-  IconUser,
-} from '@tabler/icons-react';
-import { Button, Command, InputGroup, Popover } from 'erxes-ui';
-import { type ComponentType, type ReactNode, useContext, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { BuilderContext, type StartingEvent } from './BuilderContext';
-import { EventDataHint } from './EventDataHint';
-import { readableTemplate } from './flowText';
+import { cn } from 'erxes-ui';
+import { type DragEvent, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { DATA_PATH_TYPE, DataTargetContext, rangeAt } from './dataTarget';
+import { InsertData } from './DataPicker';
+import { readableTemplate, templateParts } from './templateText';
 import type { FieldInfo } from './useAutomationFields';
+import { CHIP, chipLabel, useTokenField } from './useTokenField';
 
-/** "Order" reads "order" in "The order"; "POS order" keeps its capitals. */
-const inSentence = (noun: string) =>
-  /^[A-Z][a-z]/.test(noun) ? noun.charAt(0).toLowerCase() + noun.slice(1) : noun;
-
-/** One value to insert: what it is, in a row large enough to scan and tap. */
-const DataRow = ({
-  icon: Icon,
-  label,
-  path,
-  note,
-  onPick,
-}: {
-  icon: ComponentType<{ className?: string }>;
-  label: string;
-  path: string;
-  note?: string;
-  onPick: (path: string) => void;
-}) => (
-  <Command.Item value={`${label} ${path}`} onSelect={() => onPick(path)} variant="tile">
-    <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
-      <Icon className="size-3.5" />
-    </span>
-    <span className="min-w-0 flex-1 truncate">{label}</span>
-    {note && <span className="shrink-0 text-3xs text-muted-foreground">{note}</span>}
-  </Command.Item>
-);
-
-/** The trigger's own values, under what it is about ("The order"), or why there are none. */
-const TriggerGroup = ({
-  trigger,
-  fields,
-  hasSubject,
-  subject,
-  onPick,
-}: {
-  trigger: StartingEvent | undefined;
-  fields: FieldInfo[];
-  hasSubject: boolean;
-  subject: 'customer' | 'company';
-  onPick: (path: string) => void;
-}) => {
-  const { t } = useTranslation('automations');
-
-  // Core's customer and company events carry that record, listed below as the record.
-  if (!trigger || (!fields.length && trigger.source === 'core' && hasSubject)) return null;
-
-  const heading = trigger.record
-    ? t('the-record', 'The {{record}}', { record: inSentence(trigger.record) })
-    : trigger.label;
-
-  return (
-    <Command.Group heading={heading}>
-      {fields.length ? (
-        fields.map((field) => (
-          <DataRow
-            key={field.path}
-            icon={IconBolt}
-            label={field.label}
-            path={field.path}
-            onPick={onPick}
-          />
-        ))
-      ) : (
-        <div className="px-2 py-1.5">
-          <EventDataHint event={trigger} subject={hasSubject ? subject : null} compact />
-        </div>
-      )}
-    </Command.Group>
-  );
-};
-
-const isEventText = (field: FieldInfo) =>
-  field.path.startsWith('event.payload.') && !field.recordType;
-
-/**
- * What a step can insert, searchable: the trigger's own values first, then the customer or
- * company runs are about, then earlier steps' results, then the time.
- */
-const DataPicker = ({
-  fields,
-  subject,
-  onPick,
-}: {
-  fields: FieldInfo[];
-  subject: 'customer' | 'company';
-  onPick: (path: string) => void;
-}) => {
-  const { t } = useTranslation('automations');
-  const { trigger, hasSubject } = useContext(BuilderContext);
-
-  // Only what the record itself holds: not a measure of related records, nor its company's.
-  const record = hasSubject
-    ? fields.filter((field) => field.path.startsWith('subject.') && !field.conditionsOnly)
-    : [];
-
-  const own = fields.filter(isEventText);
-  const steps = fields.filter((field) => field.path.startsWith('steps.'));
-  const RecordIcon = subject === 'company' ? IconBuilding : IconUser;
-
-  return (
-    <Command loop>
-      <Command.Input placeholder={t('insert-data-search', 'Search data…')} />
-      <Command.List className="max-h-80">
-        <Command.Empty>{t('catalog-empty', 'Nothing matches')}</Command.Empty>
-        <TriggerGroup
-          trigger={trigger}
-          fields={own}
-          hasSubject={hasSubject}
-          subject={subject}
-          onPick={onPick}
-        />
-        {record.length > 0 && (
-          <Command.Group
-            heading={
-              subject === 'company'
-                ? t('the-company', 'The company')
-                : t('the-customer', 'The customer')
-            }
-          >
-            {record.map((field) => (
-              <DataRow
-                key={field.path}
-                icon={RecordIcon}
-                label={field.label}
-                path={field.path}
-                note={field.path.startsWith('subject.data.') ? t('custom', 'Custom') : undefined}
-                onPick={onPick}
-              />
-            ))}
-          </Command.Group>
-        )}
-        {steps.length > 0 && (
-          <Command.Group heading={t('earlier-steps', 'Earlier steps')}>
-            {steps.map((field) => (
-              <DataRow
-                key={field.path}
-                icon={IconRoute}
-                label={field.label}
-                path={field.path}
-                onPick={onPick}
-              />
-            ))}
-          </Command.Group>
-        )}
-        <Command.Group heading={t('other-data', 'Other')}>
-          <Command.Item
-            value="now current time date"
-            onSelect={() => onPick('now | date')}
-            variant="tile"
-          >
-            <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
-              <IconClock className="size-3.5" />
-            </span>
-            {t('today-date', "Today's date")}
-          </Command.Item>
-        </Command.Group>
-      </Command.List>
-    </Command>
-  );
-};
-
-/** The `{ }` button that opens the data picker. */
-const InsertData = ({
-  open,
-  onOpenChange,
-  children,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  children: ReactNode;
-}) => {
-  const { t } = useTranslation('automations');
-
-  return (
-    <Popover open={open} onOpenChange={onOpenChange}>
-      <Popover.Trigger
-        title={t('insert-data', 'Insert data')}
-        aria-label={t('insert-data', 'Insert data')}
-        render={<Button variant="ghost" size="icon" tone="muted" className="size-6" />}
-      >
-        <IconBraces className="size-4" />
-      </Popover.Trigger>
-      <Popover.Content
-        aria-label={t('insert-data', 'Insert data')}
-        align="end"
-        sideOffset={6}
-        collisionPadding={12}
-        variant="flush"
-        className="w-80"
-      >
-        {children}
-      </Popover.Content>
-    </Popover>
-  );
-};
-
-/**
- * Text an action sends or saves, with the run's data dropped in: the "Insert
- * data" button lists the record's fields, earlier steps' results and the
- * time, and puts `{{path}}` where the caret is (as Zapier's and HubSpot's
- * data pickers do). Typing `{{…}}` by hand still works.
- */
-export const TemplateInput = ({
-  value,
-  onChange,
-  fields,
-  subject,
-  multiline,
-  label,
-  placeholder,
-  disabled,
-  invalid,
-}: {
-  /** The field's name, for screen readers: the action's input it fills. */
+type FieldProps = {
   label: string;
   value: string;
   onChange: (value: string) => void;
-  /** The record's fields and earlier steps' outputs. */
   fields: FieldInfo[];
   subject: 'customer' | 'company';
   multiline?: boolean;
   placeholder?: string;
   disabled?: boolean;
   invalid?: boolean;
-}) => {
-  const ref = useRef<HTMLInputElement & HTMLTextAreaElement>(null);
+};
+
+const Example = ({
+  text,
+  fields,
+  className,
+}: {
+  text: string;
+  fields: FieldInfo[];
+  className: string;
+}) => (
+  <span
+    aria-hidden
+    className={cn(
+      'pointer-events-none absolute inset-0 text-sm leading-5 break-words whitespace-pre-wrap text-accent-foreground',
+      className,
+    )}
+  >
+    {templateParts(text).map((part) =>
+      'text' in part ? (
+        <span key={part.at}>{part.text}</span>
+      ) : (
+        <span key={part.at} className={cn(CHIP, 'opacity-60')}>
+          {chipLabel(part.path, part.filters, fields)}
+        </span>
+      ),
+    )}
+  </span>
+);
+
+/** Typing `{` opens the data picker at the caret; closing it without a pick types the `{`. */
+const usePickedData = ({
+  value,
+  fields,
+  multiline,
+  onChange,
+}: Pick<FieldProps, 'value' | 'fields' | 'multiline' | 'onChange'>) => {
   const [open, setOpen] = useState(false);
+  const fromBrace = useRef(false);
 
-  const insert = (path: string) => {
-    const element = ref.current;
-    // The caret (or selection) is kept by the field while the picker is open.
-    const start = element?.selectionStart ?? value.length;
-    const end = element?.selectionEnd ?? value.length;
-    // "Welcome!" + first name reads "Welcome! {{…}}", not "Welcome!{{…}}".
-    const spaced = start > 0 && !/[\s([{"'«/@-]$/.test(value.slice(0, start));
-    const token = `${spaced ? ' ' : ''}{{${path}}}`;
-
-    onChange(value.slice(0, start) + token + value.slice(end));
-    setOpen(false);
-    requestAnimationFrame(() => {
-      element?.focus();
-      element?.setSelectionRange(start + token.length, start + token.length);
-    });
-  };
-
-  const shared = {
-    ref,
+  const { ref, insert, type } = useTokenField({
     value,
-    'aria-label': label,
-    placeholder,
-    disabled,
-    'aria-invalid': invalid ? true : undefined,
-    onChange: (event: { target: { value: string } }) => onChange(event.target.value),
+    fields,
+    multiline,
+    onChange,
+    onBrace: () => {
+      fromBrace.current = true;
+      setOpen(true);
+    },
+  });
+
+  const onPick = (path: string) => {
+    fromBrace.current = false;
+    insert(path);
   };
 
-  // `{{steps.x1.output.dealId}}` means little: say what each placeholder is.
-  const readable = readableTemplate(value, fields);
+  const onOpenChange = (next: boolean) => {
+    setOpen(next);
+
+    if (next || !fromBrace.current) return;
+
+    fromBrace.current = false;
+    type('{');
+  };
+
+  return { ref, insert, picking: { open, onPick, onOpenChange } };
+};
+
+const carriesPath = (event: DragEvent) => event.dataTransfer.types.includes(DATA_PATH_TYPE);
+
+const useDataDrop = (insert: (path: string, at?: Range | null) => void, disabled?: boolean) => {
+  const targets = useContext(DataTargetContext);
+  const [dropping, setDropping] = useState(false);
+  const latest = useRef(insert);
+  const [target] = useState(() => (path: string) => latest.current(path));
+
+  useLayoutEffect(() => {
+    latest.current = insert;
+  });
+
+  useEffect(() => () => targets.release(target), [targets, target]);
+
+  const own = () => targets.own(target);
+
+  const onDragOver = (event: DragEvent) => {
+    if (disabled || !carriesPath(event)) return;
+
+    event.preventDefault();
+    setDropping(true);
+  };
+
+  const onDrop = (event: DragEvent) => {
+    setDropping(false);
+
+    const path = event.dataTransfer.getData(DATA_PATH_TYPE);
+
+    if (disabled || !path) return;
+
+    event.preventDefault();
+    own();
+    insert(path, rangeAt(event.clientX, event.clientY));
+  };
+
+  return {
+    dropping,
+    handlers: { onFocus: own, onDragOver, onDragLeave: () => setDropping(false), onDrop },
+  };
+};
+
+/**
+ * Text an action sends or saves, with the run's data dropped in as chips: "Insert data", or
+ * typing `{`, lists the record's fields, the trigger's values, earlier steps' results and the
+ * time, and puts the chip where the caret is. The value is still the template text
+ * (`Hi {{subject.firstName}}`).
+ */
+export const TemplateInput = (props: FieldProps) => {
+  const { label, fields, subject, multiline, placeholder, disabled, invalid } = props;
+  const { ref, insert, picking } = usePickedData(props);
+  const { dropping, handlers } = useDataDrop(insert, disabled);
+  const box = multiline ? 'px-3 pt-1.5 pb-0.5' : 'py-0.5';
+
+  const picker = <InsertData fields={fields} subject={subject} {...picking} />;
 
   return (
-    <div className="space-y-1">
-      <InputGroup>
-        {multiline ? (
-          <InputGroup.Textarea {...shared} rows={4} />
-        ) : (
-          <InputGroup.Input {...shared} />
-        )}
-        {!disabled && (
-          <InputGroup.Addon align="end">
-            <InsertData open={open} onOpenChange={setOpen}>
-              <DataPicker fields={fields} subject={subject} onPick={insert} />
-            </InsertData>
-          </InputGroup.Addon>
-        )}
-      </InputGroup>
-      {readable !== value && (
-        <p className="truncate text-xs text-muted-foreground" title={readable}>
-          {readable}
-        </p>
+    <div
+      {...handlers}
+      className={cn(
+        'flex w-full rounded-sm bg-background shadow-xs transition focus-within:shadow-focus',
+        multiline ? 'flex-col' : 'items-start gap-1 py-1 pr-1 pl-3',
+        invalid && 'shadow-destructive',
+        dropping && 'shadow-focus',
+        disabled && 'opacity-50',
       )}
+    >
+      <div className="relative min-w-0 flex-1">
+        {!props.value && placeholder && (
+          <Example text={placeholder} fields={fields} className={box} />
+        )}
+        <div
+          ref={ref}
+          role="textbox"
+          aria-label={label}
+          aria-placeholder={placeholder ? readableTemplate(placeholder, fields) : undefined}
+          aria-multiline={multiline}
+          aria-invalid={invalid ? true : undefined}
+          aria-disabled={disabled ? true : undefined}
+          contentEditable={!disabled}
+          className={cn(
+            'text-sm leading-5 break-words whitespace-pre-wrap outline-hidden',
+            box,
+            multiline ? 'min-h-20' : 'min-h-5',
+          )}
+        />
+      </div>
+      {!disabled &&
+        (multiline ? <div className="flex justify-end px-1 pb-1">{picker}</div> : picker)}
     </div>
   );
 };

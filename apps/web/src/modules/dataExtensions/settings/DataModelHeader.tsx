@@ -1,8 +1,7 @@
 import { IconDatabase } from '@tabler/icons-react';
-import { PageHeader } from 'erxes-ui';
+import { AppBreadcrumb, type Crumb, PageHeader } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppBreadcrumb, type Crumb } from '~/components/AppBreadcrumb';
 import { paths } from '~/lib/paths';
 
 /** Settings › Data model › `crumbs`, with the page's actions on the right. */

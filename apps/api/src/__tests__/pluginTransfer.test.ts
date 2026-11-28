@@ -27,6 +27,26 @@ describe('import and export of plugin records', { timeout: 300_000 }, () => {
     return (await readFileBytes(t.ids.org, fileId)).body;
   };
 
+  /** Registers one transfer record type of `type`, imported under `importPermission`. */
+  const register = async (type: `${string}:${string}`, importPermission: string) =>
+    t.client(await t.pluginToken()).plugins.registerManifest({
+      title: 'HR',
+      version: '4',
+      permissions: [
+        { action: 'hr.employee.export', label: 'Export employees' },
+        { action: 'hr.employee.import', label: 'Import employees' },
+      ],
+      transfer: [
+        {
+          type,
+          label: 'employees',
+          exportPermission: 'hr.employee.export',
+          importPermission,
+          columns: [{ key: 'name', label: 'Name' }],
+        },
+      ],
+    });
+
   it("exports and imports a plugin's records through its API, for members it allows", async () => {
     const api = await pluginApi(t.url(''));
 
@@ -98,7 +118,8 @@ describe('import and export of plugin records', { timeout: 300_000 }, () => {
       recordType: 'hr:employee',
       format: 'csv',
       columns: ['name', 'hiredAt'],
-      query: { search: 'b' },
+      // The plugin's own list filter and the selected rows go to it as they are.
+      query: { search: 'b', ids: ['e1', 'e2'], params: { status: ['active'], branchId: 'b1' } },
     });
 
     await settle();
@@ -112,7 +133,7 @@ describe('import and export of plugin records', { timeout: 300_000 }, () => {
       userId: t.ids.member,
       type: 'hr:employee',
       columns: ['name', 'hiredAt'],
-      query: { search: 'b' },
+      query: { search: 'b', ids: ['e1', 'e2'], params: { status: ['active'], branchId: 'b1' } },
       idempotencyKey: api.transfers[0]?.requestId,
     });
     expect((await t.member().transfer.exports({})).data).toMatchObject([
@@ -181,6 +202,84 @@ describe('import and export of plugin records', { timeout: 300_000 }, () => {
     await expect(
       t.member().transfer.createExport({ recordType: 'hr:employee', columns: ['name'] }),
     ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+    await api.close();
+  });
+
+  it('refuses a record type outside the plugin’s name, or one naming a permission it does not declare', async () => {
+    await expect(register('sales:employee', 'hr.employee.import')).rejects.toMatchObject({
+      status: 400,
+      code: 'NAMESPACE_REQUIRED',
+    });
+    await expect(register('hr:employee', 'hr.employee.delete')).rejects.toMatchObject({
+      status: 400,
+      code: 'UNKNOWN_PERMISSION',
+      data: { permissions: ['hr.employee.delete'] },
+    });
+  });
+});
+
+describe('a plugin import of grouped rows', { timeout: 300_000 }, () => {
+  useTestDatabase();
+
+  const t = useTwoOrgs();
+
+  const upload = (name: string, body: Buffer) =>
+    storeServerFile(t.ids.org, { name, contentType: 'text/csv', body });
+
+  it("keeps a group's rows in one batch when the type names its batchStart column", async () => {
+    const api = await pluginApi(t.url(''));
+
+    await t.client(await t.pluginToken()).plugins.registerManifest({
+      title: 'HR',
+      version: '3',
+      api: { url: api.url },
+      permissions: [{ action: 'hr.shift.import', label: 'Import shifts' }],
+      transfer: [
+        {
+          type: 'hr:shift',
+          label: 'shifts',
+          exportPermission: 'hr.shift.import',
+          importPermission: 'hr.shift.import',
+          batchStart: 'date',
+          columns: [
+            { key: 'date', label: 'Date' },
+            { key: 'hours', label: 'Hours' },
+          ],
+        },
+      ],
+    });
+    api.answers.transfer = (request) =>
+      request.kind === 'import'
+        ? { rows: request.rows.map((row) => ({ rowNumber: row.rowNumber, action: 'create' })) }
+        : { rows: [], cursor: null };
+
+    // 203 rows; the 200th to 202nd carry no date, so they stay with the 199th.
+    const lines = Array.from({ length: 203 }, (_, index) =>
+      index >= 199 && index <= 201 ? `,${index}` : `2024-01-01,${index}`,
+    );
+
+    const file = await upload('shifts.csv', Buffer.from(`Date,Hours\n${lines.join('\n')}\n`));
+
+    const { id } = await t
+      .owner()
+      .transfer.createImport({ recordType: 'hr:shift', fileId: file.id });
+
+    await settle();
+    await t.owner().transfer.checkImport({ id });
+    await settle();
+
+    const batches = api.transfers.flatMap((request) =>
+      request.kind === 'import' ? [request.rows.map((row) => row.rowNumber)] : [],
+    );
+
+    expect(batches.map((rows) => [rows[0], rows.at(-1), rows.length])).toEqual([
+      [2, 203, 202],
+      [204, 204, 1],
+    ]);
+    expect(await t.owner().transfer.import({ id })).toMatchObject({
+      status: 'checked',
+      counts: { rows: 203, create: 203 },
+    });
     await api.close();
   });
 });

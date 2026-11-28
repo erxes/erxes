@@ -1,5 +1,5 @@
 import type { Db } from '@erxes/core-db';
-import type { CompanyInput } from '@erxes/core-contract';
+import type { CompanyInput, TagChange } from '@erxes/core-contract';
 import { callerUserId, companies, newId, savepoint } from '@erxes/core-db';
 import { inArray, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
@@ -212,10 +212,7 @@ const tagsByCompany = async (client: Db, ids: string[]) => {
   return new Map(rows.map((row) => [row.id, row.tagIds]));
 };
 
-export const tagCompanies = async (
-  client: Db,
-  input: { ids: string[]; add: string[]; remove: string[] },
-) => {
+export const tagCompanies = async (client: Db, input: TagChange) => {
   const add = await checkTagIds(client, 'company', input.add);
 
   const before = await tagsByCompany(client, input.ids);

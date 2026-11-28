@@ -20,7 +20,7 @@ const tabsListVariants = cva('h-auto text-accent-foreground', {
 });
 
 const tabsTriggerVariants = cva(
-  'inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-sm px-3 py-1.5 font-medium ring-offset-background transition-all motion-reduce:transition-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-disabled:pointer-events-none data-disabled:opacity-50',
+  'inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-sm px-3 py-1.5 font-medium ring-offset-background transition-all motion-reduce:transition-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:shrink-0 [&_svg:not([class*=size-])]:size-4',
   {
     variants: {
       variant: {
@@ -32,6 +32,10 @@ const tabsTriggerVariants = cva(
           'relative rounded-none after:absolute after:inset-x-0 after:bottom-0 after:-mb-px after:h-0.5 hover:bg-accent data-active:bg-transparent data-active:shadow-none data-active:after:bg-primary data-active:hover:bg-accent data-active:text-primary-text',
         vertical:
           'h-9 justify-start gap-2.5 rounded-md px-2.5 hover:bg-accent data-active:bg-primary/10 data-active:text-primary-text data-active:hover:bg-primary/10',
+        // An underline tab that holds its own close button (3.x's voucher journals): compact,
+        // capitalised, bold while open. It renders as a `div` (`render={<div />}`) around the button.
+        closable:
+          'relative h-8 gap-2 py-1 pr-1 capitalize after:absolute after:inset-x-0 after:bottom-0 after:-mb-1 after:h-0.5 hover:bg-accent data-active:bg-transparent data-active:font-bold data-active:shadow-none data-active:after:bg-primary data-active:hover:bg-accent data-active:text-primary-text',
       },
       size: {
         default: 'text-sm',
@@ -74,7 +78,7 @@ const tabButtonVariants = cva(
       variant: {
         pill: 'px-2 transition-colors outline-none hover:bg-accent/60 focus-visible:ring-2 focus-visible:ring-ring/50 data-popup-open:bg-accent/60 [&_svg]:size-4',
         raised:
-          'cursor-default select-none border border-transparent pl-2.5 pr-1 font-medium transition hover:bg-accent/70',
+          'cursor-default select-none border border-transparent pl-2.5 pr-1 font-medium transition hover:bg-accent/70 [&_svg:not([class*=size-])]:size-4',
       },
       active: { true: 'text-foreground' },
       /** Lifted while it is dragged to a new place. */

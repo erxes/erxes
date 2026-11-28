@@ -26,10 +26,12 @@ type EmailDeliveryStatus = (typeof EMAIL_DELIVERY_STATUSES)[number];
 
 type DeliveryProvider = (typeof EMAIL_DELIVERY_PROVIDERS)[number];
 
-/** What an email was for, and the record it came from. */
+/** What an email was for, the record it came from, and the Mail service connection it goes through. */
 export interface EmailOrigin {
   source: EmailSource;
   sourceId?: string | null;
+  /** Null: Organization email. */
+  connectionId?: string | null;
 }
 
 /** How long the log keeps an email. */
@@ -111,11 +113,15 @@ export const queueDeliveries = async (
     if (reason) holds.set(email.id, { status: 'suppressed', reason });
   }
 
-  const ramped = await admitEmails(
-    client,
-    origin.source,
-    emails.filter((email) => !holds.has(email.id)),
-  );
+  // A Mail service connection is the organisation's own account: Organization email's ramp
+  // paces erxes' and its own provider's reputation, not that one's.
+  const ramped = origin.connectionId
+    ? new Map<string, RampHold>()
+    : await admitEmails(
+        client,
+        origin.source,
+        emails.filter((email) => !holds.has(email.id)),
+      );
 
   for (const [id, hold] of ramped) holds.set(id, hold);
 
@@ -126,6 +132,7 @@ export const queueDeliveries = async (
         id: email.id,
         source: origin.source,
         sourceId: origin.sourceId ?? null,
+        connectionId: origin.connectionId ?? null,
         to: email.to.toLowerCase(),
         customerId: email.customerId ?? null,
         subject: email.subject.slice(0, 300),

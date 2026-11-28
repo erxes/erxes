@@ -1,4 +1,5 @@
-import { DataField } from '@erxes/core-contract';
+import { type DataField, keyLabel } from '@erxes/core-contract';
+import { DATA_KEY } from '@erxes/core-db/automationDefinition';
 
 type CarriedKind = 'text' | 'number' | 'boolean' | 'list';
 
@@ -23,18 +24,20 @@ const kindOf = (value: unknown): CarriedKind | null => {
   return Array.isArray(value) ? 'list' : null;
 };
 
-export const labelOf = (key: string) => {
-  const words = key
-    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-    .replaceAll(/[_.]/g, ' ')
-    .toLowerCase();
+const MAX_DEPTH = 4;
 
-  return words.charAt(0).toUpperCase() + words.slice(1);
-};
+const isObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
 
-export const carriedBy = (data: Record<string, unknown>): Carried[] =>
-  Object.entries(data).flatMap(([key, value]) => {
-    const kind = DataField.shape.key.safeParse(key).success ? kindOf(value) : null;
+export const carriedBy = (data: Record<string, unknown>, prefix = '', depth = 1): Carried[] =>
+  Object.entries(data).flatMap(([name, value]) => {
+    if (!DATA_KEY.test(name)) return [];
+
+    const key = `${prefix}${name}`;
+
+    if (isObject(value)) return depth < MAX_DEPTH ? carriedBy(value, `${key}.`, depth + 1) : [];
+
+    const kind = kindOf(value);
 
     return kind ? [{ key, kind }] : [];
   });
@@ -52,7 +55,7 @@ export const healedFields = (declared: DataField[], carried: Carried[]): DataFie
 
   const added = carried
     .filter(({ key }) => !listed.has(key))
-    .map(({ key, kind }) => ({ key, label: labelOf(key), type: kind }));
+    .map(({ key, kind }) => ({ key, label: keyLabel(key), type: kind }));
 
   return [...corrected, ...added];
 };

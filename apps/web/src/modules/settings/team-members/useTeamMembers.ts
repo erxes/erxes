@@ -1,27 +1,21 @@
-import { type User, RoleKey } from '@erxes/core-contract';
+import type { User } from '@erxes/core-contract';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from 'erxes-ui';
-import { parseAsBoolean, parseAsString, useQueryStates } from 'nuqs';
+import { useListFilterParams, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '@erxes/core-contract/client';
 import { patchCachedRecord, useCursorList } from '~/lib/cursorList';
 import { useCan, useSession } from '~/modules/auth/session';
 import { TEAM_MEMBER_CURSOR_SESSION_KEY } from './constants';
 
-/** The list's filters: search, role and "Is active" (on unless switched off). */
+/**
+ * The list's filter bar: its conditions and search. Deactivated members stay out until a
+ * condition asks about status, so the list opens on those who work here.
+ */
 const useTeamMemberFilters = () => {
-  const [{ searchValue, isActive, role }] = useQueryStates({
-    searchValue: parseAsString,
-    isActive: parseAsBoolean,
-    role: parseAsString,
-  });
+  const { filter, search } = useListFilterParams();
+  const byStatus = filter?.includes('"subject.status"') ?? false;
 
-  return {
-    search: searchValue || undefined,
-    isActive: isActive ?? true,
-    // Anyone can edit a URL: a role that isn't one reads as no role filter.
-    role: RoleKey.safeParse(role).data,
-  };
+  return { filter, search, ...(byStatus ? {} : { isActive: true }) };
 };
 
 export const useTeamMembers = () => {

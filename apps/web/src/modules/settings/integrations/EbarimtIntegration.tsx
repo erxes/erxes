@@ -2,13 +2,13 @@ import type { EbarimtSettings } from '@erxes/core-contract';
 import { orpc } from '@erxes/core-contract/client';
 import { IconAlertTriangle } from '@tabler/icons-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Label, Switch } from 'erxes-ui';
-import { useId } from 'react';
+import { Badge, Button, cn, Label, Switch } from 'erxes-ui';
+import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
 import { useCan } from '~/modules/auth/session';
 import type { Integration } from './catalog';
-import { useIntegrationsSaved } from './customMutation';
+import { useIntegrationsSaved } from './useIntegrationsSaved';
 import { DangerSection } from './DangerSection';
 import { EbarimtActivity } from './EbarimtActivity';
 import { EbarimtForm } from './EbarimtForm';
@@ -19,7 +19,6 @@ import {
   OverviewSection,
   useIntegrationTab,
 } from './IntegrationLayout';
-import { useIntegrationStatus } from './useIntegrationStatus';
 
 const useRefreshFailed = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.ebarimt' });
@@ -27,19 +26,19 @@ const useRefreshFailed = () => {
   return useIntegrationsSaved(t('save-failed', 'Could not save'), undefined, orpc.ebarimt.key());
 };
 
-/** Turns receipts on or off, keeping the settings. */
-const EbarimtSwitch = ({ saved }: { saved: EbarimtSettings }) => {
+/** Turns a config's receipts on or off, keeping its settings. */
+const ConfigSwitch = ({ config }: { config: EbarimtSettings }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.ebarimt' });
   const id = useId();
-  const save = useMutation(orpc.ebarimt.saveSettings.mutationOptions(useRefreshFailed()));
+  const save = useMutation(orpc.ebarimt.updateConfig.mutationOptions(useRefreshFailed()));
 
   return (
     <span className="flex items-center gap-2 text-sm">
       <Switch
         id={id}
-        checked={saved.status === 'active'}
+        checked={config.status === 'active'}
         disabled={save.isPending}
-        onCheckedChange={(on) => save.mutate({ ...saved, status: on ? 'active' : 'disabled' })}
+        onCheckedChange={(on) => save.mutate({ ...config, status: on ? 'active' : 'disabled' })}
       />
       <Label htmlFor={id} variant="plain">
         {t('active', 'Send receipts')}
@@ -48,43 +47,147 @@ const EbarimtSwitch = ({ saved }: { saved: EbarimtSettings }) => {
   );
 };
 
-/** Removes eBarimt, after asking: the danger zone at the end of its settings. */
-const RemoveEbarimt = () => {
+/** Removes a config that sent no receipts, after asking; one that did is turned off instead. */
+const RemoveConfig = ({
+  config,
+  onRemoved,
+}: {
+  config: EbarimtSettings;
+  onRemoved: () => void;
+}) => {
   const { t } = useTranslation('settings', { keyPrefix: 'integrations.ebarimt' });
-  const remove = useMutation(orpc.ebarimt.removeSettings.mutationOptions(useRefreshFailed()));
+
+  const remove = useMutation(
+    orpc.ebarimt.removeConfig.mutationOptions({ ...useRefreshFailed(), onSuccess: onRemoved }),
+  );
 
   return (
     <DangerSection
-      title={t('remove-title', 'Remove eBarimt')}
+      title={t('remove-title', 'Remove this config')}
       description={t(
         'remove-description',
-        'No more receipts are sent. Issued ones stay with their invoices.',
+        'Only a config that sent no receipts can go. Turn one that did off instead, so its receipts can still be returned.',
       )}
-      confirmMessage={t(
-        'remove-confirm',
-        'Remove eBarimt? Issued receipts stay with their invoices.',
-      )}
+      confirmMessage={t('remove-confirm', 'Remove {{name}}?', { name: config.name })}
       label={t('remove', 'Remove')}
       pending={remove.isPending}
-      onConfirm={() => remove.mutate({})}
+      onConfirm={() => remove.mutate({ id: config.id })}
     />
   );
 };
 
+/** Each config with its merchant, the default first; picking one opens it below. */
+const ConfigList = ({
+  configs,
+  selected,
+  onSelect,
+}: {
+  configs: EbarimtSettings[];
+  selected: string;
+  onSelect: (id: string) => void;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations.ebarimt' });
+  const makeDefault = useMutation(orpc.ebarimt.updateConfig.mutationOptions(useRefreshFailed()));
+
+  return (
+    <div className="space-y-2">
+      <ul className="divide-y rounded-lg border">
+        {configs.map((config) => (
+          <li
+            key={config.id}
+            className={cn(
+              'flex flex-wrap items-center gap-3 px-4 py-3',
+              config.id === selected && 'bg-accent/40',
+            )}
+          >
+            <button
+              type="button"
+              className="min-w-0 flex-1 text-left"
+              onClick={() => onSelect(config.id)}
+            >
+              <span className="flex items-center gap-2 text-sm font-medium">
+                {config.name}
+                {config.isDefault && <Badge variant="secondary">{t('default', 'Default')}</Badge>}
+              </span>
+              <span className="block truncate text-xs text-muted-foreground">
+                {config.companyName} · {t('tin', 'TIN')} {config.merchantTin}
+                {config.posNo && ` · POS ${config.posNo}`}
+              </span>
+            </button>
+            {!config.isDefault && (
+              <Button
+                size="sm"
+                variant="ghost"
+                disabled={makeDefault.isPending}
+                onClick={() => makeDefault.mutate({ ...config, isDefault: true })}
+              >
+                {t('make-default', 'Make default')}
+              </Button>
+            )}
+            <ConfigSwitch config={config} />
+          </li>
+        ))}
+      </ul>
+      <Button size="sm" variant="secondary" onClick={() => onSelect(NEW)}>
+        {t('add-config', 'Add config')}
+      </Button>
+    </div>
+  );
+};
+
+/** The list key of a config not saved yet. */
+const NEW = 'new';
+
+/** The configs, and the one picked (or a new one) to change. */
+const ConfigsTab = ({ configs }: { configs: EbarimtSettings[] }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'integrations.ebarimt' });
+  const [picked, setPicked] = useState<string>(configs[0]?.id ?? NEW);
+  const config = configs.find((row) => row.id === picked) ?? null;
+  const selected = config?.id ?? NEW;
+
+  return (
+    <div className="space-y-6">
+      {configs.length > 0 && (
+        <ConfigList configs={configs} selected={selected} onSelect={setPicked} />
+      )}
+      {configs.length > 0 && !config && (
+        <p className="text-sm text-muted-foreground">
+          {t(
+            'new-config-hint',
+            'Another merchant or branch: invoices go through the default unless a plugin picks this one.',
+          )}
+        </p>
+      )}
+      <EbarimtForm
+        key={config ? `${config.id}-${config.updatedAt}` : NEW}
+        saved={config}
+        onSaved={(saved) => setPicked(saved.id)}
+      />
+      {config && <RemoveConfig config={config} onRemoved={() => setPicked(NEW)} />}
+    </div>
+  );
+};
+
 const HOW_IT_WORKS = [
-  ['paid', 'Each paid invoice of the plugins you pick gets a receipt, by gateway or in cash.'],
+  ['paid', 'Each paid invoice in tögrög gets a receipt, by gateway or in cash.'],
   ['refunds', 'A partial refund replaces the receipt; a full refund returns it.'],
   ['rules', 'Rules tax chosen products and categories VAT-free, at 0%, or leave them off.'],
   ['own', 'Plugins that send their own receipts are left out.'],
-  ['print', 'Each plugin prints its receipts with its own template, set up under Print.'],
+  [
+    'print',
+    'Core prints its receipts with the template under Print; each plugin sets its own in its settings.',
+  ],
 ] as const;
 
 const Overview = ({
   saved,
+  count,
   failed,
   onTab,
 }: {
+  /** The default config. */
   saved: EbarimtSettings | null;
+  count: number;
   failed: number;
   onTab: (tab: string) => void;
 }) => {
@@ -108,7 +211,13 @@ const Overview = ({
         </div>
       )}
       {saved ? (
-        <OverviewSection title={t('connected-to', 'Connected to')}>
+        <OverviewSection
+          title={t('connected-to', {
+            count,
+            defaultValue_one: 'Connected to',
+            defaultValue_other: 'Connected to {{count}} merchants; the default:',
+          })}
+        >
           <dl className="grid grid-cols-3 gap-x-6 gap-y-1.5 rounded-lg border p-4 text-sm">
             <dt className="text-muted-foreground">{t('field.companyName', 'Company name')}</dt>
             <dd className="col-span-2">{saved.companyName}</dd>
@@ -116,10 +225,6 @@ const Overview = ({
             <dd className="col-span-2">{saved.merchantTin}</dd>
             <dt className="text-muted-foreground">{t('field.posApiUrl', 'PosAPI address')}</dt>
             <dd className="col-span-2 truncate">{saved.posApiUrl}</dd>
-            <dt className="text-muted-foreground">{t('for-plugins', 'Receipts for')}</dt>
-            <dd className="col-span-2">
-              {saved.plugins.length ? saved.plugins.join(', ') : t('no-plugin', 'No plugin yet')}
-            </dd>
           </dl>
         </OverviewSection>
       ) : (
@@ -140,32 +245,28 @@ const Overview = ({
 
 const EbarimtPage = ({
   integration,
-  saved,
+  configs,
 }: {
   integration: Integration;
-  saved: EbarimtSettings | null;
+  configs: EbarimtSettings[];
 }) => {
+  const saved = configs.find((config) => config.isDefault) ?? null;
   const { t } = useTranslation('settings', { keyPrefix: 'integrations' });
   const canPayments = useCan()('payments.manage');
   const [tab, setTab] = useIntegrationTab('overview');
-  const status = useIntegrationStatus().statusOf(integration);
-  const failed = status?.state === 'attention' ? (status.count ?? 0) : 0;
+  const { status } = integration;
+  const failed = status.state === 'attention' ? (status.count ?? 0) : 0;
 
   const tabs = [
     {
       value: 'overview',
       label: t('tab.overview', 'Overview'),
-      content: <Overview saved={saved} failed={failed} onTab={setTab} />,
+      content: <Overview saved={saved} count={configs.length} failed={failed} onTab={setTab} />,
     },
     {
       value: 'settings',
       label: t('tab.settings', 'Settings'),
-      content: (
-        <div className="space-y-6">
-          <EbarimtForm key={saved?.updatedAt ?? 'new'} saved={saved} />
-          {saved && <RemoveEbarimt />}
-        </div>
-      ),
+      content: <ConfigsTab configs={configs} />,
     },
     ...(saved
       ? [{ value: 'print', label: t('tab.print', 'Print'), content: <EbarimtPrint /> }]
@@ -182,9 +283,7 @@ const EbarimtPage = ({
       tab={tab}
       onTab={setTab}
       actions={
-        saved ? (
-          <EbarimtSwitch saved={saved} />
-        ) : (
+        saved ? undefined : (
           <Button onClick={() => setTab('settings')}>{t('ebarimt.set-up-short', 'Set up')}</Button>
         )
       }
@@ -192,13 +291,13 @@ const EbarimtPage = ({
   );
 };
 
-/** eBarimt's page: what it does, its settings, and the receipts it sent. */
+/** eBarimt's page: what it does, its configs, and the receipts they sent. */
 export const EbarimtIntegration = ({ integration }: { integration: Integration }) => {
-  const settings = useQuery(orpc.ebarimt.settings.queryOptions());
+  const configs = useQuery(orpc.ebarimt.configs.queryOptions());
 
   return (
-    <QueryState query={settings}>
-      {(saved) => <EbarimtPage integration={integration} saved={saved} />}
+    <QueryState query={configs}>
+      {({ data }) => <EbarimtPage integration={integration} configs={data} />}
     </QueryState>
   );
 };

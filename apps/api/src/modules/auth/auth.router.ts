@@ -19,6 +19,7 @@ import {
   signOutEverywhere,
 } from '~/modules/auth/account.service';
 import { getSession, markOnboarded, signIn, recordSignedIn } from '~/modules/auth/auth.service';
+import { listSignInProviders, signInWithProvider } from '~/modules/auth/providerSignIn.service';
 import { runSetup, setupRequired } from '~/modules/setup/setup.service';
 import { httpOf, scoped, unscoped, type CoreContext } from '~/orpc';
 
@@ -29,6 +30,18 @@ const startSession = async (context: CoreContext, userId: string, orgId: string)
   const { req, res } = httpOf(context);
 
   await startBrowserSession(req, res, { userId, orgId, sessionVersion });
+};
+
+/** A checked sign-in: two-factor members get no session until the second step. */
+const finishSignIn = async <T extends { user: { id: string }; organization: { id: string } }>(
+  context: CoreContext,
+  result: T | { twoFactorRequired: true; challenge: string },
+) => {
+  if ('challenge' in result) return result;
+
+  await startSession(context, result.user.id, result.organization.id);
+
+  return result;
 };
 
 const endSession = (context: CoreContext) => {
@@ -48,16 +61,15 @@ export const authRouter = {
 
     return getSession(organization.id, owner.id);
   }),
-  signIn: unscoped.auth.signIn.handler(async ({ input, context }) => {
-    const result = await signIn(input, httpOf(context).req.get('host'));
-
-    // Two-factor: no session until the second step.
-    if ('challenge' in result) return result;
-
-    await startSession(context, result.user.id, result.organization.id);
-
-    return result;
-  }),
+  signIn: unscoped.auth.signIn.handler(async ({ input, context }) =>
+    finishSignIn(context, await signIn(input, httpOf(context).req.get('host'))),
+  ),
+  signInProviders: unscoped.auth.signInProviders.handler(({ input, context }) =>
+    listSignInProviders(input, httpOf(context).req.get('host')),
+  ),
+  signInWithProvider: unscoped.auth.signInWithProvider.handler(async ({ input, context }) =>
+    finishSignIn(context, await signInWithProvider(input, httpOf(context).req.get('host'))),
+  ),
   signInTwoFactor: unscoped.auth.signInTwoFactor.handler(async ({ input, context }) => {
     const { orgId, userId } = await completeTwoFactor(input);
     const session = await getSession(orgId, userId);

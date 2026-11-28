@@ -4,4 +4,6 @@ insert into no_org_id (table_name, tenant_key, reason) values
   ('core_organizations', 'id', 'The organisations themselves: their policy keys on id.'),
   ('core_plugins', null, 'The deployment''s plugin registry. Installations per organisation are core_plugin_installations.'),
   ('core_used_tokens', null, 'Ids of used single-use sign-in links, unique across the deployment.'),
-  ('core_rate_limits', null, 'Request counts per client address, shared by every replica, before any organisation is known.');
+  ('core_rate_limits', null, 'Request counts per client address, shared by every replica, before any organisation is known.'),
+  ('core_oauth_clients', null, 'Apps that registered themselves for OAuth, before any organisation is known.'),
+  ('core_server_license', null, 'The server''s one erxes license, fetched from erxes.io: it covers every organisation.');

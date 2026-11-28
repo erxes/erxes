@@ -5,6 +5,7 @@ import {
   type Db,
   events,
   newId,
+  secrets,
   webhookDeliveries,
   webhooks,
   withOrg,
@@ -16,10 +17,10 @@ import { hmacSha256 } from '~/lib/crypto';
 import { keysetPage } from '~/lib/keyset';
 import { postOutbound } from '~/lib/outbound';
 import { oneRow } from '~/lib/rows';
-import { unseal } from '~/lib/secrets';
 import { logger } from '~/logger';
 import type { EventConsumer } from '~/modules/events/consumers';
 import { describeError, defineJob } from '~/modules/jobs/jobs';
+import { openSecret } from '~/modules/secrets/vault';
 import { findWebhook, matchesPattern } from './webhooks.service';
 
 const log = logger.child({ component: 'webhooks' });
@@ -37,9 +38,10 @@ export const signPayload = (
 const loadDelivery = (orgId: string, deliveryId: string) =>
   withOrg(orgId, async (tx) => {
     const [row] = await tx
-      .select({ delivery: webhookDeliveries, webhook: webhooks, event: events })
+      .select({ delivery: webhookDeliveries, webhook: webhooks, secret: secrets, event: events })
       .from(webhookDeliveries)
       .innerJoin(webhooks, eq(webhooks.id, webhookDeliveries.webhookId))
+      .innerJoin(secrets, eq(secrets.id, webhooks.secretId))
       .leftJoin(events, eq(events.id, webhookDeliveries.eventId))
       .where(eq(webhookDeliveries.id, deliveryId))
       .limit(1);
@@ -54,6 +56,7 @@ const send = async (
   deliveryId: string,
   orgId: string,
   webhook: Loaded['webhook'],
+  signingSecret: string,
   event: NonNullable<Loaded['event']>,
 ) => {
   const body = JSON.stringify({
@@ -70,7 +73,7 @@ const send = async (
     'Erxes-Webhook-Id': webhook.id,
     'Erxes-Event-Id': event.id,
     'Erxes-Delivery-Id': deliveryId,
-    'Erxes-Signature': signPayload(unseal(webhook.secretSealed), body),
+    'Erxes-Signature': signPayload(signingSecret, body),
   };
 
   try {
@@ -176,7 +179,7 @@ export const deliverJob = defineJob({
       return;
     }
 
-    const outcome = await send(deliveryId, job.orgId, webhook, event);
+    const outcome = await send(deliveryId, job.orgId, webhook, openSecret(loaded.secret), event);
 
     await recordOutcome(
       job.orgId,

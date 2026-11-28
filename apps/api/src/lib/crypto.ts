@@ -3,14 +3,13 @@ import {
   argon2,
   createCipheriv,
   createDecipheriv,
-  createHash,
   createHmac,
   hkdfSync,
   randomBytes,
   scrypt,
   type ScryptOptions,
-  timingSafeEqual,
 } from 'node:crypto';
+import { hmacSha256, safeEqual, sha256 } from '@erxes/plugin-sdk/integrations';
 
 /**
  * Everything core does with `node:crypto`. Stored hashes, signatures and
@@ -29,29 +28,39 @@ export {
   verify,
 } from 'node:crypto';
 
+export { hmacSha256, safeEqual, sha256 };
+
 type TextEncoding = 'hex' | 'base64url';
-
-const bytes = (value: string | Buffer) => (typeof value === 'string' ? Buffer.from(value) : value);
-
-/** Constant-time equality; values of different lengths are unequal. */
-export const safeEqual = (a: string | Buffer, b: string | Buffer) => {
-  const left = bytes(a);
-  const right = bytes(b);
-
-  return left.length === right.length && timingSafeEqual(left, right);
-};
-
-export const sha256 = (value: string | Buffer, encoding: TextEncoding = 'hex') =>
-  createHash('sha256').update(value).digest(encoding);
-
-export const hmacSha256 = (key: string | Buffer, value: string, encoding: TextEncoding) =>
-  createHmac('sha256', key).update(value).digest(encoding);
 
 /** HMAC-SHA256 as bytes, to chain into the next key (AWS signing keys). */
 export const hmacSha256Bytes = (key: string | Buffer, value: string) =>
   createHmac('sha256', key).update(value).digest();
 
 /** A 32-byte key derived from `secret` (HKDF-SHA256, no salt), one per `info`. */
+/**
+ * AES-128-CBC (PKCS#7), base64: a bank's wire format (Golomt's corporate
+ * gateway asks for it), never for anything core keeps — that's `encrypt`.
+ */
+export const aes128CbcEncrypt = (key: Buffer, iv: Buffer, text: string) => {
+  // Golomt's API takes only this mode; nothing core keeps is sealed with it.
+  const cipher = createCipheriv('aes-128-cbc', key, iv); // NOSONAR
+
+  return Buffer.concat([cipher.update(text, 'utf8'), cipher.final()]).toString('base64');
+};
+
+/** Opens `aes128CbcEncrypt`'s base64; throws when the key doesn't fit. */
+export const aes128CbcDecrypt = (key: Buffer, iv: Buffer, base64: string) => {
+  const decipher = createDecipheriv('aes-128-cbc', key, iv); // NOSONAR: Golomt's mode
+
+  return Buffer.concat([decipher.update(Buffer.from(base64, 'base64')), decipher.final()]).toString(
+    'utf8',
+  );
+};
+
+/** HMAC-SHA-1, as RFC 6238 one-time codes are made (a bank's transfer codes). */
+export const hmacSha1Bytes = (key: Buffer, value: Buffer) =>
+  createHmac('sha1', key).update(value).digest(); // NOSONAR: RFC 6238 is defined on SHA-1
+
 export const deriveKey = (secret: string, info: string) =>
   Buffer.from(hkdfSync('sha256', secret, Buffer.alloc(0), info, 32));
 
@@ -143,10 +152,10 @@ export const verifyPassword = async (password: string, stored: string | null) =>
 
 // ─── Sealed secrets ─────────────────────────────────────────────────────────
 
-/** AES-256-GCM, as `v1.<iv>.<tag>.<ciphertext>` (base64url). */
-export const encrypt = (key: Buffer, plain: string) => {
+/** AES-256-GCM, as `v1.<iv>.<tag>.<ciphertext>` (base64url); opens only with the same `boundTo`. */
+export const encrypt = (key: Buffer, plain: string, boundTo: string) => {
   const iv = randomBytes(12);
-  const cipher = createCipheriv('aes-256-gcm', key, iv);
+  const cipher = createCipheriv('aes-256-gcm', key, iv).setAAD(Buffer.from(boundTo, 'utf8'));
   const data = Buffer.concat([cipher.update(plain, 'utf8'), cipher.final()]);
 
   return [
@@ -157,7 +166,7 @@ export const encrypt = (key: Buffer, plain: string) => {
   ].join('.');
 };
 
-export const decrypt = (key: Buffer, sealed: string) => {
+export const decrypt = (key: Buffer, sealed: string, boundTo: string) => {
   const [version, iv, tag, data] = sealed.split('.');
 
   // An empty secret seals to an empty ciphertext; the tag still proves it.
@@ -165,7 +174,7 @@ export const decrypt = (key: Buffer, sealed: string) => {
 
   const decipher = createDecipheriv('aes-256-gcm', key, Buffer.from(iv, 'base64url'));
 
-  decipher.setAuthTag(Buffer.from(tag, 'base64url'));
+  decipher.setAAD(Buffer.from(boundTo, 'utf8')).setAuthTag(Buffer.from(tag, 'base64url'));
 
   return Buffer.concat([
     decipher.update(Buffer.from(data, 'base64url')),

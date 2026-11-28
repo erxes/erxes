@@ -12,14 +12,10 @@ export type ImportedUnit = Omit<UnitFields, 'memberIds'> & {
   memberIds: string[];
 };
 
-interface Known {
-  id: string;
-  kind: UnitKind;
-  name: string;
-  code: string | null;
-  parentId: string | null;
-  path: string;
-}
+type Known = Pick<
+  typeof orgUnits.$inferSelect,
+  'id' | 'kind' | 'name' | 'code' | 'parentId' | 'path'
+>;
 
 const lower = (value: string | null | undefined) => value?.trim().toLowerCase() ?? null;
 

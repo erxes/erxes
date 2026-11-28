@@ -1,59 +1,28 @@
-import type { Export, Import, TransferType } from '@erxes/core-contract';
-import { IconDownload, IconFileExport, IconFileImport } from '@tabler/icons-react';
+import type { TransferType } from '@erxes/core-contract';
+import { IconFileExport, IconFileImport } from '@tabler/icons-react';
 import {
-  Badge,
+  AppBreadcrumb,
   Empty,
   PageContainer,
   PageHeader,
-  RelativeDateDisplay,
   ScrollArea,
   Spinner,
   Tabs,
-  useFormat,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { parseAsString, useQueryStates } from 'nuqs';
-import { Link, Navigate } from 'react-router-dom';
-import { AppBreadcrumb } from '~/components/AppBreadcrumb';
+import { Navigate } from 'react-router-dom';
 import { QueryState } from '~/components/QueryState';
-import { fileDownloadUrl } from '~/lib/files';
 import { paths } from '~/lib/paths';
 import { ExportButton } from '~/modules/transfer/ExportButton';
 import { ImportButton } from '~/modules/transfer/ImportButton';
+import { ExportRow, ImportRow } from '~/modules/transfer/TransferRows';
 import {
   useExports,
   useImports,
   useTransferLabel,
   useTransferTypes,
 } from '~/modules/transfer/useTransfer';
-
-const IMPORT_TONE: Record<
-  Import['status'],
-  'success' | 'warning' | 'destructive' | 'secondary' | 'info'
-> = {
-  parsing: 'info',
-  mapping: 'warning',
-  checking: 'info',
-  checked: 'warning',
-  running: 'info',
-  done: 'success',
-  failed: 'destructive',
-  undone: 'secondary',
-};
-
-const EXPORT_TONE: Record<Export['status'], 'success' | 'destructive' | 'info'> = {
-  running: 'info',
-  done: 'success',
-  failed: 'destructive',
-};
-
-const When = ({ value }: { value: string }) => (
-  <span className="text-xs text-muted-foreground">
-    <RelativeDateDisplay value={value} render={<span />}>
-      <RelativeDateDisplay.Value value={value} />
-    </RelativeDateDisplay>
-  </span>
-);
 
 const Nothing = ({ icon: Icon, title }: { icon: typeof IconFileImport; title: string }) => (
   <Empty>
@@ -66,61 +35,8 @@ const Nothing = ({ icon: Icon, title }: { icon: typeof IconFileImport; title: st
   </Empty>
 );
 
-const ImportRow = ({ item }: { item: Import }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
-  const fmt = useFormat();
-  const labelOf = useTransferLabel();
-
-  return (
-    <li>
-      <Link
-        to={paths.contacts.importOrExport(item.id)}
-        className="flex items-center gap-3 p-3 hover:bg-muted/50"
-      >
-        <Badge variant={IMPORT_TONE[item.status]}>{t(`status.${item.status}`, item.status)}</Badge>
-        <span className="min-w-0 flex-1 truncate font-medium">{item.fileName}</span>
-        <span className="text-xs text-muted-foreground">
-          {labelOf(item.recordType)} · {fmt.number(item.counts.rows)} {t('rows', 'rows')}
-          {item.status === 'done' &&
-            ` · ${item.counts.create} ${t('count-created', 'created')}, ${item.counts.update} ${t('count-updated', 'updated')}`}
-        </span>
-        <When value={item.createdAt} />
-      </Link>
-    </li>
-  );
-};
-
-const ExportRow = ({ item }: { item: Export }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
-  const fmt = useFormat();
-  const labelOf = useTransferLabel();
-
-  return (
-    <li className="flex items-center gap-3 p-3">
-      <Badge variant={EXPORT_TONE[item.status]}>
-        {t(`export-status.${item.status}`, item.status)}
-      </Badge>
-      <span className="min-w-0 flex-1 truncate">
-        {labelOf(item.recordType)} · {item.format.toUpperCase()}
-        {item.rowCount !== null && ` · ${fmt.number(item.rowCount)} ${t('rows', 'rows')}`}
-        {item.error && <span className="text-destructive-text"> · {item.error}</span>}
-      </span>
-      <When value={item.createdAt} />
-      {item.fileId && (
-        <a
-          href={fileDownloadUrl(item.fileId)}
-          className="flex items-center gap-1 text-primary-text hover:underline"
-        >
-          <IconDownload className="size-4" />
-          {t('download', 'Download')}
-        </a>
-      )}
-    </li>
-  );
-};
-
 const ImportsList = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'import-export' });
 
   return (
     <QueryState
@@ -140,7 +56,7 @@ const ImportsList = () => {
 };
 
 const ExportsList = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'import-export' });
 
   return (
     <QueryState
@@ -186,7 +102,7 @@ const PluginRecords = ({ types }: { types: TransferType[] }) => {
  * exports (download), and the Import and Export of installed plugins' records.
  */
 export const ImportExportPage = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'import-export' });
   const types = useTransferTypes();
 
   const [params, setParams] = useQueryStates({

@@ -1,53 +1,12 @@
 import { type AutomationDefinition, Reentry } from '@erxes/core-contract';
-import { Button, Collapsible, Input, Select, Textarea } from 'erxes-ui';
+import { Dialog, Input, Select, Textarea } from 'erxes-ui';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf } from '@erxes/core-contract/client';
 import { ConditionsEditor } from './builder/ConditionsEditor';
 import { FieldLabel } from './builder/FieldLabel';
+import type { useBuilder } from './builder/useBuilder';
 import type { useAutomationDraft } from './useAutomationEditor';
-
-/** What the server refused, and the steps the builder marks, each linking to its step. */
-export const ProblemList = ({
-  serverProblems,
-  stepProblems,
-  onSelect,
-}: {
-  serverProblems: string[];
-  stepProblems: { stepId: string; title: string; first: string | undefined }[];
-  onSelect: (stepId: string) => void;
-}) => {
-  const { t } = useTranslation('automations');
-
-  return (
-    <>
-      {serverProblems.length > 0 && (
-        <ul className="list-disc rounded-md border border-destructive/40 bg-destructive/5 p-3 pl-7 text-sm text-destructive-text">
-          {serverProblems.map((problem) => (
-            <li key={problem}>{problem}</li>
-          ))}
-        </ul>
-      )}
-      {stepProblems.length > 0 && (
-        <div className="space-y-1 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm">
-          <p className="font-medium text-destructive-text">
-            {t('needs-attention', 'These steps need attention')}
-          </p>
-          {stepProblems.map(({ stepId, title, first }) => (
-            <button
-              key={stepId}
-              type="button"
-              className="block w-full text-left text-destructive-text hover:underline"
-              onClick={() => onSelect(stepId)}
-            >
-              {title}: {first}
-            </button>
-          ))}
-        </div>
-      )}
-    </>
-  );
-};
 
 const ReentrySelect = ({
   definition,
@@ -124,79 +83,70 @@ const RunLimit = ({
   );
 };
 
-/** Name, description, re-entry, hourly limit and goal. */
-export const AutomationSettings = ({
+export const SettingsDialog = ({
+  open,
+  onOpenChange,
   draft,
   editable,
-  subject,
-  skippedByLimit,
-  fieldsError,
+  built,
 }: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   draft: ReturnType<typeof useAutomationDraft>;
   editable: boolean;
-  subject: 'customer' | 'company' | null;
-  skippedByLimit: number;
-  fieldsError: Error | null;
+  built: ReturnType<typeof useBuilder>;
 }) => {
   const { t } = useTranslation('automations');
+  const subject = built.hasSubject ? built.subject : null;
+  const skippedByLimit = built.stats.data?.skippedByLimit ?? 0;
+  const { fieldsError } = built;
   const id = useId();
   const { definition, setDefinition } = draft;
 
   return (
-    <>
-      <p className="text-sm text-muted-foreground">
-        {t('settings-hint', 'Choose a card on the left to change it.')}
-      </p>
-      <div className="space-y-1.5">
-        <FieldLabel htmlFor={`${id}-description`}>{t('description', 'Note')}</FieldLabel>
-        <Textarea
-          id={`${id}-description`}
-          rows={3}
-          value={draft.description}
-          disabled={!editable}
-          placeholder={t('description-placeholder', 'What is this automation for?')}
-          onChange={(event) => draft.change({ description: event.target.value })}
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog.Content className="sm:max-w-lg">
+        <Dialog.HeaderCombined
+          title={t('settings', 'Settings')}
+          description={t('settings-save-hint', 'Changes apply when you save.')}
         />
-      </div>
-      {fieldsError && (
-        <p role="alert" className="text-sm text-destructive-text">
-          {t('fields-failed', 'Could not load the record fields: {{message}}', {
-            message: messageOf(fieldsError),
-          })}
-        </p>
-      )}
-      <Collapsible defaultOpen={skippedByLimit > 0}>
-        <Collapsible.Trigger
-          render={<Button variant="ghost" size="sm" tone="muted" className="-ml-2" />}
-        >
-          <Collapsible.TriggerIcon className="size-3" />
-          {t('more-options', 'More options')}
-        </Collapsible.Trigger>
-        <Collapsible.Panel>
-          <div className="space-y-5 pt-3">
+        <div className="space-y-5">
+          <div className="space-y-1.5">
+            <FieldLabel htmlFor={`${id}-description`}>{t('description', 'Note')}</FieldLabel>
+            <Textarea
+              id={`${id}-description`}
+              rows={3}
+              value={draft.description}
+              disabled={!editable}
+              placeholder={t('description-placeholder', 'What is this automation for?')}
+              onChange={(event) => draft.change({ description: event.target.value })}
+            />
+          </div>
+          {fieldsError && (
+            <p role="alert" className="text-sm text-destructive-text">
+              {t('fields-failed', 'Could not load the record fields: {{message}}', {
+                message: messageOf(fieldsError),
+              })}
+            </p>
+          )}
+          <div className="space-y-1.5">
+            <FieldLabel>{t('reentry', 'How often can the same record go through?')}</FieldLabel>
+            <ReentrySelect definition={definition} disabled={!editable} onChange={setDefinition} />
+          </div>
+          <RunLimit draft={draft} editable={editable} skippedByLimit={skippedByLimit} />
+          {subject && (
             <div className="space-y-1.5">
-              <FieldLabel>{t('reentry', 'How often can the same record go through?')}</FieldLabel>
-              <ReentrySelect
-                definition={definition}
+              <FieldLabel>{t('goal', 'Stop early once this is true')}</FieldLabel>
+              <ConditionsEditor
+                subject={subject}
+                value={definition.goal}
                 disabled={!editable}
-                onChange={setDefinition}
+                onChange={(goal) => setDefinition({ ...definition, goal })}
               />
             </div>
-            <RunLimit draft={draft} editable={editable} skippedByLimit={skippedByLimit} />
-            {subject && (
-              <div className="space-y-1.5">
-                <FieldLabel>{t('goal', 'Stop early once this is true')}</FieldLabel>
-                <ConditionsEditor
-                  subject={subject}
-                  value={definition.goal}
-                  disabled={!editable}
-                  onChange={(goal) => setDefinition({ ...definition, goal })}
-                />
-              </div>
-            )}
-          </div>
-        </Collapsible.Panel>
-      </Collapsible>
-    </>
+          )}
+        </div>
+      </Dialog.Content>
+    </Dialog>
   );
 };

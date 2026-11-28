@@ -5,6 +5,14 @@ export const EXAMPLE_COPY_EN: ExampleCopy = {
   plan: { label: 'Plan', options: ['Free', 'Pro', 'Enterprise'] },
   renewal: 'Renewal date',
   vipView: 'VIP customers',
+  catalog: {
+    products: 'Products',
+    finishedGoods: 'Finished goods',
+    otherGoods: 'Other goods',
+    services: 'Services',
+    product: 'Sample product',
+    service: 'Sample service',
+  },
   automation: {
     name: 'Welcome new customers (example)',
     description:

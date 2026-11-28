@@ -53,6 +53,20 @@ const RULES: Record<AssistantProvider, CatalogRules> = {
     families: [/^gpt-(\d+)(?:\.(\d+))?o?(?=-|$)/, /^o(\d+)(?=-|$)/],
     notRecommended: [/-pro(-|$)/, /preview/],
   },
+  anthropic: {
+    deny: [...NON_CHAT_MODELS, /^claude-(instant|[123](-|\.))/],
+    families: [/^claude-(?:fable|opus|sonnet|haiku)-(\d+)(?:-(\d)(?=-|$))?/],
+    notRecommended: [],
+  },
+  openrouter: {
+    deny: [...NON_CHAT_MODELS, /:batch$/],
+    families: [
+      /^anthropic\/claude-(?:fable|opus|sonnet)-(\d+)(?:\.(\d+))?(?=[-:]|$)/,
+      /^openai\/gpt-(\d+)(?:\.(\d+))?(?=[-:]|$)/,
+      /^google\/gemini-(\d+)(?:\.(\d+))?(?=[-:]|$)/,
+    ],
+    notRecommended: [/:free$/, /preview/, /-pro(-|:|$)/],
+  },
   grok: {
     deny: NON_CHAT_MODELS,
     families: [/^grok-(\d+)(?:[.-](\d)(?=-|$))?(?=-|$)/],
@@ -114,7 +128,7 @@ const compareRanked = (a: RankedModel, b: RankedModel) =>
   (b.created ?? 0) - (a.created ?? 0) ||
   a.id.localeCompare(b.id);
 
-export const isUsableModel = (provider: AssistantProvider, id: string) => {
+const isUsableModel = (provider: AssistantProvider, id: string) => {
   const known = findModelsDevModel(provider, id);
 
   if (known) {

@@ -1,11 +1,16 @@
-import type {
-  ActionInfo,
-  AutomationStep,
-  AutomationTrigger,
-  ConditionGroup,
+import {
+  type ActionField,
+  type ActionInfo,
+  type AutomationStep,
+  type AutomationTrigger,
+  appEventType,
+  type ConditionGroup,
+  type HookSubject,
 } from '@erxes/core-contract';
 import { isRule, textOf } from 'erxes-ui';
 import { zoneLabel } from '~/lib/timeZones';
+import { pathShare } from './flowModel';
+import { readableTemplate } from './templateText';
 import type { FieldInfo } from './useAutomationFields';
 
 /** Words for the trigger and the cards on the canvas. */
@@ -36,6 +41,7 @@ const countRules = (group: ConditionGroup): number =>
 export const describeConditions = (
   group: ConditionGroup | undefined,
   fields: FieldInfo[],
+  firstValue?: string,
 ): string | null => {
   if (!group || !group.rules.length) return null;
 
@@ -67,7 +73,7 @@ export const describeConditions = (
   const value =
     first.op === 'exists' || first.op === 'not_exists'
       ? ''
-      : ` ${Array.isArray(first.value) ? first.value.join(', ') : textOf(first.value)}`;
+      : ` ${firstValue ?? (Array.isArray(first.value) ? first.value.join(', ') : textOf(first.value))}`;
 
   return `${name} ${OPS[first.op] ?? first.op}${value}${more}`;
 };
@@ -78,17 +84,49 @@ const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 type Audience = Extract<AutomationTrigger, { kind: 'manual' }>['audience'];
 
+export const triggerConditions = (trigger: AutomationTrigger): ConditionGroup | undefined => {
+  switch (trigger.kind) {
+    case 'event':
+    case 'webhook':
+    case 'app':
+      return trigger.conditions;
+    case 'schedule':
+    case 'manual':
+      return trigger.audience?.conditions;
+    default:
+      return undefined;
+  }
+};
+
 /** "For each customer where …". */
-const audienceText = (prefix: string, audience: NonNullable<Audience>, fields: FieldInfo[]) => {
-  const where = describeConditions(audience.conditions, fields);
+const audienceText = (
+  prefix: string,
+  audience: NonNullable<Audience>,
+  fields: FieldInfo[],
+  firstValue?: string,
+) => {
+  const where = describeConditions(audience.conditions, fields, firstValue);
 
   return `${prefix} ${audience.type}${where ? ` where ${where}` : ''}`;
 };
 
+const HOOK_KEY_WORDS: Record<HookSubject['by'], string> = {
+  id: 'ID',
+  primaryEmail: 'email',
+  primaryPhone: 'phone',
+  primaryName: 'name',
+};
+
 const scheduleText = (trigger: Extract<AutomationTrigger, { kind: 'schedule' }>) => {
   switch (trigger.every) {
-    case 'hour':
-      return 'Every hour';
+    case 'minute':
+      return `Every ${plural(trigger.interval ?? 15, 'minute')}`;
+    case 'hour': {
+      const hours = trigger.interval ?? 1;
+
+      return `Every ${hours > 1 ? plural(hours, 'hour') : 'hour'} at :${trigger.at.slice(3)}`;
+    }
+
     case 'day':
       return `Every day at ${trigger.at}`;
     case 'week': {
@@ -108,11 +146,12 @@ export const describeTrigger = (
   fields: FieldInfo[],
   /** The organisation's: scheduled and date triggers run by its clock. */
   timeZone: string,
+  firstValue?: string,
 ): { title: string; detail: string | null } => {
   switch (trigger.kind) {
     case 'event': {
       const label = events.find((item) => item.type === trigger.event)?.label ?? trigger.event;
-      const only = describeConditions(trigger.conditions, fields);
+      const only = describeConditions(trigger.conditions, fields, firstValue);
 
       return { title: label, detail: only ? `Only if ${only}` : null };
     }
@@ -121,7 +160,7 @@ export const describeTrigger = (
       return {
         title: scheduleText(trigger),
         detail: trigger.audience
-          ? audienceText('For each', trigger.audience, fields)
+          ? audienceText('For each', trigger.audience, fields, firstValue)
           : zoneLabel(timeZone),
       };
     case 'date': {
@@ -141,42 +180,47 @@ export const describeTrigger = (
       };
     }
 
-    default:
+    case 'webhook': {
+      const only = describeConditions(trigger.conditions, fields, firstValue);
+
+      const about = trigger.subject
+        ? `For the ${trigger.subject.type} found by ${HOOK_KEY_WORDS[trigger.subject.by]}`
+        : null;
+
+      return {
+        title: 'When its webhook is called',
+        detail: [about, only && `Only if ${only}`].filter(Boolean).join(' · ') || null,
+      };
+    }
+
+    case 'app': {
+      const type = appEventType(trigger.app, trigger.trigger);
+      const only = describeConditions(trigger.conditions, fields, firstValue);
+
+      return {
+        title: events.find((item) => item.type === type)?.label ?? 'When a connected app reports',
+        detail: only ? `Only if ${only}` : null,
+      };
+    }
+
+    case 'manual':
       return {
         title: 'Started by hand',
         detail: trigger.audience
-          ? audienceText('On each', trigger.audience, fields)
+          ? audienceText('On each', trigger.audience, fields, firstValue)
           : 'On chosen records',
       };
   }
 };
 
-const PLACEHOLDER = /\{\{\s*([^{}|]+?)\s*(\|[^{}]*)?\}\}/g;
-const ADD_DAYS = /\|\s*add_days:\s*(-?\d+)/;
-
-/** `{{now | add_days: 7}}` reads "7 days after it runs". */
-const nowText = (filters = '') => {
-  const days = Number(ADD_DAYS.exec(filters)?.[1] ?? 0);
-
-  if (days === 0) return "Today's date";
-
-  return `${plural(Math.abs(days), 'day')} ${days > 0 ? 'after' : 'before'} it runs`;
-};
-
-/**
- * Text with its placeholders named as the data picker names them: "Welcome
- * {{subject.firstName}}!" reads "Welcome [First name]!".
- */
-export const readableTemplate = (text: string, fields: FieldInfo[]) =>
-  text.replace(PLACEHOLDER, (whole, path: string, filters?: string) => {
-    const label =
-      path === 'now' ? nowText(filters) : fields.find((field) => field.path === path)?.label;
-
-    return label ? `[${label.replace(/ \(custom\)$/, '')}]` : whole;
-  });
-
 const valueText = (value: unknown, fields: FieldInfo[]): string => {
   if (Array.isArray(value)) return value.length ? plural(value.length, 'item') : '';
+
+  if (typeof value === 'object' && value !== null) {
+    const count = Object.keys(value).length;
+
+    return count ? plural(count, 'field') : '';
+  }
 
   if (value === true) return 'yes';
 
@@ -196,6 +240,21 @@ type DescribeContext = {
   fields: FieldInfo[];
   /** Lead stages, to name the one a step moves to. */
   stages?: { id: string; name: string }[];
+  automations?: { id: string; name: string }[];
+  firstValue?: string;
+};
+
+const namedValue = (type: ActionField['type'], value: unknown, context: DescribeContext) => {
+  switch (type) {
+    case 'data_field':
+      return context.fields.find((item) => item.path === `subject.data.${String(value)}`)?.label;
+    case 'lead_stage':
+      return context.stages?.find((stage) => stage.id === value)?.name;
+    case 'automation':
+      return context.automations?.find((automation) => automation.id === value)?.name;
+    default:
+      return undefined;
+  }
 };
 
 /** An action's first two filled inputs: "Stage: Won · Tags: 2 tags". */
@@ -216,14 +275,9 @@ const actionDetail = (
     // Saved by id; its name lives in the plugin.
     if (field.type === 'plugin_record') return [];
 
-    const named =
-      field.type === 'data_field'
-        ? context.fields.find((item) => item.path === `subject.data.${String(value)}`)?.label
-        : field.type === 'lead_stage'
-          ? context.stages?.find((stage) => stage.id === value)?.name
-          : undefined;
+    const named = namedValue(field.type, value, context);
 
-    const text = named ?? valueText(value, context.fields);
+    const text = named ?? (field.type === 'automation' ? '' : valueText(value, context.fields));
 
     return text ? [`${field.label.split(' (')[0]}: ${text}`] : [];
   });
@@ -247,12 +301,12 @@ export const describeStep = (
     }
 
     case 'delay': {
-      const length = unitWord(step.amount ?? 1, step.unit ?? 'minutes');
+      const length =
+        step.until === undefined
+          ? unitWord(step.amount ?? 1, step.unit ?? 'minutes')
+          : `Until ${readableTemplate(step.until, context.fields).replaceAll(/[[\]]/g, '') || 'a date'}`;
 
-      return {
-        title: step.label || (step.until ? `Until ${step.until}` : length),
-        detail: step.label ? (step.until ?? length) : null,
-      };
+      return { title: step.label || length, detail: step.label ? length : null };
     }
 
     case 'wait_for': {
@@ -262,7 +316,7 @@ export const describeStep = (
     }
 
     case 'branch': {
-      const rule = describeConditions(step.conditions, context.fields);
+      const rule = describeConditions(step.conditions, context.fields, context.firstValue);
 
       return {
         title: step.label || (rule ? `If ${rule}` : 'No condition yet'),
@@ -283,11 +337,23 @@ export const describeStep = (
           step.label ||
           step.paths
             .map(
-              (path, index) => `${path.label || String.fromCharCode(65 + index)} ${path.weight}%`,
+              (path, index) =>
+                `${path.label || String.fromCharCode(65 + index)} ${pathShare(step.paths, index)}%`,
             )
             .join(' · '),
         detail: 'Each run takes one path',
       };
+    case 'decide': {
+      const question = readableTemplate(step.question, context.fields).trim();
+      const provider = step.provider === 'typesafe' ? 'TypeSafe' : 'OpenAI';
+      const paths = step.paths.map((path, index) => path.label || `Path ${index + 1}`).join(' / ');
+
+      return {
+        title: step.label || (question ? truncate(question) : 'No question yet'),
+        detail: `${provider} · ${paths}`,
+      };
+    }
+
     default:
       return { title: step.label || 'The run ends here', detail: null };
   }

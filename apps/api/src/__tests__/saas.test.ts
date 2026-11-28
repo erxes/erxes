@@ -4,6 +4,7 @@ import { SignJWT } from 'jose';
 import { describe, expect, it } from 'vite-plus/test';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { adminDb, useTestDatabase } from './db';
+import { HR_SECRET } from './plugin';
 import {
   CUSTOMER,
   HANDOFF_SECRET,
@@ -124,8 +125,10 @@ describe('SaaS: entitlements from the Stripe customer', { timeout: 300_000 }, ()
     });
 
     expect(again.headers.get('location')).toMatch(/signin=failed/);
+    // The plan installs the plugins and grants their access: no Settings › Plugins.
     expect(await plan()).toMatchObject({
       saas: true,
+      pluginsManaged: true,
       organizationStatus: 'active',
       plugins: [{ code: 'hr', tier: 'plus', status: 'active', access: 'full', installed: true }],
       manageUrl: 'https://erxes.io/organizations/cloud/billing',
@@ -141,14 +144,14 @@ describe('SaaS: entitlements from the Stripe customer', { timeout: 300_000 }, ()
     saas.setStripe(subscribed('past_due', pluginItem('hr', 'plus')));
     await refresh();
     expect(await hrEntry()).toMatchObject({ status: 'past_due', access: 'warning' });
-    // Writes pass the plan check: what stops this one is only the scope this
-    // installation never granted, not READ_ONLY or a payment error.
+    // A payment that retries only warns: the plugin's writes still go through.
     const plugin = await hr();
+    const { user } = await owner.api.auth.me({});
 
     expect(await plugin.saas.pluginPlan({})).toMatchObject({ access: 'warning' });
-    await expect(
-      plugin.notifications.create({ userIds: [], kind: 'hr.ping', title: 'x' }),
-    ).rejects.toMatchObject({ code: 'SCOPE_REQUIRED' });
+    expect(
+      await plugin.notifications.create({ userIds: [user.id], kind: 'hr.ping', title: 'x' }),
+    ).toMatchObject({ created: 1 });
   });
 
   it('a plugin that leaves the plan is read-only for the grace days, then off; bought again, it is back', async () => {
@@ -188,6 +191,48 @@ describe('SaaS: entitlements from the Stripe customer', { timeout: 300_000 }, ()
       { code: 'hr', tier: 'pro', access: 'full', installed: true },
     ]);
     expect(await tokenStatus()).toBe(200);
+  });
+
+  it('gives a plan’s plugin everything it asks for, with no approval on Settings › Plugins', async () => {
+    const scopesIn = async (org: string) => {
+      const token = await server.client().plugins.token({
+        grant_type: 'client_credentials',
+        client_id: 'hr',
+        client_secret: HR_SECRET,
+        org,
+      });
+
+      return token.scope?.split(' ') ?? [];
+    };
+
+    // A newer version asks to use the Facebook connection: granted where the plan installed it.
+    await server.client(await server.pluginToken()).plugins.registerManifest({
+      title: 'HR',
+      version: '9.0.0',
+      scopes: ['notifications:write'],
+      connections: [{ integration: 'facebook', reason: 'Messenger in the inbox' }],
+    });
+
+    expect(
+      (await owner.api.plugins.list({})).data.find((item) => item.name === 'hr'),
+    ).toMatchObject({ needsApproval: false });
+    expect(await scopesIn(ORG_ID)).toContain('uses:facebook');
+
+    // A workspace erxes.io creates now gets it at install.
+    const second = 'saasOrg0000000002';
+
+    expect(
+      (
+        await fromErxesIo('PUT', `/organizations/${second}`, {
+          organization: { subdomain: 'second', name: 'Second Co' },
+          owner: { email: 'owner@second.mn' },
+          stripeCustomerId: CUSTOMER,
+        })
+      ).status,
+    ).toBe(201);
+    expect(await scopesIn(second)).toEqual(
+      expect.arrayContaining(['notifications:write', 'uses:facebook']),
+    );
   });
 
   it('a disabled workspace lets nobody in but its plan page', async () => {

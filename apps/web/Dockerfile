@@ -15,20 +15,26 @@ COPY patches patches
 # Every workspace manifest, so the frozen lockfile matches.
 COPY apps/api/package.json apps/api/
 COPY apps/web/package.json apps/web/
+COPY packages/assistant-catalog/package.json packages/assistant-catalog/
 COPY packages/contract/package.json packages/contract/
 COPY packages/db/package.json packages/db/
+COPY packages/integrations/package.json packages/integrations/
 COPY packages/lint/package.json packages/lint/
-COPY packages/payment-gateways/package.json packages/payment-gateways/
 COPY packages/plugin-sdk/package.json packages/plugin-sdk/
 COPY packages/ui/package.json packages/ui/
 RUN pnpm install --frozen-lockfile --filter @erxes/web...
 COPY tsconfig.base.json ./
+COPY packages/assistant-catalog packages/assistant-catalog
 COPY packages/contract packages/contract
 # The contract builds its schemas from the table definitions (@erxes/core-db/schema).
 COPY packages/db/src packages/db/src
+COPY packages/integrations packages/integrations
 COPY packages/ui packages/ui
 COPY apps/web apps/web
 RUN pnpm --filter @erxes/web build
+# A .gz copy beside each text file, which nginx sends as is (gzip_static): compressed once at
+# the best level, not on every request.
+RUN find apps/web/dist -type f \( -name '*.js' -o -name '*.css' -o -name '*.html' -o -name '*.svg' -o -name '*.json' \) -exec gzip -9 -k {} +
 
 FROM nginx:1.30-alpine
 # Alpine fixes reach the package repository before the nginx image is rebuilt. A cached layer

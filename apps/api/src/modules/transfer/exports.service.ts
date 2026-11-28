@@ -1,5 +1,4 @@
-import type { EXPORT_FORMATS } from '@erxes/core-db/enums';
-import type { CursorQuery, ExportQuery, TransferRecordType } from '@erxes/core-contract';
+import type { CursorQuery, ExportQuery, ExportRequest } from '@erxes/core-contract';
 import {
   caller,
   companies,
@@ -73,6 +72,7 @@ const whereOf = (client: Db, recordType: CoreRecordType, query: ExportQuery) => 
     search: query.search,
     tagIds: query.tagIds,
     ownerId: query.ownerId,
+    ids: query.ids,
     filter: query.filter ? JSON.stringify(query.filter) : undefined,
   };
 
@@ -120,15 +120,7 @@ export const exportRunJob = defineJob({
 });
 
 /** Starts an export of a list in the background; the member is told when the file is ready. */
-export const createExport = async (
-  client: Db,
-  input: {
-    recordType: TransferRecordType;
-    format: (typeof EXPORT_FORMATS)[number];
-    columns: string[];
-    query: ExportQuery;
-  },
-) => {
+export const createExport = async (client: Db, input: ExportRequest) => {
   await assertCanTransfer(client, input.recordType, 'export');
 
   const available = await transferColumns(client, input.recordType);

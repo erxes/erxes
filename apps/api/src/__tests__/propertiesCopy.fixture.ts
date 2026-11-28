@@ -10,7 +10,7 @@ import { inOrder } from '~/lib/sequence';
 import { admin, databaseUrl, dropDatabase, testServerUrl } from './globalSetup';
 
 const DRIZZLE = resolve(import.meta.dirname, '../../../../packages/db/drizzle');
-const LAST_OLD = '0106_data_field_groups';
+const LAST_OLD = '0147_data_field_groups';
 
 export const ORG = 'orgPropsCopy01';
 
@@ -62,6 +62,7 @@ interface OldField {
   plugin?: string;
   description?: string;
   icon?: string;
+  customerEditable?: boolean;
 }
 
 const field = (
@@ -78,7 +79,7 @@ export const FIELDS = [
   field('fBudget', 'text', 'Budget', { code: 'Budget-2', validation: 'number' }),
   field('fSince', 'text', 'Client since', { validation: 'date' }),
   field('fNotes', 'textarea', 'Notes', { description: 'Anything', icon: 'IconNotes' }),
-  field('fScore', 'number', 'Score'),
+  field('fScore', 'number', 'Score', { customerEditable: true }),
   field('fBorn', 'date', 'Joined'),
   field('fVip', 'boolean', 'VIP', { isVisible: false }),
   field('fTier', 'select', 'Tier', { options: ['Gold, VIP', 'Silver'] }),
@@ -190,6 +191,7 @@ const fieldRow = (row: OldField) => [
   row.plugin ?? null,
   row.description ?? null,
   row.icon ?? null,
+  row.customerEditable ?? false,
 ];
 
 /** One organisation's old properties: records, groups, fields, values and the stored paths. */
@@ -218,8 +220,9 @@ const seed = async (client: Client) => {
     q(
       `insert into core_fields (id, org_id, content_type, label, code, type, validation, options,
           is_visible, is_required, is_visible_to_create, logic, filterable, "order", group_id,
-          plugin, description, icon)
-        values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`,
+          plugin, description, icon, customer_editable)
+        values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18,
+          $19)`,
       fieldRow(row),
     ),
   );
@@ -276,12 +279,12 @@ export const useOldPropertiesDatabase = () => {
     await admin(server, `CREATE DATABASE ${name}`);
     configureDb({ url: databaseUrl(server, name), applicationName: 'erxes-core-test-props' });
     folder = await oldMigrations();
-    await runMigrations(folder);
+    await runMigrations({}, folder);
 
     client = new Client({ connectionString: databaseUrl(server, name) });
     await client.connect();
     await seed(client);
-    await runMigrations();
+    await runMigrations({});
   });
 
   afterAll(async () => {

@@ -1,13 +1,14 @@
-import { assistantConnections } from '@erxes/core-db';
+import { integrationConnections, secrets } from '@erxes/core-db';
+import { eq } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { config } from '~/config';
 import { adminDb, useTestDatabase } from './db';
-import { fakeModel } from './fakeModel';
+import { connectProvider, fakeModel } from './fakeModel';
 import { useTwoOrgs } from './support';
 
 const KEY = 'fake-kimi-key-for-tests-0001';
 
-describe('assistant connections, models and settings', () => {
+describe('assistant AI providers, models and settings', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();
@@ -15,63 +16,105 @@ describe('assistant connections, models and settings', () => {
 
   beforeAll(async () => {
     model = await fakeModel(KEY);
-    Object.assign(config.assistant.endpoints, { kimi: model.url });
+    Object.assign(config.assistant.endpoints, { kimi: model.url, openai: model.url });
   });
 
   afterAll(() => model.close());
 
-  it("keeps the organisation's provider keys sealed, and only admins change them", async () => {
+  it('runs on AI providers connected in Integrations, with their keys sealed, and only admins connect one', async () => {
+    await expect(connectProvider(t.member(), KEY)).rejects.toMatchObject({
+      status: 403,
+      code: 'NOT_ALLOWED',
+    });
+
+    const connected = await connectProvider(t.owner(), KEY);
+
+    expect(connected).toMatchObject({ key: 'kimi', status: 'active' });
+    expect(JSON.stringify(connected)).not.toContain(KEY);
+
+    const listed = await t.member().assistant.providers({});
+
+    expect(listed.data).toEqual([{ provider: 'kimi' }]);
+
+    const [stored] = await adminDb()
+      .select({ sealed: secrets.sealed, settings: integrationConnections.settings })
+      .from(integrationConnections)
+      .innerJoin(secrets, eq(secrets.id, integrationConnections.secretId))
+      .where(eq(integrationConnections.id, connected.id));
+
+    expect(stored?.sealed).toBeTruthy();
+    expect(JSON.stringify(stored)).not.toContain(KEY);
+
+    expect((await t.other().assistant.providers({})).data).toEqual([]);
+  });
+
+  it('refuses a key the provider does not accept, saying so', async () => {
+    const refused = connectProvider(t.owner(), 'not-the-right-key-0000', 'kimi', 'kimi (refused)');
+
+    await expect(refused).rejects.toMatchObject({ status: 400, code: 'GATEWAY_REFUSED' });
+    await expect(refused).rejects.toThrow(
+      'Kimi Moonshot API refused these credentials: the API key was not accepted (401)',
+    );
+    expect((await t.owner().assistant.providers({})).data).toEqual([{ provider: 'kimi' }]);
+  });
+
+  it('lists a provider once however many connections it has, while one of them is active', async () => {
+    const owner = t.owner();
+    const [first] = (await owner.integrations.connections({ key: 'kimi' })).data;
+
+    if (!first) throw new Error('kimi is not connected');
+
+    const second = await connectProvider(owner, KEY, 'kimi', 'kimi (second)');
+
+    expect((await owner.assistant.providers({})).data).toEqual([{ provider: 'kimi' }]);
+
+    await owner.integrations.update({ key: 'kimi', id: first.id, status: 'disabled' });
+    expect((await owner.assistant.providers({})).data).toEqual([{ provider: 'kimi' }]);
+
+    await owner.integrations.update({ key: 'kimi', id: second.id, status: 'disabled' });
+    expect((await owner.assistant.providers({})).data).toEqual([]);
+
+    await owner.integrations.update({ key: 'kimi', id: first.id, status: 'active' });
+    await owner.integrations.remove({ key: 'kimi', id: second.id });
+  });
+
+  it('keeps a default model only for a connected provider, and only admins change it', async () => {
+    const owner = t.owner();
+
     await expect(
-      t.member().assistant.saveConnection({ provider: 'kimi', apiKey: KEY }),
+      t.member().assistant.updateSettings({ defaultProvider: 'kimi', defaultModel: 'kimi-k3' }),
     ).rejects.toMatchObject({ status: 403, code: 'NOT_ALLOWED' });
 
-    const saved = await t.owner().assistant.saveConnection({ provider: 'kimi', apiKey: KEY });
+    await expect(
+      owner.assistant.updateSettings({ defaultProvider: 'grok', defaultModel: 'grok-4.5' }),
+    ).rejects.toMatchObject({ status: 404, code: 'NOT_FOUND' });
 
-    expect(saved).toMatchObject({ provider: 'kimi', hasKey: true, isDefault: true });
-    expect(JSON.stringify(saved)).not.toContain(KEY);
+    await expect(owner.assistant.updateSettings({ defaultProvider: 'kimi' })).rejects.toMatchObject(
+      { status: 400 },
+    );
 
-    const listed = await t.member().assistant.connections({});
+    await connectProvider(owner, KEY, 'openai');
+    await owner.assistant.updateSettings({ defaultProvider: 'openai', defaultModel: 'gpt-6-luna' });
 
-    expect(listed.data).toEqual([expect.objectContaining({ provider: 'kimi', hasKey: true })]);
-    expect(JSON.stringify(listed)).not.toContain(KEY);
+    expect(await t.member().assistant.settings({})).toMatchObject({
+      defaultProvider: 'openai',
+      defaultModel: 'gpt-6-luna',
+    });
+    expect(await t.other().assistant.settings({})).toMatchObject({
+      defaultProvider: null,
+      defaultModel: null,
+    });
 
-    const stored = await adminDb().select().from(assistantConnections);
+    expect((await owner.assistant.providers({})).data).toEqual([
+      { provider: 'kimi' },
+      { provider: 'openai' },
+    ]);
 
-    expect(stored).toHaveLength(1);
-    expect(stored[0]?.sealedKey).not.toContain(KEY);
-
-    expect((await t.other().assistant.connections({})).data).toEqual([]);
+    await owner.assistant.updateSettings({ defaultProvider: null, defaultModel: null });
+    expect(await owner.assistant.settings({})).toMatchObject({ defaultProvider: null });
   });
 
-  it('moves the default provider and forgets removed keys', async () => {
-    const owner = t.owner().assistant;
-
-    await owner.saveConnection({ provider: 'kimi', apiKey: KEY });
-    await owner.saveConnection({ provider: 'openai', apiKey: 'fake-openai-key-for-tests' });
-
-    const defaults = async () =>
-      Object.fromEntries(
-        (await owner.connections({})).data.map((row) => [row.provider, row.isDefault]),
-      );
-
-    expect(await defaults()).toEqual({ kimi: true, openai: false });
-
-    await owner.setDefaultProvider({ provider: 'openai' });
-    expect(await defaults()).toEqual({ kimi: false, openai: true });
-
-    await owner.removeConnection({ provider: 'openai' });
-    expect(await defaults()).toEqual({ kimi: true });
-
-    await expect(owner.removeConnection({ provider: 'grok' })).rejects.toMatchObject({
-      status: 404,
-      code: 'NOT_FOUND',
-    });
-    await expect(owner.setDefaultProvider({ provider: 'grok' })).rejects.toMatchObject({
-      status: 404,
-    });
-  });
-
-  it("lists each saved provider's chat models, with a reason instead of the key when it can't", async () => {
+  it("lists each connected provider's chat models, with a reason instead of the key when it can't", async () => {
     model.models(['kimi-k3', 'kimi-embedding-v1', 'moonshot-v1-8k']);
 
     const listed = await t.member().assistant.models({});
@@ -88,26 +131,16 @@ describe('assistant connections, models and settings', () => {
     );
 
     expect(failed?.models).toEqual([]);
-    expect(failed?.error).toContain('rejected the saved API key');
+    expect(failed?.error).toContain('rejected the connected API key');
     expect(failed?.error).not.toContain(KEY);
 
     model.models(['kimi-k3']);
   });
 
-  it('checks a model with one small request through the saved key', async () => {
-    expect(
-      await t.member().assistant.verifyModel({ provider: 'kimi', model: 'kimi-k3' }),
-    ).toMatchObject({ ok: true, error: null });
-    expect(
-      await t.member().assistant.verifyModel({ provider: 'kimi', model: 'kimi-embedding-v1' }),
-    ).toMatchObject({ ok: false });
-    await expect(
-      t.other().assistant.verifyModel({ provider: 'kimi', model: 'kimi-k3' }),
-    ).rejects.toMatchObject({ status: 404 });
-  });
-
   it('lets admins turn on code mode for their organisation, and members only read it', async () => {
-    expect(await t.member().assistant.settings({})).toEqual({ codeMode: false });
+    const off = { codeMode: false, defaultProvider: null, defaultModel: null };
+
+    expect(await t.member().assistant.settings({})).toEqual(off);
 
     await expect(t.member().assistant.updateSettings({ codeMode: true })).rejects.toMatchObject({
       status: 403,
@@ -116,8 +149,8 @@ describe('assistant connections, models and settings', () => {
 
     await t.owner().assistant.updateSettings({ codeMode: true });
 
-    expect(await t.member().assistant.settings({})).toEqual({ codeMode: true });
-    expect(await t.other().assistant.settings({})).toEqual({ codeMode: false });
+    expect(await t.member().assistant.settings({})).toEqual({ ...off, codeMode: true });
+    expect(await t.other().assistant.settings({})).toEqual(off);
 
     await t.owner().assistant.updateSettings({ codeMode: false });
   });
@@ -131,11 +164,91 @@ describe('assistant connections, models and settings', () => {
       permissions: (role?.permissions ?? []).filter((action) => action !== 'assistant.chat'),
     });
 
-    await expect(t.member().assistant.connections({})).rejects.toMatchObject({
+    await expect(t.member().assistant.providers({})).rejects.toMatchObject({
       status: 403,
       code: 'NOT_ALLOWED',
     });
 
     await t.owner().roles.update({ key: 'member', permissions: role?.permissions ?? [] });
+  });
+
+  it("shows an agent's model, the organisation's default too, and why the provider refused a run", async () => {
+    const owner = t.owner();
+
+    await owner.assistant.updateSettings({ defaultProvider: 'kimi', defaultModel: 'kimi-k3' });
+
+    const { id } = await owner.agents.create({
+      name: 'Greeter',
+      instructions: 'Greet people.',
+      access: { areas: { products: 'read' } },
+    });
+
+    expect(await owner.agents.get({ id })).toMatchObject({
+      provider: null,
+      runsOn: { provider: 'kimi', model: 'kimi-k3' },
+      plugins: [],
+    });
+
+    model.script(() => ({ text: 'Hello!' }));
+
+    expect(await owner.agents.try({ id, text: 'Hi', restart: true })).toMatchObject({
+      answer: 'Hello!',
+      model: 'kimi-k3',
+      handedOff: null,
+    });
+
+    model.script(() => ({ status: 402, error: 'Insufficient balance on this account' }));
+
+    const refused = owner.agents.try({ id, text: 'Hi again' });
+
+    await expect(refused).rejects.toMatchObject({ status: 502, code: 'AGENT_RUN_FAILED' });
+    await expect(refused).rejects.toThrow('no credit left');
+
+    const [run] = (await owner.agents.runs({ id })).data[0]?.runs ?? [];
+
+    expect(run).toMatchObject({ text: 'Hi again', status: 'failed' });
+    expect(run?.failure).toContain('Insufficient balance');
+    await expect(t.other().agents.runs({ id })).rejects.toMatchObject({ status: 404 });
+    await owner.assistant.updateSettings({ defaultProvider: null, defaultModel: null });
+  });
+
+  it('makes an agent with no access that answers from its instructions, and clears an agent’s access', async () => {
+    const owner = t.owner();
+    const rules = { kind: 'regular', pluginAccess: {}, actions: {}, ownRecords: false } as const;
+    const limits = { unitIds: [], tagIds: [], allowedIps: [] };
+
+    const { id } = await owner.agents.create({
+      name: 'Opening hours',
+      instructions: 'We open 9-18, Mon-Fri.',
+      access: { areas: {} },
+    });
+
+    expect((await owner.agents.get({ id })).key).toMatchObject({ areas: {}, pluginAccess: {} });
+
+    model.script(() => ({ text: 'We open 9-18, Mon-Fri.' }));
+
+    expect(await owner.agents.try({ id, text: 'When are you open?' })).toMatchObject({
+      answer: 'We open 9-18, Mon-Fri.',
+    });
+
+    const reader = await owner.agents.create({
+      name: 'Reader',
+      instructions: 'Read contacts.',
+      access: { areas: { contacts: 'read' } },
+    });
+
+    const cleared = await owner.apiKeys.update({
+      id: reader.keyId,
+      name: 'Agent: Reader',
+      areas: {},
+      ...rules,
+      ...limits,
+    });
+
+    expect(cleared).toMatchObject({ areas: {}, pluginAccess: {} });
+
+    await expect(
+      owner.apiKeys.create({ name: 'Empty', areas: {}, ...rules, ...limits, lifetimeDays: 30 }),
+    ).rejects.toMatchObject({ code: 'INVALID_INPUT', message: 'Choose at least one area' });
   });
 });

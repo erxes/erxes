@@ -39,7 +39,7 @@ jobs:
       mutate: |
         apps/api/src/**/*.ts
         apps/web/src/**/*.ts
-        packages/{create-erxes,db,lint,payment-gateways,ui}/src/**/*.ts
+        packages/{create-erxes,db,lint,ui}/src/**/*.ts
         !**/*.test.ts
         !**/*.d.ts
         !**/__tests__/**

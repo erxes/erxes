@@ -18,8 +18,9 @@ import { fail } from '~/http/errors';
 import { fixedWindow } from '~/http/rateLimit';
 import { logger } from '~/logger';
 import { liveHub, type LiveSignal } from '~/modules/live/hub';
-import type { Agent, AgentScope } from './agent';
-import { isPluginAgent, pluginAgent } from './pluginAgents';
+import { type Agent, type AgentScope, madeAgentId } from './agent';
+import { runEntries, shownBlocks } from './blocks';
+import { handOffOf, modelOf, replyOf, runFailureText } from './runs';
 import { openAgentStorage, StorageBusy } from './storage';
 
 /** How long a conversation nothing uses or runs stays open on this server. */
@@ -42,9 +43,19 @@ export const registerAgent = (agent: Agent) => {
   agents.set(agent.name, agent);
 };
 
-/** A registered agent, or a plugin's (`frontline.bot`), whose setup reads its manifest. */
-export const agentByName = (name: string) =>
-  agents.get(name) ?? (isPluginAgent(name) ? pluginAgent(name) : undefined);
+let madeAgents: ((id: string) => Agent) | undefined;
+
+/** How agents admins make (`agent.<id>`) run; the app sets it once at start. */
+export const registerMadeAgents = (make: (id: string) => Agent) => {
+  madeAgents = make;
+};
+
+/** A registered agent, or one an admin made (`agent.<id>`), whose setup reads its row. */
+export const agentByName = (name: string) => {
+  const id = madeAgentId(name);
+
+  return agents.get(name) ?? (id === null ? undefined : madeAgents?.(id));
+};
 
 export const agentNamed = (name: string) => {
   const agent = agentByName(name);
@@ -54,7 +65,7 @@ export const agentNamed = (name: string) => {
   return agent;
 };
 
-const storageKeyOf = (agent: Agent, key: string) => `${agent.name}:${key}`;
+export const storageKeyOf = (agent: Agent, key: string) => `${agent.name}:${key}`;
 
 const open = async (agent: Agent, scope: AgentScope, readOnly: boolean) => {
   const storageKey = storageKeyOf(agent, scope.key);
@@ -179,7 +190,7 @@ export const withHarness = async <T>(
 let runCount: ReturnType<typeof fixedWindow> | undefined;
 
 /** Counts a run against the organisation's runs a minute across every server; 429 past the limit. */
-export const countRun = async (orgId: string) => {
+const countRun = async (orgId: string) => {
   runCount ??= fixedWindow({ windowSeconds: 60, max: config.agents.runsPerMinute });
 
   const retryAfter = await runCount(`agent-runs:${orgId}`);
@@ -192,15 +203,18 @@ export const countRun = async (orgId: string) => {
   }
 };
 
+type Root = Awaited<ReturnType<Harness['root']>>;
+
 /**
- * Starts a run in the root conversation: counts it (`countRun`), applies `change` to its agent,
- * then submits `input`. Rejects with `StorageBusy` while another server runs the conversation.
+ * Opens the root conversation for a run, counted (`countRun`), applies `change` to its agent
+ * and hands it to `use` while the Harness is open. Rejects with `StorageBusy` while another
+ * server runs the conversation.
  */
-export const startRun = async (
+const inRoot = async <T>(
   agent: Agent,
   scope: AgentScope,
-  input: InputSubmissionDraft,
-  change?: AgentChange,
+  change: AgentChange | undefined,
+  use: (root: Root) => Promise<T>,
 ) => {
   await countRun(scope.orgId);
 
@@ -209,9 +223,52 @@ export const startRun = async (
 
     if (change) await root.configure(change, BACKGROUND_CONTEXT);
 
-    return root.submit(input, BACKGROUND_CONTEXT);
+    return use(root);
   });
 };
+
+/** Starts a run in the root conversation by submitting `input`; see `inRoot`. */
+export const startRun = (
+  agent: Agent,
+  scope: AgentScope,
+  input: InputSubmissionDraft,
+  change?: AgentChange,
+) => inRoot(agent, scope, change, (root) => root.submit(input, BACKGROUND_CONTEXT));
+
+/**
+ * Sends `input` to the root conversation (`inRoot`) and waits for the answer, with the model
+ * that gave it and why it handed off; 502 `AGENT_RUN_FAILED` says why it gave none.
+ */
+export const askAgent = (
+  agent: Agent,
+  scope: AgentScope,
+  input: InputSubmissionDraft,
+  change?: AgentChange,
+) =>
+  inRoot(agent, scope, change, async (root) => {
+    const submission = await root.submit(input, BACKGROUND_CONTEXT);
+    const settled = await submission.wait(BACKGROUND_CONTEXT);
+
+    if (settled.status !== 'done') {
+      throw fail('AGENT_RUN_FAILED', runFailureText(settled.reason, settled.detail));
+    }
+
+    const run =
+      settled.type === 'input' ? await runEntries(root, settled.entry, settled.answer) : [];
+
+    const answer = settled.type === 'input' ? replyOf(run, settled.answer) : '';
+
+    if (!answer) {
+      throw fail('AGENT_RUN_FAILED', 'It ended its turn without a word to the customer.');
+    }
+
+    return {
+      answer,
+      blocks: shownBlocks(run),
+      model: modelOf(run) ?? '',
+      handedOff: handOffOf(run)?.reason ?? null,
+    };
+  });
 
 /** Reads a conversation another server runs: a read-only Harness over what it committed. */
 const readView = async (agent: Agent, scope: AgentScope, conversationId: ConversationId) => {

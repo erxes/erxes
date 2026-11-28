@@ -1,4 +1,9 @@
+import type {
+  DataExtensionFieldGroupCreate,
+  DataExtensionFieldGroupUpdate,
+} from '@erxes/core-contract';
 import { type Db, dataFieldGroups, dataFields, newId } from '@erxes/core-db';
+import type { z } from 'zod';
 import { and, asc, count, eq, isNotNull, isNull, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { wholeList } from '~/lib/keyset';
@@ -70,13 +75,7 @@ export const listGroups = async (client: Db, recordType: string, archived = fals
 
 export const createGroup = async (
   client: Db,
-  input: {
-    recordType: string;
-    label: string;
-    code: string;
-    description?: string;
-    appliesTo?: AppliesTo;
-  },
+  input: z.infer<typeof DataExtensionFieldGroupCreate>,
 ) => {
   await extendableType(client, input.recordType);
   assertAppliesTo(input.recordType, input.appliesTo);
@@ -96,16 +95,7 @@ export const createGroup = async (
 
 export const updateGroup = async (
   client: Db,
-  {
-    id,
-    ...input
-  }: {
-    id: string;
-    label?: string;
-    code?: string;
-    description?: string | null;
-    appliesTo?: AppliesTo;
-  },
+  { id, ...input }: z.infer<typeof DataExtensionFieldGroupUpdate>,
 ) => {
   const group = await findGroup(client, id);
 

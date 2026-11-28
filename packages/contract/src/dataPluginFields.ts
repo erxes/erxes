@@ -53,7 +53,7 @@ export const PluginFields = z
   );
 
 /** A value of a plugin's field on one record: a number, a date (`YYYY-MM-DD`), text, option(s); null clears it. */
-const PluginValue = z.object({
+export const PluginValue = z.object({
   recordId: Id,
   /** The field's `code` in the plugin's manifest. */
   code: z.string().min(1).max(50),

@@ -23,7 +23,7 @@ const MappingRow = ({
   disabled,
   onChange,
 }: SetupProps & { index: number; header: string; fields: { key: string; label: string }[] }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'import-export' });
   const value = imp.mapping[String(index)] ?? IGNORE;
 
   const samples = imp.sample
@@ -69,7 +69,7 @@ const MappingRow = ({
 
 /** Which field each of the file's columns fills (suggested from the names, with sample values). */
 export const ImportMapping = (props: SetupProps) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'import-export' });
   const columns = useTransferColumns(props.imp.recordType);
   const fields = (columns.data ?? []).filter((column) => column.importable);
 
@@ -125,7 +125,7 @@ const OptionSelect = ({
 };
 
 const useOptionLabels = (isCompany: boolean) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'import-export' });
   const members = useQuery(memberQueries.team);
 
   const modes: Record<ImportOptions['mode'], string> = {
@@ -157,7 +157,7 @@ const useOptionLabels = (isCompany: boolean) => {
 };
 
 const TagsOption = ({ imp, onChange }: Omit<SetupProps, 'disabled'>) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'import-export' });
   const { tags, error } = useTags(imp.recordType === 'company' ? 'company' : 'customer');
   const options = tags.map((tag) => ({ value: tag.id, label: tag.name }));
 
@@ -179,7 +179,7 @@ const TagsOption = ({ imp, onChange }: Omit<SetupProps, 'disabled'>) => {
 
 /** How rows find existing records, and what every imported record gets; a plugin's records only the first. */
 export const ImportOptionsForm = ({ imp, onChange }: Omit<SetupProps, 'disabled'>) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+  const { t } = useTranslation('workspace', { keyPrefix: 'import-export' });
   const isCompany = imp.recordType === 'company';
   const labels = useOptionLabels(isCompany);
   const { options } = imp;

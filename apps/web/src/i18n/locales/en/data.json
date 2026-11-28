@@ -1,5 +1,7 @@
 {
   "access": {
+    "customer-editable": "Customers fill it in",
+    "customer-editable-hint": "Portal sign-up and profile forms ask for it. Customers see only these fields.",
     "editable-by": "Who changes it",
     "editable-by-hint": "Among those who see it. Empty: all of them.",
     "everyone": "Every role",

@@ -711,12 +711,2172 @@
         }
       }
     },
-    "grok": {
-      "modelsDevProvider": "xai",
+    "anthropic": {
+      "modelsDevProvider": "anthropic",
       "models": {
-        "grok-4.20-0309-non-reasoning": {
-          "id": "grok-4.20-0309-non-reasoning",
-          "name": "Grok 4.20 (Non-Reasoning)",
+        "claude-fable-5": {
+          "id": "claude-fable-5",
+          "name": "Claude Fable 5",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "claude-fable-5-1": {
+          "id": "claude-fable-5-1",
+          "name": "Claude Fable 5.1",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "claude-fable-5-2": {
+          "id": "claude-fable-5-2",
+          "name": "Claude Fable 5.2",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "claude-haiku-4-5": {
+          "id": "claude-haiku-4-5",
+          "name": "Claude Haiku 4.5 (latest)",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "budget_tokens",
+              "min": 1024
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "claude-haiku-4-5-20251001": {
+          "id": "claude-haiku-4-5-20251001",
+          "name": "Claude Haiku 4.5",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "budget_tokens",
+              "min": 1024
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "claude-haiku-5-5": {
+          "id": "claude-haiku-5-5",
+          "name": "Claude Haiku 5.5",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            },
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "claude-opus-4-5": {
+          "id": "claude-opus-4-5",
+          "name": "Claude Opus 4.5 (latest)",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high"]
+            },
+            {
+              "type": "budget_tokens",
+              "min": 1024
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "claude-opus-4-5-20251101": {
+          "id": "claude-opus-4-5-20251101",
+          "name": "Claude Opus 4.5",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high"]
+            },
+            {
+              "type": "budget_tokens",
+              "min": 1024
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "claude-opus-4-6": {
+          "id": "claude-opus-4-6",
+          "name": "Claude Opus 4.6",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "max"]
+            },
+            {
+              "type": "budget_tokens",
+              "min": 1024
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "claude-opus-4-7": {
+          "id": "claude-opus-4-7",
+          "name": "Claude Opus 4.7",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "claude-opus-4-8": {
+          "id": "claude-opus-4-8",
+          "name": "Claude Opus 4.8",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "claude-opus-5": {
+          "id": "claude-opus-5",
+          "name": "Claude Opus 5",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "claude-opus-5-5": {
+          "id": "claude-opus-5-5",
+          "name": "Claude Opus 5.5",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "claude-sonnet-4-5": {
+          "id": "claude-sonnet-4-5",
+          "name": "Claude Sonnet 4.5 (latest)",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "budget_tokens",
+              "min": 1024
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "claude-sonnet-4-5-20250929": {
+          "id": "claude-sonnet-4-5-20250929",
+          "name": "Claude Sonnet 4.5",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "budget_tokens",
+              "min": 1024
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "claude-sonnet-4-6": {
+          "id": "claude-sonnet-4-6",
+          "name": "Claude Sonnet 4.6",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "max"]
+            },
+            {
+              "type": "budget_tokens",
+              "min": 1024
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "claude-sonnet-5": {
+          "id": "claude-sonnet-5",
+          "name": "Claude Sonnet 5",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            },
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "claude-sonnet-5-5": {
+          "id": "claude-sonnet-5-5",
+          "name": "Claude Sonnet 5.5",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        }
+      }
+    },
+    "openrouter": {
+      "modelsDevProvider": "openrouter",
+      "models": {
+        "aion-labs/aion-2.0": {
+          "id": "aion-labs/aion-2.0",
+          "name": "Aion-2.0",
+          "reasoning": true,
+          "reasoning_options": [],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "aion-labs/aion-3.0": {
+          "id": "aion-labs/aion-3.0",
+          "name": "Aion-3.0",
+          "reasoning": true,
+          "reasoning_options": [],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "aion-labs/aion-3.0-mini": {
+          "id": "aion-labs/aion-3.0-mini",
+          "name": "Aion-3.0-Mini",
+          "reasoning": true,
+          "reasoning_options": [],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "aion-labs/aion-3.5": {
+          "id": "aion-labs/aion-3.5",
+          "name": "Aion 3.5",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "aion-labs/aion-3.5-mini": {
+          "id": "aion-labs/aion-3.5-mini",
+          "name": "Aion 3.5 Mini",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "aion-labs/aion-rp-llama-3.1-8b": {
+          "id": "aion-labs/aion-rp-llama-3.1-8b",
+          "name": "Aion-RP 1.0 (8B)",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "amazon/nova-2-lite-v1": {
+          "id": "amazon/nova-2-lite-v1",
+          "name": "Nova 2 Lite",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "amazon/nova-lite-v1": {
+          "id": "amazon/nova-lite-v1",
+          "name": "Nova Lite 1.0",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "amazon/nova-micro-v1": {
+          "id": "amazon/nova-micro-v1",
+          "name": "Nova Micro 1.0",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "amazon/nova-premier-v1": {
+          "id": "amazon/nova-premier-v1",
+          "name": "Nova Premier 1.0",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "amazon/nova-pro-v1": {
+          "id": "amazon/nova-pro-v1",
+          "name": "Nova Pro 1.0",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "anthracite-org/magnum-v4-72b": {
+          "id": "anthracite-org/magnum-v4-72b",
+          "name": "Magnum v4 72B",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "anthropic/claude-fable-5": {
+          "id": "anthropic/claude-fable-5",
+          "name": "Claude Fable 5",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "anthropic/claude-fable-5.1": {
+          "id": "anthropic/claude-fable-5.1",
+          "name": "Claude Fable 5.1",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "anthropic/claude-fable-5.2": {
+          "id": "anthropic/claude-fable-5.2",
+          "name": "Claude Fable 5.2",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "anthropic/claude-haiku-4.5": {
+          "id": "anthropic/claude-haiku-4.5",
+          "name": "Claude Haiku 4.5 (latest)",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "anthropic/claude-haiku-5.5": {
+          "id": "anthropic/claude-haiku-5.5",
+          "name": "Claude Haiku 5.5",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "anthropic/claude-opus-4.1": {
+          "id": "anthropic/claude-opus-4.1",
+          "name": "Claude Opus 4.1 (latest)",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "anthropic/claude-opus-4.5": {
+          "id": "anthropic/claude-opus-4.5",
+          "name": "Claude Opus 4.5 (latest)",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "anthropic/claude-opus-4.6": {
+          "id": "anthropic/claude-opus-4.6",
+          "name": "Claude Opus 4.6",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "max"]
+            },
+            {
+              "type": "budget_tokens"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "anthropic/claude-opus-4.7": {
+          "id": "anthropic/claude-opus-4.7",
+          "name": "Claude Opus 4.7",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "anthropic/claude-opus-4.8": {
+          "id": "anthropic/claude-opus-4.8",
+          "name": "Claude Opus 4.8",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "anthropic/claude-opus-5": {
+          "id": "anthropic/claude-opus-5",
+          "name": "Claude Opus 5",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "anthropic/claude-opus-5.5": {
+          "id": "anthropic/claude-opus-5.5",
+          "name": "Claude Opus 5.5",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "anthropic/claude-sonnet-4.5": {
+          "id": "anthropic/claude-sonnet-4.5",
+          "name": "Claude Sonnet 4.5 (latest)",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "anthropic/claude-sonnet-4.6": {
+          "id": "anthropic/claude-sonnet-4.6",
+          "name": "Claude Sonnet 4.6",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "anthropic/claude-sonnet-5": {
+          "id": "anthropic/claude-sonnet-5",
+          "name": "Claude Sonnet 5",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "anthropic/claude-sonnet-5.5": {
+          "id": "anthropic/claude-sonnet-5.5",
+          "name": "Claude Sonnet 5.5",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "baidu/ernie-5.5-flash-preview:free": {
+          "id": "baidu/ernie-5.5-flash-preview:free",
+          "name": "ERNIE-5.5-Flash-Preview (free)",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "baidu/ernie-light-dt-1.0-intl": {
+          "id": "baidu/ernie-light-dt-1.0-intl",
+          "name": "ERNIE-Light-DT-1.0",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "bytedance-seed/seed-2-1-turbo": {
+          "id": "bytedance-seed/seed-2-1-turbo",
+          "name": "Seed 2.1 Turbo",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "bytedance-seed/seed-2.0-lite": {
+          "id": "bytedance-seed/seed-2.0-lite",
+          "name": "Seed 2.0 Lite",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "minimal", "low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "bytedance-seed/seed-2.0-mini": {
+          "id": "bytedance-seed/seed-2.0-mini",
+          "name": "Seed 2.0 Mini",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "minimal", "low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "bytedance/ui-tars-1.5-7b": {
+          "id": "bytedance/ui-tars-1.5-7b",
+          "name": "UI-TARS 7B ",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["image", "text"],
+            "output": ["text"]
+          }
+        },
+        "cognitivecomputations/dolphin-mistral-24b-venice-edition": {
+          "id": "cognitivecomputations/dolphin-mistral-24b-venice-edition",
+          "name": "Uncensored",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "cohere/command-a": {
+          "id": "cohere/command-a",
+          "name": "Command A",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "cohere/command-a-plus": {
+          "id": "cohere/command-a-plus",
+          "name": "Command A+",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "cohere/command-r-08-2024": {
+          "id": "cohere/command-r-08-2024",
+          "name": "Command R",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "cohere/command-r-plus-08-2024": {
+          "id": "cohere/command-r-plus-08-2024",
+          "name": "Command R+",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "cohere/command-r7b-12-2024": {
+          "id": "cohere/command-r7b-12-2024",
+          "name": "Command R7B",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "deepseek/deepseek-chat": {
+          "id": "deepseek/deepseek-chat",
+          "name": "DeepSeek Chat",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "deepseek/deepseek-chat-v3-0324": {
+          "id": "deepseek/deepseek-chat-v3-0324",
+          "name": "DeepSeek V3 0324",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "deepseek/deepseek-chat-v3.1": {
+          "id": "deepseek/deepseek-chat-v3.1",
+          "name": "DeepSeek V3.1",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "deepseek/deepseek-r1-0528": {
+          "id": "deepseek/deepseek-r1-0528",
+          "name": "DeepSeek R1 0528",
+          "reasoning": true,
+          "reasoning_options": [],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "deepseek/deepseek-v3.1-terminus": {
+          "id": "deepseek/deepseek-v3.1-terminus",
+          "name": "DeepSeek V3.1 Terminus",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "deepseek/deepseek-v3.2": {
+          "id": "deepseek/deepseek-v3.2",
+          "name": "DeepSeek V3.2",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "deepseek/deepseek-v3.2-exp": {
+          "id": "deepseek/deepseek-v3.2-exp",
+          "name": "DeepSeek V3.2 Exp",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "deepseek/deepseek-v4-flash": {
+          "id": "deepseek/deepseek-v4-flash",
+          "name": "DeepSeek V4 Flash",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "deepseek/deepseek-v4-flash-0731": {
+          "id": "deepseek/deepseek-v4-flash-0731",
+          "name": "DeepSeek V4 Flash 0731",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "deepseek/deepseek-v4-flash-vision-exp": {
+          "id": "deepseek/deepseek-v4-flash-vision-exp",
+          "name": "DeepSeek V4 Flash Vision Exp",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "deepseek/deepseek-v4-pro": {
+          "id": "deepseek/deepseek-v4-pro",
+          "name": "DeepSeek V4 Pro",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "deepseek/deepseek-v4-pro-0813": {
+          "id": "deepseek/deepseek-v4-pro-0813",
+          "name": "DeepSeek V4 Pro 0813",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "deepseek/deepseek-v4.1-flash": {
+          "id": "deepseek/deepseek-v4.1-flash",
+          "name": "DeepSeek V4.1 Flash",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "deepseek/deepseek-v4.1-flash-1017": {
+          "id": "deepseek/deepseek-v4.1-flash-1017",
+          "name": "DeepSeek V4.1 Flash 1017",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "elorian/glimpse": {
+          "id": "elorian/glimpse",
+          "name": "Glimpse",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "fireworks/ember-1": {
+          "id": "fireworks/ember-1",
+          "name": "Ember-1",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "google/gemini-2.5-flash": {
+          "id": "google/gemini-2.5-flash",
+          "name": "Gemini 2.5 Flash",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "audio", "video", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "google/gemini-2.5-flash-image": {
+          "id": "google/gemini-2.5-flash-image",
+          "name": "Nano Banana",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text", "image"]
+          }
+        },
+        "google/gemini-2.5-flash-lite": {
+          "id": "google/gemini-2.5-flash-lite",
+          "name": "Gemini 2.5 Flash-Lite",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "audio", "video", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "google/gemini-2.5-pro": {
+          "id": "google/gemini-2.5-pro",
+          "name": "Gemini 2.5 Pro",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "budget_tokens",
+              "min": 128,
+              "max": 32768
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "audio", "video", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "google/gemini-2.5-pro-preview": {
+          "id": "google/gemini-2.5-pro-preview",
+          "name": "Gemini 2.5 Pro Preview 06-05",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "budget_tokens",
+              "min": 128,
+              "max": 32768
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["pdf", "image", "text", "audio"],
+            "output": ["text"]
+          }
+        },
+        "google/gemini-3-flash-preview": {
+          "id": "google/gemini-3-flash-preview",
+          "name": "Gemini 3 Flash Preview",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "minimal", "low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video", "audio", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "google/gemini-3-pro-image": {
+          "id": "google/gemini-3-pro-image",
+          "name": "Nano Banana Pro",
+          "reasoning": true,
+          "reasoning_options": [],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text", "image"]
+          }
+        },
+        "google/gemini-3-pro-image-preview": {
+          "id": "google/gemini-3-pro-image-preview",
+          "name": "Nano Banana Pro Preview",
+          "reasoning": true,
+          "reasoning_options": [],
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text", "image"]
+          }
+        },
+        "google/gemini-3.1-flash-image": {
+          "id": "google/gemini-3.1-flash-image",
+          "name": "Nano Banana 2",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "minimal", "high"]
+            }
+          ],
+          "tool_call": false,
+          "modalities": {
+            "input": ["image", "text"],
+            "output": ["text", "image"]
+          }
+        },
+        "google/gemini-3.1-flash-image-preview": {
+          "id": "google/gemini-3.1-flash-image-preview",
+          "name": "Nano Banana 2 Preview",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "minimal", "high"]
+            }
+          ],
+          "tool_call": false,
+          "modalities": {
+            "input": ["image", "text"],
+            "output": ["text", "image"]
+          }
+        },
+        "google/gemini-3.1-flash-lite": {
+          "id": "google/gemini-3.1-flash-lite",
+          "name": "Gemini 3.1 Flash Lite",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "minimal", "low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video", "audio", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "google/gemini-3.1-flash-lite-image": {
+          "id": "google/gemini-3.1-flash-lite-image",
+          "name": "Nano Banana 2 Lite",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "minimal", "high"]
+            }
+          ],
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text", "image"]
+          }
+        },
+        "google/gemini-3.1-flash-lite-preview": {
+          "id": "google/gemini-3.1-flash-lite-preview",
+          "name": "Gemini 3.1 Flash Lite Preview",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "minimal", "low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video", "audio", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "google/gemini-3.1-pro-preview": {
+          "id": "google/gemini-3.1-pro-preview",
+          "name": "Gemini 3.1 Pro Preview",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video", "audio", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "google/gemini-3.1-pro-preview-customtools": {
+          "id": "google/gemini-3.1-pro-preview-customtools",
+          "name": "Gemini 3.1 Pro Preview Custom Tools",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video", "audio", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "google/gemini-3.5-flash": {
+          "id": "google/gemini-3.5-flash",
+          "name": "Gemini 3.5 Flash",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["minimal", "low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video", "audio", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "google/gemini-3.5-flash-lite": {
+          "id": "google/gemini-3.5-flash-lite",
+          "name": "Gemini 3.5 Flash Lite",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["minimal", "low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video", "audio", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "google/gemini-3.6-flash": {
+          "id": "google/gemini-3.6-flash",
+          "name": "Gemini 3.6 Flash",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["minimal", "low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video", "audio", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "google/gemini-3.7-flash": {
+          "id": "google/gemini-3.7-flash",
+          "name": "Gemini 3.7 Flash",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video", "audio", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "google/gemini-3.8-flash": {
+          "id": "google/gemini-3.8-flash",
+          "name": "Gemini 3.8 Flash",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video", "audio", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "google/gemini-4-argon": {
+          "id": "google/gemini-4-argon",
+          "name": "Gemini 4 Argon",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video", "audio", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "google/gemini-4-carbon": {
+          "id": "google/gemini-4-carbon",
+          "name": "Gemini 4 Carbon",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video", "audio", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "google/gemini-4-hydrogen": {
+          "id": "google/gemini-4-hydrogen",
+          "name": "Gemini 4 Hydrogen",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video", "audio", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "google/gemini-4-neon": {
+          "id": "google/gemini-4-neon",
+          "name": "Gemini 4 Neon",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video", "audio", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "google/gemini-nano-banana-2.1": {
+          "id": "google/gemini-nano-banana-2.1",
+          "name": "Nano Banana 2.1",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "minimal", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["image", "text"],
+            "output": ["text", "image"]
+          }
+        },
+        "google/gemini-omni-1.1-flash": {
+          "id": "google/gemini-omni-1.1-flash",
+          "name": "Gemini Omni 1.1 Flash",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "high"]
+            }
+          ],
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text", "video"]
+          }
+        },
+        "google/gemini-omni-1.2-flash": {
+          "id": "google/gemini-omni-1.2-flash",
+          "name": "Gemini Omni 1.2 Flash",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "high"]
+            }
+          ],
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text", "video"]
+          }
+        },
+        "google/gemma-2-27b-it": {
+          "id": "google/gemma-2-27b-it",
+          "name": "Gemma 2 27B",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "google/gemma-3-12b-it": {
+          "id": "google/gemma-3-12b-it",
+          "name": "Gemma 3 12B IT",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "google/gemma-3-27b-it": {
+          "id": "google/gemma-3-27b-it",
+          "name": "Gemma 3 27B IT",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "google/gemma-3-4b-it": {
+          "id": "google/gemma-3-4b-it",
+          "name": "Gemma 3 4B IT",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "google/gemma-4-26b-a4b-it": {
+          "id": "google/gemma-4-26b-a4b-it",
+          "name": "Gemma 4 26B A4B IT",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["image", "text", "video"],
+            "output": ["text"]
+          }
+        },
+        "google/gemma-4-26b-a4b-it:free": {
+          "id": "google/gemma-4-26b-a4b-it:free",
+          "name": "Gemma 4 26B A4B  (free)",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["image", "text", "video"],
+            "output": ["text"]
+          }
+        },
+        "google/gemma-4-31b-it": {
+          "id": "google/gemma-4-31b-it",
+          "name": "Gemma 4 31B IT",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["image", "text", "video"],
+            "output": ["text"]
+          }
+        },
+        "google/gemma-4-31b-it:free": {
+          "id": "google/gemma-4-31b-it:free",
+          "name": "Gemma 4 31B (free)",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["image", "text", "video"],
+            "output": ["text"]
+          }
+        },
+        "google/lyria-3-clip-preview": {
+          "id": "google/lyria-3-clip-preview",
+          "name": "Lyria 3 Clip Preview",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text", "audio"]
+          }
+        },
+        "google/lyria-3-pro-preview": {
+          "id": "google/lyria-3-pro-preview",
+          "name": "Lyria 3 Pro Preview",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text", "audio"]
+          }
+        },
+        "gryphe/mythomax-l2-13b": {
+          "id": "gryphe/mythomax-l2-13b",
+          "name": "MythoMax L2 13B",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "ibm-granite/granite-4.2-8b": {
+          "id": "ibm-granite/granite-4.2-8b",
+          "name": "Granite 4.2 8B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "inclusionai/ling-3.0-flash": {
+          "id": "inclusionai/ling-3.0-flash",
+          "name": "Ling 3.0 Flash",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "inclusionai/ling-3.0-flash-vl": {
+          "id": "inclusionai/ling-3.0-flash-vl",
+          "name": "Ling 3.0 Flash VL",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "inclusionai/ling-3.0-tiny": {
+          "id": "inclusionai/ling-3.0-tiny",
+          "name": "Ling 3.0 Tiny",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "inclusionai/ling-3.1-flash": {
+          "id": "inclusionai/ling-3.1-flash",
+          "name": "Ling 3.1 Flash",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "inclusionai/ling-3.2-flash:free": {
+          "id": "inclusionai/ling-3.2-flash:free",
+          "name": "Ling 3.2 Flash (free)",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "inference-net/schematron-v2-small": {
+          "id": "inference-net/schematron-v2-small",
+          "name": "Schematron V2 Small",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "inference-net/schematron-v2-turbo": {
+          "id": "inference-net/schematron-v2-turbo",
+          "name": "Schematron V2 Turbo",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "kt/midm-k-3.0-pro": {
+          "id": "kt/midm-k-3.0-pro",
+          "name": "Mi:dm K 3.0 Pro",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "liquid/lfm-2.5-24b-a2b": {
+          "id": "liquid/lfm-2.5-24b-a2b",
+          "name": "LFM2.5-24B-A2B",
+          "reasoning": true,
+          "reasoning_options": [],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "liquid/lfm-3-1.7b": {
+          "id": "liquid/lfm-3-1.7b",
+          "name": "LFM3-1.7B",
+          "reasoning": true,
+          "reasoning_options": [],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "liquid/lfm-3-1.7b:free": {
+          "id": "liquid/lfm-3-1.7b:free",
+          "name": "LFM3-1.7B (free)",
+          "reasoning": true,
+          "reasoning_options": [],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "mancer/weaver": {
+          "id": "mancer/weaver",
+          "name": "Weaver (alpha)",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "meta-llama/llama-3.1-70b-instruct": {
+          "id": "meta-llama/llama-3.1-70b-instruct",
+          "name": "Llama-3.1-70B-Instruct",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "meta-llama/llama-3.1-8b-instruct": {
+          "id": "meta-llama/llama-3.1-8b-instruct",
+          "name": "Llama-3.1-8B-Instruct",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "meta-llama/llama-3.2-3b-instruct": {
+          "id": "meta-llama/llama-3.2-3b-instruct",
+          "name": "Llama 3.2 3B Instruct",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "meta-llama/llama-3.3-70b-instruct": {
+          "id": "meta-llama/llama-3.3-70b-instruct",
+          "name": "Llama-3.3-70B-Instruct",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "meta-llama/llama-4-maverick": {
+          "id": "meta-llama/llama-4-maverick",
+          "name": "Llama 4 Maverick",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "meta-llama/llama-4-scout": {
+          "id": "meta-llama/llama-4-scout",
+          "name": "Llama 4 Scout",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "meta-llama/llama-guard-4-12b": {
+          "id": "meta-llama/llama-guard-4-12b",
+          "name": "Llama Guard 4 12B",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "meta/muse-ember": {
+          "id": "meta/muse-ember",
+          "name": "Muse Ember",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["minimal", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video", "pdf", "audio"],
+            "output": ["text"]
+          }
+        },
+        "meta/muse-glimmer-30b": {
+          "id": "meta/muse-glimmer-30b",
+          "name": "Muse Glimmer 30B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "meta/muse-spark-1.1": {
+          "id": "meta/muse-spark-1.1",
+          "name": "Muse Spark 1.1",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["minimal", "low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf", "video"],
+            "output": ["text"]
+          }
+        },
+        "meta/muse-spark-1.2": {
+          "id": "meta/muse-spark-1.2",
+          "name": "Muse Spark 1.2",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["minimal", "low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "meta/muse-spark-1.2-contributor": {
+          "id": "meta/muse-spark-1.2-contributor",
+          "name": "Muse Spark 1.2 Contributor",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["minimal", "low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "meta/muse-spark-1.3": {
+          "id": "meta/muse-spark-1.3",
+          "name": "Muse Spark 1.3",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["minimal", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "meta/muse-spark-1.3-contributor": {
+          "id": "meta/muse-spark-1.3-contributor",
+          "name": "Muse Spark 1.3 Contributor",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["minimal", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "meta/muse-spark-open": {
+          "id": "meta/muse-spark-open",
+          "name": "Muse Spark Open",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video", "pdf", "audio"],
+            "output": ["text"]
+          }
+        },
+        "meta/muse-wonder": {
+          "id": "meta/muse-wonder",
+          "name": "Muse Wonder",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["minimal", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video", "pdf", "audio"],
+            "output": ["text"]
+          }
+        },
+        "microsoft/phi-4": {
+          "id": "microsoft/phi-4",
+          "name": "Phi 4",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "minimax/minimax-m2.5": {
+          "id": "minimax/minimax-m2.5",
+          "name": "MiniMax-M2.5",
+          "reasoning": true,
+          "reasoning_options": [],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "minimax/minimax-m2.7": {
+          "id": "minimax/minimax-m2.7",
+          "name": "MiniMax-M2.7",
+          "reasoning": true,
+          "reasoning_options": [],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "minimax/minimax-m3": {
+          "id": "minimax/minimax-m3",
+          "name": "MiniMax-M3",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "minimax/minimax-m3.1-flash": {
+          "id": "minimax/minimax-m3.1-flash",
+          "name": "MiniMax-M3.1-Flash",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "mistralai/codestral-2508": {
+          "id": "mistralai/codestral-2508",
+          "name": "Codestral 25.08",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "mistralai/devstral-2512": {
+          "id": "mistralai/devstral-2512",
+          "name": "Devstral 2",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "mistralai/ministral-14b-2512": {
+          "id": "mistralai/ministral-14b-2512",
+          "name": "Ministral 3 14B 2512",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "mistralai/ministral-3b-2512": {
+          "id": "mistralai/ministral-3b-2512",
+          "name": "Ministral 3 3B 2512",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "mistralai/ministral-8b-2512": {
+          "id": "mistralai/ministral-8b-2512",
+          "name": "Ministral 3 8B 2512",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "mistralai/mistral-large": {
+          "id": "mistralai/mistral-large",
+          "name": "Mistral Large",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "mistralai/mistral-large-2407": {
+          "id": "mistralai/mistral-large-2407",
+          "name": "Mistral Large 2407",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "mistralai/mistral-large-2512": {
+          "id": "mistralai/mistral-large-2512",
+          "name": "Mistral Large 3",
           "reasoning": false,
           "tool_call": true,
           "modalities": {
@@ -724,18 +2884,2693 @@
             "output": ["text"]
           }
         },
-        "grok-4.20-0309-reasoning": {
-          "id": "grok-4.20-0309-reasoning",
-          "name": "Grok 4.20 (Reasoning)",
+        "mistralai/mistral-large-4-0": {
+          "id": "mistralai/mistral-large-4-0",
+          "name": "Mistral Large 4",
           "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "mistralai/mistral-medium-3": {
+          "id": "mistralai/mistral-medium-3",
+          "name": "Mistral Medium 3",
+          "reasoning": false,
           "tool_call": true,
           "modalities": {
             "input": ["text", "image", "pdf"],
             "output": ["text"]
           }
         },
-        "grok-4.20-multi-agent-0309": {
-          "id": "grok-4.20-multi-agent-0309",
+        "mistralai/mistral-medium-3-5": {
+          "id": "mistralai/mistral-medium-3-5",
+          "name": "Mistral Medium 3.5",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "mistralai/mistral-medium-3.1": {
+          "id": "mistralai/mistral-medium-3.1",
+          "name": "Mistral Medium 3.1",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "mistralai/mistral-nemo": {
+          "id": "mistralai/mistral-nemo",
+          "name": "Mistral Nemo",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "mistralai/mistral-saba": {
+          "id": "mistralai/mistral-saba",
+          "name": "Saba",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "mistralai/mistral-small-24b-instruct-2501": {
+          "id": "mistralai/mistral-small-24b-instruct-2501",
+          "name": "Mistral Small 3",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "mistralai/mistral-small-2603": {
+          "id": "mistralai/mistral-small-2603",
+          "name": "Mistral Small 4",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "mistralai/mistral-small-3.1-24b-instruct": {
+          "id": "mistralai/mistral-small-3.1-24b-instruct",
+          "name": "Mistral Small 3.1 24B",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "mistralai/mistral-small-3.2-24b-instruct": {
+          "id": "mistralai/mistral-small-3.2-24b-instruct",
+          "name": "Mistral Small 3.2 24B",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["image", "text"],
+            "output": ["text"]
+          }
+        },
+        "mistralai/mixtral-8x22b-instruct": {
+          "id": "mistralai/mixtral-8x22b-instruct",
+          "name": "Mixtral 8x22B Instruct",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "mistralai/pixtral-large-2502": {
+          "id": "mistralai/pixtral-large-2502",
+          "name": "Pixtral Large (25.02)",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "mistralai/voxtral-small-24b-2507": {
+          "id": "mistralai/voxtral-small-24b-2507",
+          "name": "Voxtral Small 24B 2507",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "audio", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "moondream/moondream3-preview": {
+          "id": "moondream/moondream3-preview",
+          "name": "Moondream 3 Preview",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "moondream/moondream3.1-9b-a2b": {
+          "id": "moondream/moondream3.1-9b-a2b",
+          "name": "Moondream 3.1",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "moonshotai/kimi-k2": {
+          "id": "moonshotai/kimi-k2",
+          "name": "Kimi K2 0711",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "moonshotai/kimi-k2-0905": {
+          "id": "moonshotai/kimi-k2-0905",
+          "name": "Kimi K2 Instruct 0905",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "moonshotai/kimi-k2-thinking": {
+          "id": "moonshotai/kimi-k2-thinking",
+          "name": "Kimi K2 Thinking",
+          "reasoning": true,
+          "reasoning_options": [],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "moonshotai/kimi-k2.5": {
+          "id": "moonshotai/kimi-k2.5",
+          "name": "Kimi K2.5",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "moonshotai/kimi-k2.6": {
+          "id": "moonshotai/kimi-k2.6",
+          "name": "Kimi K2.6",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "moonshotai/kimi-k2.7-code": {
+          "id": "moonshotai/kimi-k2.7-code",
+          "name": "Kimi K2.7 Code",
+          "reasoning": true,
+          "reasoning_options": [],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "moonshotai/kimi-k3": {
+          "id": "moonshotai/kimi-k3",
+          "name": "Kimi K3",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "moonshotai/kimi-k3.1-pro": {
+          "id": "moonshotai/kimi-k3.1-pro",
+          "name": "Kimi K3.1 Pro",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "morph/morph-v3-fast": {
+          "id": "morph/morph-v3-fast",
+          "name": "Morph V3 Fast",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "morph/morph-v3-large": {
+          "id": "morph/morph-v3-large",
+          "name": "Morph V3 Large",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "motif-technologies/motif-3": {
+          "id": "motif-technologies/motif-3",
+          "name": "Motif 3",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "nex-agi/nex-n2.5-mini": {
+          "id": "nex-agi/nex-n2.5-mini",
+          "name": "Nex-N2.5-Mini",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "medium", "high"]
+            }
+          ],
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "nex-agi/nex-n2.5-pro": {
+          "id": "nex-agi/nex-n2.5-pro",
+          "name": "Nex-N2.5-Pro",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "nex-agi/nex-n2.6": {
+          "id": "nex-agi/nex-n2.6",
+          "name": "Nex-N2.6",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "nousresearch/hermes-4-405b": {
+          "id": "nousresearch/hermes-4-405b",
+          "name": "Hermes 4 405B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "nvidia/nemotron-3-nano-30b-a3b": {
+          "id": "nvidia/nemotron-3-nano-30b-a3b",
+          "name": "Nemotron 3 Nano 30B A3B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free": {
+          "id": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+          "name": "Nemotron 3 Nano Omni (free)",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            },
+            {
+              "type": "budget_tokens"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video", "audio"],
+            "output": ["text"]
+          }
+        },
+        "nvidia/nemotron-3-super-120b-a12b": {
+          "id": "nvidia/nemotron-3-super-120b-a12b",
+          "name": "Nemotron 3 Super 120B A12B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium"]
+            },
+            {
+              "type": "budget_tokens"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "nvidia/nemotron-3-ultra-550b-a55b": {
+          "id": "nvidia/nemotron-3-ultra-550b-a55b",
+          "name": "Nemotron 3 Ultra 550B A55B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "medium", "high"]
+            },
+            {
+              "type": "budget_tokens"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "nvidia/nemotron-3-ultra-550b-a55b:free": {
+          "id": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "name": "Nemotron 3 Ultra (free)",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "medium", "high"]
+            },
+            {
+              "type": "budget_tokens"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "nvidia/nemotron-3.5-content-safety": {
+          "id": "nvidia/nemotron-3.5-content-safety",
+          "name": "Nemotron 3.5 Content Safety",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "nvidia/nemotron-3.5-lightning": {
+          "id": "nvidia/nemotron-3.5-lightning",
+          "name": "Nemotron 3.5 Lightning 30B A3B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "nvidia/nemotron-3.5-lightning:free": {
+          "id": "nvidia/nemotron-3.5-lightning:free",
+          "name": "Nemotron 3.5 Lightning (free)",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "nvidia/nemotron-3.5-super-vl": {
+          "id": "nvidia/nemotron-3.5-super-vl",
+          "name": "Nemotron 3.5 Super VL",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "nvidia/nemotron-3.5-super-vl:free": {
+          "id": "nvidia/nemotron-3.5-super-vl:free",
+          "name": "Nemotron 3.5 Super VL (free)",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-3.5-turbo-0613": {
+          "id": "openai/gpt-3.5-turbo-0613",
+          "name": "GPT-3.5 Turbo (older v0613)",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-3.5-turbo-16k": {
+          "id": "openai/gpt-3.5-turbo-16k",
+          "name": "GPT-3.5 Turbo 16k",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-4": {
+          "id": "openai/gpt-4",
+          "name": "GPT-4",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-4.1": {
+          "id": "openai/gpt-4.1",
+          "name": "GPT-4.1",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-4.1-mini": {
+          "id": "openai/gpt-4.1-mini",
+          "name": "GPT-4.1 mini",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-4.1-nano": {
+          "id": "openai/gpt-4.1-nano",
+          "name": "GPT-4.1 nano",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["image", "text", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-4o": {
+          "id": "openai/gpt-4o",
+          "name": "GPT-4o",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-4o-2024-05-13": {
+          "id": "openai/gpt-4o-2024-05-13",
+          "name": "GPT-4o (2024-05-13)",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-4o-2024-08-06": {
+          "id": "openai/gpt-4o-2024-08-06",
+          "name": "GPT-4o (2024-08-06)",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-4o-2024-11-20": {
+          "id": "openai/gpt-4o-2024-11-20",
+          "name": "GPT-4o (2024-11-20)",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-4o-mini": {
+          "id": "openai/gpt-4o-mini",
+          "name": "GPT-4o mini",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-4o-mini-2024-07-18": {
+          "id": "openai/gpt-4o-mini-2024-07-18",
+          "name": "GPT-4o-mini (2024-07-18)",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5": {
+          "id": "openai/gpt-5",
+          "name": "GPT-5",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["minimal", "low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5-image": {
+          "id": "openai/gpt-5-image",
+          "name": "GPT-5 Image",
+          "reasoning": true,
+          "reasoning_options": [],
+          "tool_call": false,
+          "modalities": {
+            "input": ["image", "text", "pdf"],
+            "output": ["image", "text"]
+          }
+        },
+        "openai/gpt-5-image-mini": {
+          "id": "openai/gpt-5-image-mini",
+          "name": "GPT-5 Image Mini",
+          "reasoning": true,
+          "reasoning_options": [],
+          "tool_call": false,
+          "modalities": {
+            "input": ["pdf", "image", "text"],
+            "output": ["image", "text"]
+          }
+        },
+        "openai/gpt-5-mini": {
+          "id": "openai/gpt-5-mini",
+          "name": "GPT-5 Mini",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["minimal", "low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5-nano": {
+          "id": "openai/gpt-5-nano",
+          "name": "GPT-5 Nano",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["minimal", "low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5-pro": {
+          "id": "openai/gpt-5-pro",
+          "name": "GPT-5 Pro",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["image", "text", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5.1": {
+          "id": "openai/gpt-5.1",
+          "name": "GPT-5.1",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["image", "text", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5.1-codex": {
+          "id": "openai/gpt-5.1-codex",
+          "name": "GPT-5.1 Codex",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5.1-codex-max": {
+          "id": "openai/gpt-5.1-codex-max",
+          "name": "GPT-5.1 Codex Max",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5.1-codex-mini": {
+          "id": "openai/gpt-5.1-codex-mini",
+          "name": "GPT-5.1 Codex mini",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5.2": {
+          "id": "openai/gpt-5.2",
+          "name": "GPT-5.2",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["pdf", "image", "text"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5.2-codex": {
+          "id": "openai/gpt-5.2-codex",
+          "name": "GPT-5.2 Codex",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5.2-pro": {
+          "id": "openai/gpt-5.2-pro",
+          "name": "GPT-5.2 Pro",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["image", "text", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5.3-codex": {
+          "id": "openai/gpt-5.3-codex",
+          "name": "GPT-5.3 Codex",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5.4": {
+          "id": "openai/gpt-5.4",
+          "name": "GPT-5.4",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5.4-image-2": {
+          "id": "openai/gpt-5.4-image-2",
+          "name": "GPT-5.4 Image 2",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": false,
+          "modalities": {
+            "input": ["image", "text", "pdf"],
+            "output": ["image", "text"]
+          }
+        },
+        "openai/gpt-5.4-mini": {
+          "id": "openai/gpt-5.4-mini",
+          "name": "GPT-5.4 mini",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["pdf", "image", "text"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5.4-nano": {
+          "id": "openai/gpt-5.4-nano",
+          "name": "GPT-5.4 nano",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["pdf", "image", "text"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5.4-pro": {
+          "id": "openai/gpt-5.4-pro",
+          "name": "GPT-5.4 Pro",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5.5": {
+          "id": "openai/gpt-5.5",
+          "name": "GPT-5.5",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5.5-pro": {
+          "id": "openai/gpt-5.5-pro",
+          "name": "GPT-5.5 Pro",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5.6-luna": {
+          "id": "openai/gpt-5.6-luna",
+          "name": "GPT-5.6 Luna",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5.6-luna-pro": {
+          "id": "openai/gpt-5.6-luna-pro",
+          "name": "GPT-5.6 Luna Pro",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5.6-sol": {
+          "id": "openai/gpt-5.6-sol",
+          "name": "GPT-5.6 Sol",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5.6-sol-pro": {
+          "id": "openai/gpt-5.6-sol-pro",
+          "name": "GPT-5.6 Sol Pro",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5.6-terra": {
+          "id": "openai/gpt-5.6-terra",
+          "name": "GPT-5.6 Terra",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5.6-terra-pro": {
+          "id": "openai/gpt-5.6-terra-pro",
+          "name": "GPT-5.6 Terra Pro",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-6-astra": {
+          "id": "openai/gpt-6-astra",
+          "name": "GPT-6 Astra",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-6-astra-pro": {
+          "id": "openai/gpt-6-astra-pro",
+          "name": "GPT-6 Astra Pro",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["pdf", "image", "text"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-6-luna": {
+          "id": "openai/gpt-6-luna",
+          "name": "GPT-6 Luna",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-6-luna-pro": {
+          "id": "openai/gpt-6-luna-pro",
+          "name": "GPT-6 Luna Pro",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["pdf", "image", "text"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-6-sol": {
+          "id": "openai/gpt-6-sol",
+          "name": "GPT-6 Sol",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-6-sol-pro": {
+          "id": "openai/gpt-6-sol-pro",
+          "name": "GPT-6 Sol Pro",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["pdf", "image", "text"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-6.1-sol": {
+          "id": "openai/gpt-6.1-sol",
+          "name": "GPT-6.1 Sol",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-6.1-sol-pro": {
+          "id": "openai/gpt-6.1-sol-pro",
+          "name": "GPT-6.1 Sol Pro",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["pdf", "image", "text"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-6.1-terra": {
+          "id": "openai/gpt-6.1-terra",
+          "name": "GPT-6.1 Terra",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-6.1-terra-pro": {
+          "id": "openai/gpt-6.1-terra-pro",
+          "name": "GPT-6.1 Terra Pro",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["pdf", "image", "text"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-6.2-astra": {
+          "id": "openai/gpt-6.2-astra",
+          "name": "GPT-6.2 Astra",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-6.2-astra-pro": {
+          "id": "openai/gpt-6.2-astra-pro",
+          "name": "GPT-6.2 Astra Pro",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["pdf", "image", "text"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-6.2-sol": {
+          "id": "openai/gpt-6.2-sol",
+          "name": "GPT-6.2 Sol",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-6.2-sol-pro": {
+          "id": "openai/gpt-6.2-sol-pro",
+          "name": "GPT-6.2 Sol Pro",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["pdf", "image", "text"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-audio": {
+          "id": "openai/gpt-audio",
+          "name": "GPT-Audio",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "audio"],
+            "output": ["text", "audio"]
+          }
+        },
+        "openai/gpt-audio-mini": {
+          "id": "openai/gpt-audio-mini",
+          "name": "GPT-Audio Mini",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "audio"],
+            "output": ["text", "audio"]
+          }
+        },
+        "openai/gpt-chat-latest": {
+          "id": "openai/gpt-chat-latest",
+          "name": "GPT Chat Latest",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-oss-120b": {
+          "id": "openai/gpt-oss-120b",
+          "name": "GPT OSS 120B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-oss-20b": {
+          "id": "openai/gpt-oss-20b",
+          "name": "GPT OSS 20B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-oss-safeguard-20b": {
+          "id": "openai/gpt-oss-safeguard-20b",
+          "name": "GPT OSS Safeguard 20B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "openai/o3": {
+          "id": "openai/o3",
+          "name": "o3",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/o3-pro": {
+          "id": "openai/o3-pro",
+          "name": "o3-pro",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "pdf", "image"],
+            "output": ["text"]
+          }
+        },
+        "openrouter/auto": {
+          "id": "openrouter/auto",
+          "name": "Auto Router",
+          "reasoning": true,
+          "reasoning_options": [],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "audio", "pdf", "video"],
+            "output": ["text", "image"]
+          }
+        },
+        "openrouter/bodybuilder": {
+          "id": "openrouter/bodybuilder",
+          "name": "Body Builder (beta)",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "openrouter/free": {
+          "id": "openrouter/free",
+          "name": "Free Models Router",
+          "reasoning": true,
+          "reasoning_options": [],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "openrouter/fusion": {
+          "id": "openrouter/fusion",
+          "name": "Fusion",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "openrouter/pareto-code": {
+          "id": "openrouter/pareto-code",
+          "name": "Pareto Code Router",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "particle-ai/particle-1": {
+          "id": "particle-ai/particle-1",
+          "name": "Particle-1",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "minimal", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "particle-ai/particle-1:free": {
+          "id": "particle-ai/particle-1:free",
+          "name": "Particle-1 (free)",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "minimal", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "perceptron/perceptron-mk1": {
+          "id": "perceptron/perceptron-mk1",
+          "name": "Perceptron Mk1",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "perceptron/perceptron-mk1.5": {
+          "id": "perceptron/perceptron-mk1.5",
+          "name": "Perceptron Mk1.5",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "minimal", "low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video", "audio"],
+            "output": ["text"]
+          }
+        },
+        "perplexity/sonar": {
+          "id": "perplexity/sonar",
+          "name": "Sonar",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "perplexity/sonar-deep-research": {
+          "id": "perplexity/sonar-deep-research",
+          "name": "Sonar Deep Research",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "perplexity/sonar-pro": {
+          "id": "perplexity/sonar-pro",
+          "name": "Sonar Pro",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "perplexity/sonar-pro-search": {
+          "id": "perplexity/sonar-pro-search",
+          "name": "Sonar Pro Search",
+          "reasoning": true,
+          "reasoning_options": [],
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "perplexity/sonar-reasoning-pro": {
+          "id": "perplexity/sonar-reasoning-pro",
+          "name": "Sonar Reasoning Pro",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "prism-ml/ternary-bonsai-2-27b": {
+          "id": "prism-ml/ternary-bonsai-2-27b",
+          "name": "Ternary Bonsai 2 27B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "medium", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "prism-ml/ternary-bonsai-2-9b": {
+          "id": "prism-ml/ternary-bonsai-2-9b",
+          "name": "Ternary Bonsai 2 9B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen-2.5-72b-instruct": {
+          "id": "qwen/qwen-2.5-72b-instruct",
+          "name": "Qwen2.5 72B Instruct",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen-2.5-coder-32b-instruct": {
+          "id": "qwen/qwen-2.5-coder-32b-instruct",
+          "name": "Qwen2.5-Coder-32B-Instruct",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen-plus": {
+          "id": "qwen/qwen-plus",
+          "name": "Qwen Plus",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen2.5-vl-72b-instruct": {
+          "id": "qwen/qwen2.5-vl-72b-instruct",
+          "name": "Qwen2.5-VL 72B Instruct",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3-14b": {
+          "id": "qwen/qwen3-14b",
+          "name": "Qwen3 14B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3-235b-a22b-2507": {
+          "id": "qwen/qwen3-235b-a22b-2507",
+          "name": "Qwen3 235B A22B Instruct 2507",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3-235b-a22b-thinking-2507": {
+          "id": "qwen/qwen3-235b-a22b-thinking-2507",
+          "name": "Qwen3 235B-A22B Thinking 2507",
+          "reasoning": true,
+          "reasoning_options": [],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3-30b-a3b": {
+          "id": "qwen/qwen3-30b-a3b",
+          "name": "Qwen3 30B A3B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3-30b-a3b-instruct-2507": {
+          "id": "qwen/qwen3-30b-a3b-instruct-2507",
+          "name": "Qwen3 30B-A3B Instruct 2507",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3-32b": {
+          "id": "qwen/qwen3-32b",
+          "name": "Qwen3 32B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3-coder": {
+          "id": "qwen/qwen3-coder",
+          "name": "Qwen3 Coder 480B A35B",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3-coder-30b-a3b-instruct": {
+          "id": "qwen/qwen3-coder-30b-a3b-instruct",
+          "name": "Qwen3-Coder 30B-A3B Instruct",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3-coder-flash": {
+          "id": "qwen/qwen3-coder-flash",
+          "name": "Qwen3 Coder Flash",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3-coder-next": {
+          "id": "qwen/qwen3-coder-next",
+          "name": "Qwen3 Coder Next",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3-next-80b-a3b-instruct": {
+          "id": "qwen/qwen3-next-80b-a3b-instruct",
+          "name": "Qwen3-Next 80B-A3B Instruct",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3-vl-235b-a22b-instruct": {
+          "id": "qwen/qwen3-vl-235b-a22b-instruct",
+          "name": "Qwen3 VL 235B A22B Instruct",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3-vl-30b-a3b-instruct": {
+          "id": "qwen/qwen3-vl-30b-a3b-instruct",
+          "name": "Qwen3 VL 30B A3B Instruct",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3-vl-8b-instruct": {
+          "id": "qwen/qwen3-vl-8b-instruct",
+          "name": "Qwen3 VL 8B Instruct",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["image", "text"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3.5-122b-a10b": {
+          "id": "qwen/qwen3.5-122b-a10b",
+          "name": "Qwen3.5 122B-A10B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3.5-27b": {
+          "id": "qwen/qwen3.5-27b",
+          "name": "Qwen3.5 27B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3.5-35b-a3b": {
+          "id": "qwen/qwen3.5-35b-a3b",
+          "name": "Qwen3.5 35B-A3B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3.5-397b-a17b": {
+          "id": "qwen/qwen3.5-397b-a17b",
+          "name": "Qwen3.5 397B-A17B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3.5-9b": {
+          "id": "qwen/qwen3.5-9b",
+          "name": "Qwen3.5 9B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3.5-flash-02-23": {
+          "id": "qwen/qwen3.5-flash-02-23",
+          "name": "Qwen3.5-Flash",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3.5-plus-02-15": {
+          "id": "qwen/qwen3.5-plus-02-15",
+          "name": "Qwen3.5 Plus 2026-02-15",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3.5-plus-20260420": {
+          "id": "qwen/qwen3.5-plus-20260420",
+          "name": "Qwen3.5 Plus 2026-04-20",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3.6-27b": {
+          "id": "qwen/qwen3.6-27b",
+          "name": "Qwen3.6 27B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3.6-35b-a3b": {
+          "id": "qwen/qwen3.6-35b-a3b",
+          "name": "Qwen3.6 35B-A3B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3.6-flash": {
+          "id": "qwen/qwen3.6-flash",
+          "name": "Qwen3.6 Flash",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3.6-plus": {
+          "id": "qwen/qwen3.6-plus",
+          "name": "Qwen3.6 Plus",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3.7-flash": {
+          "id": "qwen/qwen3.7-flash",
+          "name": "Qwen3.7 Flash",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            },
+            {
+              "type": "budget_tokens"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3.7-max": {
+          "id": "qwen/qwen3.7-max",
+          "name": "Qwen3.7 Max",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3.7-plus": {
+          "id": "qwen/qwen3.7-plus",
+          "name": "Qwen3.7 Plus",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3.8-2.4t-a95b": {
+          "id": "qwen/qwen3.8-2.4t-a95b",
+          "name": "Qwen3.8 2.4T A95B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3.8-27b": {
+          "id": "qwen/qwen3.8-27b",
+          "name": "Qwen3.8 27B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3.8-flash": {
+          "id": "qwen/qwen3.8-flash",
+          "name": "Qwen3.8 Flash",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            },
+            {
+              "type": "budget_tokens"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3.8-max-0902": {
+          "id": "qwen/qwen3.8-max-0902",
+          "name": "Qwen3.8 Max 0902",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["minimal", "low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3.8-max-prime": {
+          "id": "qwen/qwen3.8-max-prime",
+          "name": "Qwen 3.8 Max Prime",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["minimal", "low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen3.8-omni-flash": {
+          "id": "qwen/qwen3.8-omni-flash",
+          "name": "Qwen3.8 Omni Flash",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            },
+            {
+              "type": "budget_tokens"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "audio", "video"],
+            "output": ["text"]
+          }
+        },
+        "qwen/qwen4-max": {
+          "id": "qwen/qwen4-max",
+          "name": "Qwen4 Max",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "radixark/daisyrose-27b": {
+          "id": "radixark/daisyrose-27b",
+          "name": "DaisyRose 27B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "recursive/flint-v1.0:free": {
+          "id": "recursive/flint-v1.0:free",
+          "name": "Flint (free)",
+          "reasoning": true,
+          "reasoning_options": [],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "reflection/beam-1.0-501b-a23b": {
+          "id": "reflection/beam-1.0-501b-a23b",
+          "name": "Beam 1.0 501B A23B",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "rekaai/reka-edge": {
+          "id": "rekaai/reka-edge",
+          "name": "Reka Edge",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["image", "text", "video"],
+            "output": ["text"]
+          }
+        },
+        "rekaai/reka-flash-3": {
+          "id": "rekaai/reka-flash-3",
+          "name": "Reka Flash 3",
+          "reasoning": true,
+          "reasoning_options": [],
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "relace/relace-apply-3": {
+          "id": "relace/relace-apply-3",
+          "name": "Relace Apply 3",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "relace/relace-search": {
+          "id": "relace/relace-search",
+          "name": "Relace Search",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "ricursiveai/ripple-65b-preview": {
+          "id": "ricursiveai/ripple-65b-preview",
+          "name": "Ripple 65B Preview",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "sakana/fugu-max": {
+          "id": "sakana/fugu-max",
+          "name": "Fugu Max",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "sakana/fugu-ultra": {
+          "id": "sakana/fugu-ultra",
+          "name": "Fugu Ultra",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "sakana/fugu-ultra-v2": {
+          "id": "sakana/fugu-ultra-v2",
+          "name": "Fugu Ultra v2",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "sakana/sakana-namazu": {
+          "id": "sakana/sakana-namazu",
+          "name": "Sakana Namazu",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "sao10k/l3-lunaris-8b": {
+          "id": "sao10k/l3-lunaris-8b",
+          "name": "Llama 3 8B Lunaris",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "sao10k/l3.1-euryale-70b": {
+          "id": "sao10k/l3.1-euryale-70b",
+          "name": "Llama 3.1 Euryale 70B v2.2",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "scaledown/extract": {
+          "id": "scaledown/extract",
+          "name": "Extract",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "scaledown/summarize": {
+          "id": "scaledown/summarize",
+          "name": "Summarize",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "stepfun/step-3.7-flash": {
+          "id": "stepfun/step-3.7-flash",
+          "name": "Step 3.7 Flash",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "stepfun/step-5-preview": {
+          "id": "stepfun/step-5-preview",
+          "name": "Step 5 Preview",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "tencent/hy-mt2-1.8b": {
+          "id": "tencent/hy-mt2-1.8b",
+          "name": "Hy-MT2-1.8B",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "tencent/hy-mt2-30b-a3b": {
+          "id": "tencent/hy-mt2-30b-a3b",
+          "name": "Hy-MT2-30B-A3B",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "tencent/hy-mt2-7b": {
+          "id": "tencent/hy-mt2-7b",
+          "name": "Hy-MT2-7B",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "tencent/hy3": {
+          "id": "tencent/hy3",
+          "name": "Hy3",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "tencent/hy4": {
+          "id": "tencent/hy4",
+          "name": "Hy4",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "tencent/hy4-flash": {
+          "id": "tencent/hy4-flash",
+          "name": "Hy4 flash",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "tencent/hy4-preview": {
+          "id": "tencent/hy4-preview",
+          "name": "Hy4 preview",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "thedrummer/cydonia-24b-v4.1": {
+          "id": "thedrummer/cydonia-24b-v4.1",
+          "name": "Cydonia 24B V4.1",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "thedrummer/skyfall-36b-v2": {
+          "id": "thedrummer/skyfall-36b-v2",
+          "name": "Skyfall 36B V2",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "thedrummer/unslopnemo-12b": {
+          "id": "thedrummer/unslopnemo-12b",
+          "name": "UnslopNemo 12B",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "thinkingmachines/inkling": {
+          "id": "thinkingmachines/inkling",
+          "name": "Inkling",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "minimal", "low", "medium", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "audio"],
+            "output": ["text"]
+          }
+        },
+        "thinkingmachines/inkling-2-mini": {
+          "id": "thinkingmachines/inkling-2-mini",
+          "name": "Inkling 2 Mini",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "minimal", "low", "medium", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "thinkingmachines/inkling-2-small": {
+          "id": "thinkingmachines/inkling-2-small",
+          "name": "Inkling 2 Small",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["minimal", "low", "medium", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "thinkingmachines/inkling-small": {
+          "id": "thinkingmachines/inkling-small",
+          "name": "Inkling Small",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "minimal", "low", "medium", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "audio"],
+            "output": ["text"]
+          }
+        },
+        "unbiased/pareto-26.10": {
+          "id": "unbiased/pareto-26.10",
+          "name": "Pareto 26.10",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "unbiased/pareto-26.10-preview": {
+          "id": "unbiased/pareto-26.10-preview",
+          "name": "Pareto 26.10 Preview",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "unbiased/pareto-26.9": {
+          "id": "unbiased/pareto-26.9",
+          "name": "Pareto 26.9",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "undi95/remm-slerp-l2-13b": {
+          "id": "undi95/remm-slerp-l2-13b",
+          "name": "ReMM SLERP 13B",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "upstage/solar-mini4": {
+          "id": "upstage/solar-mini4",
+          "name": "Solar Mini 4",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "minimal", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "upstage/solar-pro4": {
+          "id": "upstage/solar-pro4",
+          "name": "Solar Pro 4",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "minimal", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "writer/palmyra-x5": {
+          "id": "writer/palmyra-x5",
+          "name": "Palmyra X5",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "x-ai/grok-4.20": {
+          "id": "x-ai/grok-4.20",
+          "name": "Grok 4.20",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "x-ai/grok-4.20-multi-agent": {
+          "id": "x-ai/grok-4.20-multi-agent",
           "name": "Grok 4.20 Multi-Agent",
           "reasoning": true,
           "reasoning_options": [
@@ -750,14 +5585,14 @@
             "output": ["text"]
           }
         },
-        "grok-4.3": {
-          "id": "grok-4.3",
+        "x-ai/grok-4.3": {
+          "id": "x-ai/grok-4.3",
           "name": "Grok 4.3",
           "reasoning": true,
           "reasoning_options": [
             {
               "type": "effort",
-              "values": ["none", "low", "medium", "high", "xhigh"]
+              "values": ["none", "low", "medium", "high"]
             }
           ],
           "tool_call": true,
@@ -766,14 +5601,14 @@
             "output": ["text"]
           }
         },
-        "grok-4.5": {
-          "id": "grok-4.5",
+        "x-ai/grok-4.5": {
+          "id": "x-ai/grok-4.5",
           "name": "Grok 4.5",
           "reasoning": true,
           "reasoning_options": [
             {
               "type": "effort",
-              "values": ["low", "medium", "high", "xhigh"]
+              "values": ["low", "medium", "high"]
             }
           ],
           "tool_call": true,
@@ -782,8 +5617,8 @@
             "output": ["text"]
           }
         },
-        "grok-4.6": {
-          "id": "grok-4.6",
+        "x-ai/grok-4.6": {
+          "id": "x-ai/grok-4.6",
           "name": "Grok 4.6",
           "reasoning": true,
           "reasoning_options": [
@@ -798,8 +5633,8 @@
             "output": ["text"]
           }
         },
-        "grok-4.7": {
-          "id": "grok-4.7",
+        "x-ai/grok-4.7": {
+          "id": "x-ai/grok-4.7",
           "name": "Grok 4.7",
           "reasoning": true,
           "reasoning_options": [
@@ -814,64 +5649,638 @@
             "output": ["text"]
           }
         },
-        "grok-build-0.1": {
-          "id": "grok-build-0.1",
-          "name": "Grok Build 0.1",
+        "xiaomi/mimo-v2.5": {
+          "id": "xiaomi/mimo-v2.5",
+          "name": "MiMo-V2.5",
           "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "audio", "video"],
+            "output": ["text"]
+          }
+        },
+        "xiaomi/mimo-v2.5-pro": {
+          "id": "xiaomi/mimo-v2.5-pro",
+          "name": "MiMo-V2.5-Pro",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "xiaomi/mimo-v2.6-flash": {
+          "id": "xiaomi/mimo-v2.6-flash",
+          "name": "MiMo-V2.6-Flash",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "audio", "video"],
+            "output": ["text"]
+          }
+        },
+        "xiaomi/mimo-v2.6-pro": {
+          "id": "xiaomi/mimo-v2.6-pro",
+          "name": "MiMo-V2.6-Pro",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "audio", "video"],
+            "output": ["text"]
+          }
+        },
+        "xiaomi/mimo-v2.6-pro-ultraspeed": {
+          "id": "xiaomi/mimo-v2.6-pro-ultraspeed",
+          "name": "MiMo-V2.6-Pro-UltraSpeed",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "audio", "video"],
+            "output": ["text"]
+          }
+        },
+        "z-ai/glm-4.5": {
+          "id": "z-ai/glm-4.5",
+          "name": "GLM-4.5",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "z-ai/glm-4.5-air": {
+          "id": "z-ai/glm-4.5-air",
+          "name": "GLM-4.5-Air",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "z-ai/glm-4.5v": {
+          "id": "z-ai/glm-4.5v",
+          "name": "GLM-4.5V",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "z-ai/glm-4.6": {
+          "id": "z-ai/glm-4.6",
+          "name": "GLM-4.6",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "z-ai/glm-4.6v": {
+          "id": "z-ai/glm-4.6v",
+          "name": "GLM-4.6V",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "z-ai/glm-4.7": {
+          "id": "z-ai/glm-4.7",
+          "name": "GLM-4.7",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "z-ai/glm-4.7-flash": {
+          "id": "z-ai/glm-4.7-flash",
+          "name": "GLM-4.7-Flash",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "z-ai/glm-5": {
+          "id": "z-ai/glm-5",
+          "name": "GLM-5",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "z-ai/glm-5-turbo": {
+          "id": "z-ai/glm-5-turbo",
+          "name": "GLM-5-Turbo",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "z-ai/glm-5.1": {
+          "id": "z-ai/glm-5.1",
+          "name": "GLM-5.1",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "z-ai/glm-5.2": {
+          "id": "z-ai/glm-5.2",
+          "name": "GLM-5.2",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "z-ai/glm-5.3": {
+          "id": "z-ai/glm-5.3",
+          "name": "GLM-5.3",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "z-ai/glm-5.3-flash": {
+          "id": "z-ai/glm-5.3-flash",
+          "name": "GLM-5.3-Flash",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "z-ai/glm-5.3-flashx": {
+          "id": "z-ai/glm-5.3-flashx",
+          "name": "GLM 5.3 FlashX",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "z-ai/glm-5.3-flashx-legal": {
+          "id": "z-ai/glm-5.3-flashx-legal",
+          "name": "GLM 5.3 FlashX Legal",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "z-ai/glm-5.3-prime": {
+          "id": "z-ai/glm-5.3-prime",
+          "name": "GLM 5.3 Prime",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "z-ai/glm-5v-turbo": {
+          "id": "z-ai/glm-5v-turbo",
+          "name": "GLM-5V-Turbo",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "toggle"
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["image", "text", "video"],
+            "output": ["text"]
+          }
+        },
+        "~anthropic/claude-fable-latest": {
+          "id": "~anthropic/claude-fable-latest",
+          "name": "Claude Fable Latest",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
           "tool_call": true,
           "modalities": {
             "input": ["text", "image", "pdf"],
             "output": ["text"]
           }
         },
-        "grok-imagine-image": {
-          "id": "grok-imagine-image",
-          "name": "Grok Imagine Image",
-          "reasoning": false,
-          "tool_call": false,
+        "~anthropic/claude-haiku-latest": {
+          "id": "~anthropic/claude-haiku-latest",
+          "name": "Claude Haiku Latest",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
           "modalities": {
-            "input": ["text", "image"],
-            "output": ["image"]
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
           }
         },
-        "grok-imagine-image-quality": {
-          "id": "grok-imagine-image-quality",
-          "name": "Grok Imagine Image Quality",
-          "reasoning": false,
-          "tool_call": false,
+        "~anthropic/claude-opus-latest": {
+          "id": "~anthropic/claude-opus-latest",
+          "name": "Claude Opus Latest",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
           "modalities": {
-            "input": ["text", "image"],
-            "output": ["image"]
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
           }
         },
-        "grok-imagine-video": {
-          "id": "grok-imagine-video",
-          "name": "Grok Imagine Video",
-          "reasoning": false,
-          "tool_call": false,
+        "~anthropic/claude-sonnet-latest": {
+          "id": "~anthropic/claude-sonnet-latest",
+          "name": "Claude Sonnet Latest",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "~deepseek/deepseek-flash-latest": {
+          "id": "~deepseek/deepseek-flash-latest",
+          "name": "DeepSeek Flash Latest",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "~deepseek/deepseek-pro-latest": {
+          "id": "~deepseek/deepseek-pro-latest",
+          "name": "DeepSeek Pro Latest",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "~deepseek/deepseek-v4-flash-latest": {
+          "id": "~deepseek/deepseek-v4-flash-latest",
+          "name": "DeepSeek V4 Flash Latest",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "~google/gemini-flash-latest": {
+          "id": "~google/gemini-flash-latest",
+          "name": "Gemini Flash Latest",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["audio", "pdf", "image", "text", "video"],
+            "output": ["text"]
+          }
+        },
+        "~google/gemini-pro-latest": {
+          "id": "~google/gemini-pro-latest",
+          "name": "Gemini Pro Latest",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["audio", "pdf", "image", "text", "video"],
+            "output": ["text"]
+          }
+        },
+        "~moonshotai/kimi-latest": {
+          "id": "~moonshotai/kimi-latest",
+          "name": "Kimi Latest",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "high", "max"]
+            }
+          ],
+          "tool_call": true,
           "modalities": {
             "input": ["text", "image", "video"],
-            "output": ["video"]
+            "output": ["text"]
           }
         },
-        "grok-imagine-video-1.5": {
-          "id": "grok-imagine-video-1.5",
-          "name": "Grok Imagine Video 1.5",
-          "reasoning": false,
-          "tool_call": false,
+        "~openai/gpt-astra-latest": {
+          "id": "~openai/gpt-astra-latest",
+          "name": "GPT Astra Latest",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
           "modalities": {
-            "input": ["text", "image", "audio"],
-            "output": ["video"]
+            "input": ["pdf", "image", "text"],
+            "output": ["text"]
           }
         },
-        "grok-imagine-video-1.5-lite": {
-          "id": "grok-imagine-video-1.5-lite",
-          "name": "Grok Imagine Video 1.5 Lite",
+        "~openai/gpt-luna-latest": {
+          "id": "~openai/gpt-luna-latest",
+          "name": "GPT Luna Latest",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["pdf", "image", "text"],
+            "output": ["text"]
+          }
+        },
+        "~openai/gpt-mini-latest": {
+          "id": "~openai/gpt-mini-latest",
+          "name": "GPT Mini Latest",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["pdf", "image", "text"],
+            "output": ["text"]
+          }
+        },
+        "~openai/gpt-sol-latest": {
+          "id": "~openai/gpt-sol-latest",
+          "name": "GPT Sol Latest",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["pdf", "image", "text"],
+            "output": ["text"]
+          }
+        },
+        "~openai/gpt-terra-latest": {
+          "id": "~openai/gpt-terra-latest",
+          "name": "GPT Terra Latest",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["pdf", "image", "text"],
+            "output": ["text"]
+          }
+        },
+        "~unbiased/pareto-latest": {
+          "id": "~unbiased/pareto-latest",
+          "name": "Pareto Latest",
           "reasoning": false,
-          "tool_call": false,
+          "tool_call": true,
           "modalities": {
             "input": ["text", "image"],
-            "output": ["video"]
+            "output": ["text"]
+          }
+        },
+        "~x-ai/grok-latest": {
+          "id": "~x-ai/grok-latest",
+          "name": "Grok Latest",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "~z-ai/glm-flash-latest": {
+          "id": "~z-ai/glm-flash-latest",
+          "name": "GLM Flash Latest",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["text"]
+          }
+        },
+        "~z-ai/glm-latest": {
+          "id": "~z-ai/glm-latest",
+          "name": "GLM Latest",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "high", "max"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
           }
         }
       }
@@ -1055,6 +6464,171 @@
           "modalities": {
             "input": ["text", "image", "video"],
             "output": ["text"]
+          }
+        }
+      }
+    },
+    "grok": {
+      "modelsDevProvider": "xai",
+      "models": {
+        "grok-4.20-0309-non-reasoning": {
+          "id": "grok-4.20-0309-non-reasoning",
+          "name": "Grok 4.20 (Non-Reasoning)",
+          "reasoning": false,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "grok-4.20-0309-reasoning": {
+          "id": "grok-4.20-0309-reasoning",
+          "name": "Grok 4.20 (Reasoning)",
+          "reasoning": true,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "grok-4.20-multi-agent-0309": {
+          "id": "grok-4.20-multi-agent-0309",
+          "name": "Grok 4.20 Multi-Agent",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "grok-4.3": {
+          "id": "grok-4.3",
+          "name": "Grok 4.3",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["none", "low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "grok-4.5": {
+          "id": "grok-4.5",
+          "name": "Grok 4.5",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "grok-4.6": {
+          "id": "grok-4.6",
+          "name": "Grok 4.6",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "grok-4.7": {
+          "id": "grok-4.7",
+          "name": "Grok 4.7",
+          "reasoning": true,
+          "reasoning_options": [
+            {
+              "type": "effort",
+              "values": ["low", "medium", "high", "xhigh"]
+            }
+          ],
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "grok-build-0.1": {
+          "id": "grok-build-0.1",
+          "name": "Grok Build 0.1",
+          "reasoning": true,
+          "tool_call": true,
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "grok-imagine-image": {
+          "id": "grok-imagine-image",
+          "name": "Grok Imagine Image",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["image"]
+          }
+        },
+        "grok-imagine-image-quality": {
+          "id": "grok-imagine-image-quality",
+          "name": "Grok Imagine Image Quality",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["image"]
+          }
+        },
+        "grok-imagine-video": {
+          "id": "grok-imagine-video",
+          "name": "Grok Imagine Video",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image", "video"],
+            "output": ["video"]
+          }
+        },
+        "grok-imagine-video-1.5": {
+          "id": "grok-imagine-video-1.5",
+          "name": "Grok Imagine Video 1.5",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image", "audio"],
+            "output": ["video"]
+          }
+        },
+        "grok-imagine-video-1.5-lite": {
+          "id": "grok-imagine-video-1.5-lite",
+          "name": "Grok Imagine Video 1.5 Lite",
+          "reasoning": false,
+          "tool_call": false,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["video"]
           }
         }
       }

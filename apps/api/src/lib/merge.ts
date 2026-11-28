@@ -4,11 +4,7 @@ import { unique } from './contacts';
  * Field values for a merge: the kept record's own value, or else the first
  * value another record has (in the order they were given).
  */
-export const fillEmpty = <Row, Key extends keyof Row>(
-  keep: Row,
-  others: Row[],
-  keys: readonly Key[],
-) => {
+const fillEmpty = <Row, Key extends keyof Row>(keep: Row, others: Row[], keys: readonly Key[]) => {
   const filled: Partial<Pick<Row, Key>> = {};
 
   for (const key of keys) {
@@ -21,10 +17,36 @@ export const fillEmpty = <Row, Key extends keyof Row>(
   return filled;
 };
 
-/** A primary value plus every list, kept record first. */
+/**
+ * Field values for a merge: each picked field takes the value of the record
+ * picked for it, the rest are filled as `fillEmpty` does.
+ */
+export const pickFields = <Row extends { id: string }, Key extends keyof Row>(
+  keep: Row,
+  others: Row[],
+  keys: readonly Key[],
+  picks: Partial<Record<Key, string>>,
+) => {
+  const values = fillEmpty(keep, others, keys);
+
+  for (const key of keys) {
+    const from = pickedRow(keep, others, picks[key]);
+
+    if (from !== keep) values[key] = from[key];
+  }
+
+  return values;
+};
+
+/** The record picked for a field, or else the kept one. */
+export const pickedRow = <Row extends { id: string }>(keep: Row, others: Row[], id?: string) =>
+  others.find((other) => other.id === id) ?? keep;
+
+/** A primary value plus every list, kept record first; `primary` is the one picked. */
 export const combineContacts = (
   keep: { primary: string | null; list: string[] },
   others: { primary: string | null; list: string[] }[],
+  primary = keep.primary,
 ) => {
   const all = unique([
     keep.primary,
@@ -32,5 +54,5 @@ export const combineContacts = (
     ...others.flatMap((other) => [other.primary, ...other.list]),
   ]);
 
-  return { primary: keep.primary ?? all[0] ?? null, list: unique([keep.primary, ...all]) };
+  return { primary: primary ?? all[0] ?? null, list: unique([primary, ...all]) };
 };

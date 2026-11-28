@@ -14,7 +14,9 @@ import {
 import { and, eq, inArray, or, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { memberOf } from '~/http/auth';
+import { withRunCause } from '~/lib/causation';
 import { logger } from '~/logger';
+import { publishCoreEvents } from '~/modules/events/events.service';
 import { enqueueJob } from '~/modules/jobs/jobs';
 import { notify } from '~/modules/notifications/notifications.service';
 import { type Cursor, sameCursor, stepAt } from './cursor';
@@ -96,14 +98,10 @@ export const lockLiveRun = async (tx: Db, runId: string) => {
   return run && (run.status === 'running' || run.status === 'waiting') ? run : null;
 };
 
-type StepEntry = {
-  status: 'succeeded' | 'failed';
-  input?: unknown;
-  output?: unknown;
-  error?: string;
-  attempt: number;
-  startedAt: Date;
-};
+type StepEntry = Pick<
+  typeof automationRunSteps.$inferInsert,
+  'status' | 'input' | 'output' | 'error' | 'attempt' | 'startedAt'
+>;
 
 const logStep = (tx: Db, run: RunRow, step: AutomationStep, entry: StepEntry) =>
   tx.insert(automationRunSteps).values({
@@ -111,12 +109,7 @@ const logStep = (tx: Db, run: RunRow, step: AutomationStep, entry: StepEntry) =>
     runId: run.id,
     stepId: step.id,
     type: step.type === 'action' ? step.action : step.type,
-    status: entry.status,
-    input: entry.input ?? null,
-    output: entry.output ?? null,
-    error: entry.error ?? null,
-    attempt: entry.attempt,
-    startedAt: entry.startedAt,
+    ...entry,
   });
 
 export const finishRun = (
@@ -196,16 +189,15 @@ export const queueAdvance = (
  * Tells whoever turned the automation on that a run failed, collapsed to one
  * notification an hour per automation so a broken one doesn't flood them.
  */
-const notifyFailure = async (tx: Db, run: RunRow, error: string) => {
-  const [automation] = await tx
-    .select()
-    .from(automations)
-    .where(eq(automations.id, run.automationId))
-    .limit(1);
+const notifyFailure = async (
+  tx: Db,
+  run: RunRow,
+  automation: typeof automations.$inferSelect,
+  error: string,
+) => {
+  const ownerId = automation.activatedBy;
 
-  const ownerId = automation?.activatedBy;
-
-  if (!automation || !ownerId) return;
+  if (!ownerId) return;
 
   const hour = new Date().toISOString().slice(0, 13);
 
@@ -226,6 +218,38 @@ const notifyFailure = async (tx: Db, run: RunRow, error: string) => {
     log.warn({ run: run.id, err: notifyError }, 'could not notify about a failed run'),
   );
 };
+
+const publishFailure = (
+  tx: Db,
+  run: RunRow,
+  automation: typeof automations.$inferSelect,
+  failure: { error: string; stepId: string | null },
+) =>
+  withRunCause(
+    {
+      runId: run.id,
+      automationId: automation.id,
+      automationName: automation.name,
+      depth: run.depth,
+    },
+    () =>
+      runAs(system('automation failed'), () =>
+        publishCoreEvents(tx, {
+          type: 'core.automation.failed',
+          entityType: 'automation',
+          entityId: automation.id,
+          payload: {
+            automationId: automation.id,
+            automationName: automation.name,
+            runId: run.id,
+            stepId: failure.stepId,
+            error: failure.error.slice(0, 500),
+            recordType: run.subjectType,
+            recordId: run.subjectId,
+          },
+        }),
+      ),
+  );
 
 /** After a step's last attempt: the run fails at that step and its owner hears. */
 export const failRun = async (
@@ -251,7 +275,17 @@ export const failRun = async (
     });
 
   await finishRun(tx, run.id, 'failed', { error });
-  await notifyFailure(tx, run, error);
+
+  const [automation] = await tx
+    .select()
+    .from(automations)
+    .where(eq(automations.id, run.automationId))
+    .limit(1);
+
+  if (!automation) return;
+
+  await notifyFailure(tx, run, automation, error);
+  await publishFailure(tx, run, automation, { error, stepId: step?.id ?? null });
 };
 
 /** Continue a failed run at the step that failed. */

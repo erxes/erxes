@@ -1,6 +1,6 @@
 import type { Db } from '@erxes/core-db';
 import { companies } from '@erxes/core-db';
-import { arrayContains, eq, getTableColumns, or, sql } from 'drizzle-orm';
+import { arrayContains, eq, getTableColumns, type SQL } from 'drizzle-orm';
 import { notFound } from '~/http/errors';
 import { tagIdsColumn } from '~/modules/tags/tagLinks';
 
@@ -17,14 +17,19 @@ export const selectCompanies = (client: Db) => {
     .from(companies);
 };
 
-/** A company by id; with `followMerges`, an id merged into another company resolves to it. */
+const firstCompany = async (client: Db, where: SQL) =>
+  (await selectCompanies(client).where(where).limit(1))[0];
+
+/**
+ * A company by id; with `followMerges`, an id merged into another company resolves to it. The id
+ * is looked up first, by its key: only an id merged away reads the merged ids, which no index serves.
+ */
 export const findCompany = async (client: Db, id: string, followMerges = false) => {
-  const [row] = await selectCompanies(client)
-    .where(
-      followMerges ? or(eq(companies.id, id), arrayContains(companies.mergedIds, [id])) : inOrg(id),
-    )
-    .orderBy(sql`${companies.id} = ${id} DESC`)
-    .limit(1);
+  const row =
+    (await firstCompany(client, inOrg(id))) ??
+    (followMerges
+      ? await firstCompany(client, arrayContains(companies.mergedIds, [id]))
+      : undefined);
 
   if (!row) {
     throw notFound('Company');

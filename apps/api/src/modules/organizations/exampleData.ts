@@ -20,8 +20,11 @@ import { AUTOMATION_TEMPLATES } from '~/modules/automations/library';
 import { createCompany } from '~/modules/companies/companies.service';
 import { createCustomer, linkCustomerCompany } from '~/modules/customers/customers.service';
 import { createField } from '~/modules/dataExtensions/fields.service';
+import { createCategory } from '~/modules/products/productCategories.service';
+import { createProduct } from '~/modules/products/products.service';
 import { createTag } from '~/modules/tags/tags.service';
 import { createView } from '~/modules/views/views.service';
+import { getOrganization, updateOrganization } from './organizations.service';
 import type { ExampleCopy } from './exampleCopy';
 import { EXAMPLE_COPY_EN } from './exampleCopyEn';
 import { EXAMPLE_COPY_MN } from './exampleCopyMn';
@@ -30,8 +33,9 @@ import { EXAMPLE_COPY_MN } from './exampleCopyMn';
  * Example data for a fresh organisation, so its first look isn't empty (as
  * HubSpot and Attio do): companies, customers and leads across the lead
  * stages, linked with roles, tags, two Data Extensions fields, timeline notes, a saved
- * view and a welcome automation left off. Everything is tagged "Example", so
- * it can be filtered and deleted in one go. Emails are `@example.com` (never
+ * view, a welcome automation left off, a small product catalog, and the region
+ * when the organisation has none. Contacts
+ * are tagged "Example", so they can be filtered and deleted in one go. Emails are `@example.com` (never
  * delivered). Written through the services, so timelines, search and events
  * are what real records get.
  */
@@ -144,6 +148,55 @@ const seedPerson = async (seeding: Seeding, person: Person) => {
   }
 };
 
+/**
+ * Where an organisation that hasn't said where it works is taken to work: Mongolia, in tugrik,
+ * also trading in dollars and yuan, on Ulaanbaatar time. One that chose a country keeps its own.
+ */
+const seedRegion = async (tx: Db) => {
+  if ((await getOrganization(tx)).country !== null) return;
+
+  await updateOrganization(tx, {
+    country: 'MN',
+    currency: 'MNT',
+    currencies: ['USD', 'CNY'],
+    timezone: 'Asia/Ulaanbaatar',
+  });
+};
+
+/**
+ * A small catalog: "Products" holding finished goods (5) and other goods (3), and services (2),
+ * coded as an accountant's chart would (category 1's goods 101…).
+ */
+const seedCatalog = async (tx: Db, { catalog }: ExampleCopy) => {
+  const products = await createCategory(tx, { code: '0', name: catalog.products });
+
+  const leaves = [
+    { code: '1', name: catalog.finishedGoods, parentId: products.id, kind: 'goods', count: 5 },
+    { code: '9', name: catalog.otherGoods, parentId: products.id, kind: 'goods', count: 3 },
+    { code: '7', name: catalog.services, parentId: null, kind: 'service', count: 2 },
+  ] as const;
+
+  const numbers = { goods: 0, service: 0 };
+
+  await inOrder(leaves, async ({ count, kind, ...leaf }) => {
+    const category = await createCategory(tx, leaf);
+
+    await inOrder(
+      Array.from({ length: count }, (_, at) => at + 1),
+      async (at) => {
+        numbers[kind] += 1;
+
+        await createProduct(tx, {
+          kind,
+          code: `${leaf.code}0${String(at)}`,
+          name: `${kind === 'goods' ? catalog.product : catalog.service} ${String(numbers[kind])}`,
+          categoryId: category.id,
+        });
+      },
+    );
+  });
+};
+
 const hasContacts = async (tx: Db) => {
   const [existing] = await tx
     .select({
@@ -202,6 +255,9 @@ const seedExampleData = async (tx: Db, language: ExampleLanguage) => {
       rules: [{ path: 'subject.tagIds', op: 'contains', value: labels.vip }],
     },
   });
+
+  await seedRegion(tx);
+  await seedCatalog(tx, copy);
 
   const welcome = AUTOMATION_TEMPLATES.find((template) => template.id === 'welcome');
 

@@ -112,6 +112,14 @@ export const convertTargets = (type: DataExtensionFieldType): ConvertibleType[] 
 export const isNumeric = (type: DataExtensionFieldType) =>
   type === 'number' || type === 'percent' || type === 'currency';
 
+/** Types a portal form asks customers for: none that link records, members or files. */
+export const customersCanFill = (type: DataExtensionFieldType) =>
+  !isComputedType(type) &&
+  type !== 'relation' &&
+  type !== 'member' &&
+  type !== 'files' &&
+  type !== 'json';
+
 /** Types whose values the API can keep unique. */
 export const canBeUnique = (type: DataExtensionFieldType) =>
   type === 'text' || type === 'email' || type === 'phone' || type === 'url' || type === 'number';

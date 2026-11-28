@@ -40,6 +40,18 @@
  *   // An invoice may list what it pays for; `plugin` names another plugin's line (it gets the events):
  *   //   lines: [{ productId, quantity: 1, unitPrice: 150000 }, { name: 'Delivery', quantity: 1, unitPrice: 10000, plugin: 'tms' }]
  *
+ * Product stock by branch and department (write with scope `inventories:write`, read with
+ * `products:read`): 3.x's `product.inventories`, kept by the plugin that books the stock. Each call
+ * writes one place, `branchId` and `departmentId` either left out for none, at most 1000 lines.
+ * `set` sets each amount (left out or 0 clears it, as 3.x unset it); `increase` adds each diff in
+ * one statement, so concurrent bookings each add theirs. An unknown product fails the call (400
+ * INVALID_PRODUCT). `remainders` is 3.x's `product.remainder`, `stock` the total and per-branch
+ * stock without cost, and `products.list` filters by `minRemainder`/`maxRemainder`.
+ *
+ *   await core.forOrg(orgId).productInventories.increase({ branchId, departmentId, items: [{ productId, diffCount: -2, diffCost: -15000 }] });
+ *   await core.forOrg(orgId).productInventories.set({ branchId, departmentId, items: [{ productId, remainder: 10, cost: 75000 }] });
+ *   const { data } = await core.forOrg(orgId).productInventories.list({ productIds: ids.join(','), branchId, departmentId });
+ *
  * Team members who don't sign in (scope `users:write`): people a plugin keeps on the team for its own app
  * (HR's employees). They take no seat and never sign in to erxes; a plugin adds them and changes
  * their profile, never a member who signs in.
@@ -55,6 +67,20 @@
  *
  *   const { data } = await core.forOrg(orgId).units.list({});    // every unit, parents first, with memberIds
  *   const { ids } = await core.forOrg(orgId).units.import({ units: [{ id, kind: 'branch', name, memberIds }] });
+ *
+ * With the organisation's team member restrictions on (Settings › General, 3.x's "With team member
+ * restrictions"), keep a member's lists to the units `units.restrictions` answers; null is no limit.
+ *
+ *   const { branchIds, departmentIds } = await core.forOrg(orgId).units.restrictions({ userId });
+ *   if (branchIds) where.push(inArray(transactions.branchId, branchIds));
+ *
+ * Exchange rates (scopes `exchange_rates:read`, `exchange_rates:write`): the ones members keep in
+ * Settings › Exchange rates. A rate counts from its day until the pair's next one; `getActiveRate`
+ * answers the rate in force on a day (a moment counts on its day in the organisation's time zone),
+ * or null, with `mainCurrency` the organisation's currency unless given.
+ *
+ *   const spot = await core.forOrg(orgId).exchangeRates.getActiveRate({ date: tr.date.toISOString(), rateCurrency: 'USD' });
+ *   const rate = spot?.rate ?? 0;                                   // 1 USD = rate MNT
  *
  * Fields on customers and companies (rollups; scope `fields:write`): declare them in the manifest,
  * then write their values. Members see them read-only and filter by them; no timeline entry or event.
@@ -72,24 +98,59 @@
  *   });                                   // the record's values to save; 400 INVALID_INPUT otherwise
  *   const { data } = await core.forOrg(orgId).dataFields.list({ recordType: 'sales.deal' });
  *
+ * Email and texts go out through core, never the plugin's own SMTP or SMS provider:
+ *
+ *   await core.forOrg(orgId).emails.send({ to: [email], subject, body });   // scope emails:write
+ *   await core.forOrg(orgId).sms.send({ to: [phone], text });               // scope sms:write
+ *
+ * The organisation's connections of core's integrations (Facebook): name them in the manifest
+ * (`connections: [{ integration: 'facebook', reason }]`), the owner approves, then
+ *
+ *   const { data } = await core.forOrg(orgId).integrations.usable({ key: 'facebook' });
+ *   const { accessToken, appSecret } = await core.forOrg(orgId).integrations.credentials({ id });
+ *
+ * and call the service yourself; its webhooks reach the plugin directly. Subscribe to
+ * `core.integration.changed` to read a connection again when it changes or goes.
+ *
  * Segments (scope `views:read`): a shared view members built in core is the audience.
  *
  *   const { data } = await core.forOrg(orgId).views.list({ recordType: 'customer' });  // shared only
  *   const { recordIds } = await core.forOrg(orgId).views.matches({ viewId, recordIds: [customerId] });
  *
- * Customers (a shop, tracking, booking): core signs them in; the plugin never builds sign-up or
- * sign-in. Declare `customerApp: { origins: ['https://{subdomain}.shop.example.com'] }` in the
- * manifest. The app's own form makes two calls to core: `POST /core/v1/customer-auth/code`
- * `{ clientId, kind, value }` sends a code, `POST /core/v1/customer-auth/sign-in` with the code
- * returns `{ accessToken, refreshToken, expiresIn, customer }`; `/customer-auth/refresh` renews
- * them. Serve customers under `/customer/*`, keyed by the customer id:
+ * Customers (a shop, hotel or tour site and its apps): core signs them in, per portal; the plugin
+ * never builds sign-up or sign-in. A portal belongs to the organisation (Settings › Portals) and
+ * many plugins attach to one, each with its own record (scope `portals:write`):
+ * `await core.forOrg(orgId).portals.attach({ id: portalId, recordId: store.id })` puts a store on
+ * a portal picked from `portals.list()`; `portals.save({ recordId: site.id, name, origins })`
+ * makes the portal a record runs and renames it after; `portals.detach({ recordId })` when the
+ * record goes. The portal's own forms call core's portal API with the same `X-Portal-Token`:
+ * `POST /core/v1/portal/auth/sign-up` `{ kind, value, firstName, … }` then `/sign-up/confirm`
+ * with the code makes the account; `POST /core/v1/portal/auth/code` `{ kind, value }` then
+ * `/sign-in` with the code signs an account in; `/portal/auth/social` signs in with Google, Apple
+ * or Facebook. They return `{ accessToken, refreshToken, expiresIn, customer }`;
+ * `/portal/auth/refresh` renews them. A portal's apps and server call each plugin's one portal
+ * API, `/portal/v1`, with `X-Portal-Token`: a token core gives for one of the portal's keys, a
+ * secret key on its
+ * server or a publishable key in its web and mobile apps; no plugin issues its own keys. A
+ * signed-in customer adds `Authorization: Bearer`, which the `/me/*` routes (their orders, their
+ * profile) require. `verifyPortalRequest` checks both, the browser's address and whom to limit:
  *
- *   app.use('/customer', async (req, res, next) => {
- *     req.customer = await verifyCustomerToken(req.headers.authorization, { coreUrl })
- *       .catch(() => null);                // { orgId, customerId, clientId }
- *     return req.customer ? next() : res.sendStatus(401);
+ *   app.use('/portal/v1', cors({ origin: true }), async (req, res, next) => {
+ *     try {
+ *       req.call = await verifyPortalRequest({
+ *         portalToken: req.header('x-portal-token'), authorization: req.header('authorization'),
+ *         origin: req.header('origin'), ip: req.ip, visitorIp: req.header('x-visitor-ip'),
+ *       }, { coreUrl });                           // limit calls by req.call.visitor
+ *     } catch (error) {
+ *       if (!(error instanceof PortalRequestError)) return next(error);
+ *       return res.status(error.status).json({ code: error.code, message: error.message });
+ *     }
+ *     req.store = await storeOfPortal(req.call.orgId, req.call.portalId);
+ *     return req.store ? next() : res.sendStatus(401);
  *   });
- *   app.get('/customer/orders', (req) => orders.list(req.customer.orgId, req.customer.customerId));
+ *   app.get('/portal/v1/me/orders', (req) => orders.list(req.store.id, req.call.customer.customerId));
+ *
+ * Files that need no token at all (product images) go under `/public`.
  *
  * Tiers on SaaS (erxes.io: free / plus / pro; self-hosted: pro, full):
  *
@@ -113,6 +174,15 @@
  *     await JOBS[job.name](job);         // { jobId, orgId, name, attempt, payload }; may repeat
  *     res.sendStatus(204);
  *   });
+ *
+ * Integrations (Facebook, Instagram): declare them in the manifest, each with one of its own
+ * permissions, and core lists them in Settings › Integrations next to its own, for members with
+ * `integrations.manage` and that permission. Keep their keys with `secrets.save`; the UI config's
+ * `integrations` give each its icon and tabs. Report where each stands after it changes:
+ *
+ *   integrations: [{ key: 'facebook', name: 'Facebook', summary: 'Messenger and page comments in the inbox',
+ *     category: 'social', permission: 'frontline.integration.manage' }],
+ *   await core.reportIntegration(orgId, 'facebook', 'connected', pages.length);  // or 'off', 'attention', 'not-set-up'
  *
  * A timeline whose records not every member may read declares `recordAccess: true`; core asks the
  * plugin before a member reads or notes on one, and anything but `{ allowed: true }` within 5 s is no:
@@ -142,12 +212,17 @@
  *
  * API reference: `@erxes/plugin-sdk/openapi` documents the plugin's routes, served as REST beside
  * the RPC handler. The manifest's `api.docs` lists one document per audience (`member`, and
- * `employee`, `customer` or `website` for routes those call), and Settings › Developer shows them.
+ * `employee`, `customer` or `portal` for routes those call), and Settings › Developer shows them.
  * The assistant calls the `member` document's routes with the member's session token:
  *
  *   api: { url: `${publicUrl}/api`, docs: [{ audience: 'member', path: '/openapi/member.json' }] },
  *   app.use('/api/v1', member check, (req, res, next) => rest.handle(req, res, { prefix: '/api/v1', context }));
  *   app.get('/api/openapi/member.json', async (_req, res) => res.json(await pluginOpenApi(router, { plugin, audience: 'member', title, version, server: `${publicUrl}/api`, prefix: '/v1' })));
+ *
+ * Wrap the middleware that checks a route's permission in `checksPermission`, so the document
+ * says which permission each route needs and the assistant offers it only to who holds one:
+ *
+ *   export const reads = (...actions: string[]) => base.use(checksPermission(base.middleware(...), actions));
  *
  * Another plugin's API (accounting reading sales' deals when sales' events arrive, which carry
  * only ids and totals): name it in the manifest's `pluginReads`. Each organisation's owner
@@ -189,8 +264,14 @@
 
 export * from './client';
 
+export { payloadFields } from '@erxes/core-contract';
+
 export * from './jobs';
 
 export { PluginCallError } from './pluginCalls';
+
+export * from './portal';
+
+export * from './signIn';
 
 export * from './verify';

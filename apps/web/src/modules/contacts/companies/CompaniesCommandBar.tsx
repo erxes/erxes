@@ -1,6 +1,6 @@
 import type { Company } from '@erxes/core-contract';
 import { IconTrash } from '@tabler/icons-react';
-import { Button, CommandBar, companyTitle, RecordTable, Separator, useConfirm } from 'erxes-ui';
+import { Button, CommandBar, RecordTable, Separator, useConfirm } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelectedRows } from '~/components/useSelectedRows';
@@ -9,8 +9,8 @@ import { LeadsBulkActions } from '~/modules/leads/LeadActions';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { TagsSelect } from '~/modules/tags/TagsSelect';
 import { commonTagIds, MergeButton, tagChange } from '../components/MergeButton';
-import { MergeDialog } from '../components/MergeDialog';
-import { useCompaniesMerge, useCompaniesRemove, useCompaniesTag } from './useCompanies';
+import { CompaniesMerge } from '../components/ContactsMerge';
+import { useCompaniesRemove, useCompaniesTag } from './useCompanies';
 
 /** Merges the two selected companies into the one kept, then opens it. */
 const CompaniesMergeDialog = ({
@@ -22,34 +22,19 @@ const CompaniesMergeDialog = ({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) => {
-  const { t } = useTranslation('contact');
   const { table } = RecordTable.useRecordTable();
   const { openRecord } = useSidePanel();
-  const merge = useCompaniesMerge();
 
   return (
-    <MergeDialog
+    <CompaniesMerge
+      records={companies}
       open={open}
       onOpenChange={onOpenChange}
-      kind="company"
-      merging={merge.isPending}
-      records={companies.map((company) => ({
-        id: company.id,
-        title: companyTitle(company) || t('unnamed', 'Unnamed'),
-        details: [company.primaryEmail ?? '', company.website ?? ''],
-      }))}
-      onMerge={(keepId) =>
-        merge.mutate(
-          { ids: companies.map((company) => company.id), keepId },
-          {
-            onSuccess: (company) => {
-              onOpenChange(false);
-              table.resetRowSelection(true);
-              openRecord({ contentType: 'core:company', contentId: company.id });
-            },
-          },
-        )
-      }
+      onMerged={(keptId) => {
+        onOpenChange(false);
+        table.resetRowSelection(true);
+        openRecord({ contentType: 'core:company', contentId: keptId });
+      }}
     />
   );
 };

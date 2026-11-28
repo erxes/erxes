@@ -1,4 +1,5 @@
 import {
+  ASSISTANT_TEXT_MAX,
   type AssistantAttachment,
   AssistantDocumentType,
   AssistantFiles,
@@ -17,13 +18,11 @@ import { readFileBytes, readyFilesOfCaller } from '~/modules/files/files.service
 import { DocumentTextError, documentText } from './documentText';
 import type { DocumentFormat } from './documentText.worker';
 
-const ATTACHMENT_TEXT_MAX = 30_000;
-
 const READ_TIMEOUT_MS = 15_000;
 
 const MB = 1024 * 1024;
 
-const DOCUMENT_FORMATS: Record<AssistantDocumentType, DocumentFormat> = {
+export const DOCUMENT_FORMATS: Record<AssistantDocumentType, DocumentFormat> = {
   'application/pdf': 'pdf',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
@@ -131,8 +130,8 @@ const plainText = (bytes: Buffer) => {
   }
 
   return {
-    text: text.slice(0, ATTACHMENT_TEXT_MAX),
-    truncated: text.length > ATTACHMENT_TEXT_MAX,
+    text: text.slice(0, ASSISTANT_TEXT_MAX),
+    truncated: text.length > ASSISTANT_TEXT_MAX,
   };
 };
 
@@ -151,7 +150,7 @@ const contentOf = async (file: AssistantAttachment, bytes: Buffer): Promise<File
   const document = AssistantDocumentType.safeParse(file.contentType);
 
   if (document.success) {
-    const read = await documentText(bytes, DOCUMENT_FORMATS[document.data], ATTACHMENT_TEXT_MAX);
+    const read = await documentText(bytes, DOCUMENT_FORMATS[document.data], ASSISTANT_TEXT_MAX);
 
     return { kind: 'text', ...read };
   }
@@ -225,7 +224,7 @@ const fileParts = (file: AssistantAttachment, content: FileContent | undefined):
             '>>>',
             ...(content.truncated
               ? [
-                  `[The text was cut off at ${ATTACHMENT_TEXT_MAX} characters; ask the member for the part they need.]`,
+                  `[The text was cut off at ${ASSISTANT_TEXT_MAX} characters; ask the member for the part they need.]`,
                 ]
               : []),
           ].join('\n'),

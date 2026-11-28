@@ -1,5 +1,7 @@
 import {
   broadcastRecipients,
+  customerAccounts,
+  customerCodes,
   customerCompanies,
   customerLogins,
   customerNotifications,
@@ -8,28 +10,68 @@ import {
   db,
   type Db,
 } from '@erxes/core-db';
-import { asc, inArray, sql } from 'drizzle-orm';
+import type { CustomerMerge } from '@erxes/core-contract';
+import { CUSTOMER_MERGE_FIELDS } from '@erxes/core-db/enums';
+import { and, asc, eq, inArray, sql } from 'drizzle-orm';
+import { inOrder } from '~/lib/sequence';
 import { fail, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
-import { combineContacts, fillEmpty } from '~/lib/merge';
+import { combineContacts, pickedRow, pickFields } from '~/lib/merge';
 import { contactsMerged } from '~/modules/activities/contactHistory';
 import { mergeHostValues } from '~/modules/dataExtensions/hostRecords';
 import { copyTags } from '~/modules/tags/tagLinks';
 import { type CustomerRow, findCustomer, inOrg, selectCustomers } from './customerRows';
 
-const MERGE_FILLED = [
-  'firstName',
-  'middleName',
-  'lastName',
-  'avatarUrl',
-  'sex',
-  'birthDate',
-  'position',
-  'department',
-  'code',
-  'description',
-  'ownerId',
-] as const;
+/** Fields taken whole from one customer; emails and phones are combined. */
+const MERGE_FILLED = CUSTOMER_MERGE_FIELDS.filter(
+  (field) => field !== 'primaryEmail' && field !== 'primaryPhone',
+);
+
+/**
+ * Accounts move to the kept customer. Where the kept customer already has an
+ * account on the same portal, the other account's logins and sessions join
+ * it and the other account goes.
+ */
+const moveAccounts = async (tx: Db, otherIds: string[], keepId: string) => {
+  const others = await tx
+    .select({ id: customerAccounts.id, portalId: customerAccounts.portalId })
+    .from(customerAccounts)
+    .where(inArray(customerAccounts.customerId, otherIds))
+    .orderBy(asc(customerAccounts.createdAt), asc(customerAccounts.id));
+
+  await inOrder(others, async (other) => {
+    const [kept] = await tx
+      .select({ id: customerAccounts.id })
+      .from(customerAccounts)
+      .where(
+        and(eq(customerAccounts.portalId, other.portalId), eq(customerAccounts.customerId, keepId)),
+      )
+      .limit(1);
+
+    if (!kept) {
+      await tx
+        .update(customerAccounts)
+        .set({ customerId: keepId })
+        .where(eq(customerAccounts.id, other.id));
+
+      return;
+    }
+
+    await tx
+      .update(customerLogins)
+      .set({ accountId: kept.id })
+      .where(eq(customerLogins.accountId, other.id));
+    await tx
+      .update(customerSessions)
+      .set({ accountId: kept.id })
+      .where(eq(customerSessions.accountId, other.id));
+    await tx
+      .update(customerCodes)
+      .set({ accountId: kept.id })
+      .where(eq(customerCodes.accountId, other.id));
+    await tx.delete(customerAccounts).where(eq(customerAccounts.id, other.id));
+  });
+};
 
 /** Company links and tags move to the kept customer before the others go. */
 const moveRelations = async (tx: Db, keepId: string, otherIds: string[]) => {
@@ -45,12 +87,7 @@ const moveRelations = async (tx: Db, keepId: string, otherIds: string[]) => {
   await copyTags(tx, 'customer', otherIds, keepId);
 
   // They sign in as the kept customer from now on, and stay signed in.
-  const ofOthers = (
-    table: typeof customerLogins | typeof customerSessions | typeof customerNotifications,
-  ) => inArray(table.customerId, otherIds);
-
-  await tx.update(customerLogins).set({ customerId: keepId }).where(ofOthers(customerLogins));
-  await tx.update(customerSessions).set({ customerId: keepId }).where(ofOthers(customerSessions));
+  await moveAccounts(tx, otherIds, keepId);
   // Their inboxes too; a retry key both had keeps the kept customer's copy.
   await tx.execute(sql`
     DELETE FROM ${customerNotifications} other
@@ -64,7 +101,7 @@ const moveRelations = async (tx: Db, keepId: string, otherIds: string[]) => {
   await tx
     .update(customerNotifications)
     .set({ customerId: keepId })
-    .where(ofOthers(customerNotifications));
+    .where(inArray(customerNotifications.customerId, otherIds));
   // What broadcasts they were sent stays counted, now as the kept customer's.
   await tx
     .update(broadcastRecipients)
@@ -73,19 +110,25 @@ const moveRelations = async (tx: Db, keepId: string, otherIds: string[]) => {
 };
 
 /** The kept customer's columns after the merge. */
-const mergedColumns = (keep: CustomerRow, others: CustomerRow[]) => {
+const mergedColumns = (
+  keep: CustomerRow,
+  others: CustomerRow[],
+  picks: CustomerMerge['fields'],
+) => {
   const email = combineContacts(
     { primary: keep.primaryEmail, list: keep.emails },
     others.map((other) => ({ primary: other.primaryEmail, list: other.emails })),
+    pickedRow(keep, others, picks.primaryEmail).primaryEmail,
   );
 
   const phone = combineContacts(
     { primary: keep.primaryPhone, list: keep.phones },
     others.map((other) => ({ primary: other.primaryPhone, list: other.phones })),
+    pickedRow(keep, others, picks.primaryPhone).primaryPhone,
   );
 
   return {
-    ...fillEmpty(keep, others, MERGE_FILLED),
+    ...pickFields(keep, others, MERGE_FILLED, picks),
     state: [keep, ...others].some((row) => row.state === 'customer')
       ? ('customer' as const)
       : ('lead' as const),
@@ -103,12 +146,13 @@ const mergedColumns = (keep: CustomerRow, others: CustomerRow[]) => {
 };
 
 /**
- * Merges customers into `keepId`: its empty fields are filled from the others
+ * Merges customers into `keepId`: each field in `fields` takes the value of
+ * the customer picked for it, other empty fields are filled from the others
  * (in the given order), emails, phones, tags and companies are combined,
  * Data Extensions values are added where it has none, and the others are deleted.
  * Their ids keep resolving to the kept customer (`mergedIds`).
  */
-export const mergeCustomers = async (input: { ids: string[]; keepId: string }) => {
+export const mergeCustomers = async (input: CustomerMerge) => {
   const ids = unique(input.ids);
 
   if (ids.length < 2) {
@@ -140,7 +184,10 @@ export const mergeCustomers = async (input: { ids: string[]; keepId: string }) =
   // Deleting first frees their primary email and phone for the kept customer.
   await tx.delete(customers).where(inArray(customers.id, otherIds));
 
-  await tx.update(customers).set(mergedColumns(keep, others)).where(inOrg(keep.id));
+  await tx
+    .update(customers)
+    .set(mergedColumns(keep, others, input.fields))
+    .where(inOrg(keep.id));
 
   const merged = await findCustomer(tx, keep.id);
 

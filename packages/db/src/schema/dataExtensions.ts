@@ -84,6 +84,8 @@ export interface DataFieldSettings {
   readOnly?: boolean;
   /** Kept, with its values, but shown nowhere unless a screen asks for hidden fields. */
   hidden?: boolean;
+  /** Customer fields only: customers fill it in on portal sign-up and their profile. */
+  customerEditable?: boolean;
   /** Offered in list filters; on unless false. */
   filterable?: boolean;
   visibleWhen?: DataFieldCondition;

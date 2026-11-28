@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vite-plus/test';
 import { FIELDS, ORG, useOldPropertiesDatabase } from './propertiesCopy.fixture';
 
 /**
- * 0107 copies old custom properties into Data Extensions with the same ids, and 0108 drops
+ * 0148 copies old custom properties into Data Extensions with the same ids, and 0149 drops
  * them: on a database that had them before those migrations ran.
  */
 describe('copying custom properties into Data Extensions', { timeout: 300_000 }, () => {
@@ -38,6 +38,7 @@ describe('copying custom properties into Data Extensions', { timeout: 300_000 },
       icon: 'IconNotes',
     });
     expect(byId.fVip).toMatchObject({ type: 'boolean', settings: { hidden: true } });
+    expect(byId.fScore?.settings).toEqual({ customerEditable: true });
     expect(byId.fTier).toMatchObject({
       type: 'select',
       options: [

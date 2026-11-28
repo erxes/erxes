@@ -33,10 +33,11 @@ const findSidebarPanelSlot = (panel: HTMLElement | null) => {
 const SidebarPanelInnerTriggerHiddenContext = React.createContext(false);
 
 /**
- * Whether the panel is open. On a desktop it stays as the member left it. On a phone it covers
- * the page, so it starts closed and closes once you pick a page in it.
+ * Whether an app's sidebar panel is open, and a setter.
+ * `setOpen` opens or closes it. On a desktop it stays as the member left it. On a phone it covers the page, so it starts
+ * closed and closes once you pick a page in it.
  */
-const useSidebarPanelOpen = () => {
+export const useSidebarPanelOpen = () => {
   const isMobile = useIsMobile();
   const { pathname } = useLocation();
   const [desktopOpen, setDesktopOpen] = useAtom(sidebarPanelOpenState);

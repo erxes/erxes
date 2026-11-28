@@ -7,11 +7,11 @@ import {
   requestOrgId,
   withOrg,
 } from '@erxes/core-db';
-import { and, desc, eq, getTableColumns, sql } from 'drizzle-orm';
+import { and, desc, eq, getTableColumns, isNull, or, sql } from 'drizzle-orm';
 import { fail, notFound } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
 import { recordAudit } from '~/modules/audit/audit.service';
-import { settingsOf } from './plan';
+import { configOf, RECEIPT_CURRENCY } from './plan';
 import { findCompany } from './posapi';
 import { queueReceiptSync } from './sync';
 
@@ -22,17 +22,35 @@ const ownSource = () => {
   return who.type === 'plugin' ? who.plugin : null;
 };
 
-const selectReceipts = (client: Db) =>
+/**
+ * Receipts with whose record they are for (what the plugin that recorded one said, else its
+ * invoice's) and their currency (a recorded one is in tögrög).
+ */
+export const selectReceipts = (client: Db) =>
   client
     .select({
       ...getTableColumns(ebarimtReceipts),
-      source: paymentInvoices.source,
-      referenceType: paymentInvoices.referenceType,
-      referenceId: paymentInvoices.referenceId,
-      currency: paymentInvoices.currency,
+      source: sql<string>`coalesce(${ebarimtReceipts.source}, ${paymentInvoices.source})`,
+      referenceType: sql<string>`coalesce(${ebarimtReceipts.referenceType}, ${paymentInvoices.referenceType})`,
+      referenceId: sql<string>`coalesce(${ebarimtReceipts.referenceId}, ${paymentInvoices.referenceId})`,
+      currency: sql<string>`coalesce(${paymentInvoices.currency}, ${RECEIPT_CURRENCY})`,
+      recorded: sql<boolean>`${ebarimtReceipts.source} is not null`,
     })
     .from(ebarimtReceipts)
-    .innerJoin(paymentInvoices, eq(paymentInvoices.id, ebarimtReceipts.invoiceId));
+    .leftJoin(paymentInvoices, eq(paymentInvoices.id, ebarimtReceipts.invoiceId));
+
+/**
+ * The receipt's own `source` or `referenceId` is the value (one a plugin recorded), else its
+ * invoice's is. A subquery, so the list's count needs no join.
+ */
+const whoseIs = (column: 'source' | 'referenceId', value: string) =>
+  or(
+    eq(ebarimtReceipts[column], value),
+    and(
+      isNull(ebarimtReceipts.source),
+      sql`exists (select 1 from ${paymentInvoices} where ${paymentInvoices.id} = ${ebarimtReceipts.invoiceId} and ${paymentInvoices[column]} = ${value})`,
+    ),
+  );
 
 export const listReceipts = (
   client: Db,
@@ -41,6 +59,8 @@ export const listReceipts = (
     source?: string;
     referenceId?: string;
     status?: EbarimtReceipt['status'];
+    /** false: only those core sent (the integration's state counts those it can send again). */
+    recorded?: false;
   },
 ) => {
   const source = ownSource() ?? query.source;
@@ -56,12 +76,9 @@ export const listReceipts = (
     and(
       query.invoiceId ? eq(ebarimtReceipts.invoiceId, query.invoiceId) : undefined,
       query.status ? eq(ebarimtReceipts.status, query.status) : undefined,
-      source
-        ? sql`exists (select 1 from ${paymentInvoices} where ${paymentInvoices.id} = ${ebarimtReceipts.invoiceId} and ${paymentInvoices.source} = ${source})`
-        : undefined,
-      query.referenceId
-        ? sql`exists (select 1 from ${paymentInvoices} where ${paymentInvoices.id} = ${ebarimtReceipts.invoiceId} and ${paymentInvoices.referenceId} = ${query.referenceId})`
-        : undefined,
+      query.recorded === false ? isNull(ebarimtReceipts.source) : undefined,
+      source ? whoseIs('source', source) : undefined,
+      query.referenceId ? whoseIs('referenceId', query.referenceId) : undefined,
     ),
     query,
     (where, orderBy, limit) =>
@@ -72,7 +89,7 @@ export const listReceipts = (
   );
 };
 
-/** The caller's invoice (a plugin's own), with eBarimt set up. 404, 409 EBARIMT_NOT_SET_UP. */
+/** The caller's invoice (a plugin's own), with its eBarimt config on. 404, 409 EBARIMT_NOT_SET_UP. */
 const invoiceToSync = async (tx: Db, invoiceId: string) => {
   const [invoice] = await tx
     .select()
@@ -84,7 +101,7 @@ const invoiceToSync = async (tx: Db, invoiceId: string) => {
 
   if (!invoice || (source && invoice.source !== source)) throw notFound('Invoice');
 
-  if ((await settingsOf(tx))?.status !== 'active') {
+  if ((await configOf(tx, invoice.ebarimtId))?.status !== 'active') {
     throw fail('EBARIMT_NOT_SET_UP', 'Turn eBarimt on first (Settings › Integrations)');
   }
 

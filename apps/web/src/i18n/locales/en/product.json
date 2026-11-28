@@ -60,6 +60,7 @@
     "price": "Price",
     "tags": "Tags",
     "unit": "Unit",
+    "unit-default": "pcs",
     "weight": "Weight (g)",
     "width": "Width (mm)"
   },

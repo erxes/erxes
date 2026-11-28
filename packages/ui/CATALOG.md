@@ -23,12 +23,17 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 
 ## Page
 
+- `<AppBreadcrumb items>` The page's trail: the app's icon and name, then each level, as links.
 - `<AppLayout id sidebar footer title>` An app's full-height layout under core's top bar, with its own sidebar.
 - `<AppLayoutFooterLink to name icon>` A link pinned to the foot of an app sidebar, in `AppLayout`'s `footer`.
+- `type Crumb { label, to, icon }` One level of the page's place.
+- `<NavigationMenuGroup name separate defaultOpen actions>` A titled group of sidebar links that folds open and shut, open at first.
 - `<NavigationMenuLinkItem name icon to isActive label>` A sidebar link that lights up while the address is under its `to`.
 - `<PageContainer>` A page's outer box, full height, with `PageHeader` first inside it.
 - `PageHeader.{Start, End}` A page's title bar, with the breadcrumb and its one primary action.
 - `<PageSubHeader variant>` A bar under the page header with a rule below it, for tabs or controls.
+- `<ReportPageContainer>` A printable report page: a toolbar to zoom and print, then the sheet.
+- `ReportTable.{Header, Body, Footer, Head, Row, …}` A printable report's table, bordered, sized in em.
 
 ## Lists
 
@@ -41,11 +46,14 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<ListFilterEmpty records fallback>` A list's empty state while `ListFilter` filters it, with Clear filters.
 - `listFilterQuery` The URL params holding a list's filter, as nuqs parsers.
 - `<ListViewsProvider views>` Gives every list with a `recordType` saved views, as core's lists have.
+- `parseDateRangeFromString(date, today)` The start and end of the days a date filter's value covers.
 - `RecordList.{Provider, Skeleton, useSelection}` Rows grouped under headers that fold away, such as tasks by status.
 - `type RecordListGroup { id, label, icon, rows, action }` A run of rows under one header, such as the tasks in one status.
 - `RecordTable.{Provider, Header, Head, InlineHead, RowList, …}` The table every record list uses; never `Table` or a plain `<table>`.
 - `type RecordTableColumnDef` A record table column for rows of `TData`.
-- `RecordTableInlineCell.{LabelledBy, Trigger, Content, Anchor}` A table cell value, and the trigger and popover that edit it in place.
+- `RecordTableInlineCell.{LabelledBy, Trigger, Content, Anchor, TextButton}` A table cell value, and the trigger and popover that edit it in place.
+- `RecordTableTree.{Indentation, Arrow, Trigger, Row}` A record table whose rows are a tree, indented with arrows that fold.
+- `SelectTree.{Item, Provider}` A picker's items as a tree, indented with arrows that fold.
 - `type TCheckedListType` `T` when core can keep views of it, else the rule it breaks.
 - `type TListDisplay` How a list shows its records: grouped rows, a table or a board.
 - `type TListDisplayOption { key, label, icon }` A list's own display, such as a cards grid or a chart.
@@ -64,8 +72,12 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 
 ## Records
 
+- `<Can action actions fallback>` Its children for a member who may do `action`, else `fallback`.
 - `type CompanyContact { id, primaryName, primaryEmail, primaryPhone, avatarUrl }` What a company reads as: core's `Company` has these fields and more.
 - `companyTitle(company)` A company's name, else its email or phone.
+- `CONNECTION_CONTENT_TYPE` The content type core's side panel opens a vault connection as.
+- `ConnectionPicker` Picks one of the organisation's vault connections.
+- `type ConnectionPickerProps { integration, category, value, onValueChange, noneLabel, … }` What `ConnectionPicker` takes.
 - `<ContactLink contentType contentId contacts placeholder>` A customer or company as a chip: its avatar and name.
 - `type ContactQueries { customer, company }` Where customers and companies come from, as TanStack query options.
 - `<ContactRelationInput {...RelationProps}>` A record's customers or companies in a side panel field.
@@ -73,6 +85,11 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type ContactSearchQueries { customers, companies }` Where a filter's `customer` and `company` fields search contacts.
 - `type CustomerContact { id, firstName, middleName, lastName, primaryEmail, … }` What a customer reads as: core's `Customer` has these fields and more.
 - `customerTitle(customer)` A customer's name, else its email or phone.
+- `Export` An Export button for a plugin's records, through core's export.
+- `<HostSessionProvider session>` Gives plugin pages the signed-in session; web mounts it, plugins don't.
+- `Import` An Import button for a plugin's records, through core's import.
+- `IntegrationLogo` An integration's logo, as Settings › Integrations shows it.
+- `type IntegrationLogoProps { integrationKey, name, className }` What `IntegrationLogo` takes.
 - `MEMBER_CONTENT_TYPE` The content type core's side panel opens team members as.
 - `<MemberLink memberId members>` A team member as a chip: their avatar and name.
 - `<PanelDescriptionEditor value scope readonly isHTML onSave>` A record's description as a full-size tab.
@@ -85,8 +102,12 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<PanelLabel tooltip>` A side panel label cut at two lines, with the full text on hover.
 - `<PanelSection title icon nested>` A plain heading that groups the side panel's rows.
 - `type ProductChoice { id, name, code }` A product as a picker shows it.
+- `type ProductQueries { page, byIds, categories }` Where the product pickers read the catalog.
+- `type ProductRecord { price, currency, unit, categoryId }` A product as product pickers list it: core's `Product` has more.
 - `type ProductSearchQueries { search, byIds }` Where a filter's `product` fields search products and load picked ones.
 - `productTitle(product)` A product's name, with its code when it has one: "iPhone 15 · IP15".
+- `ReceiptPrintSettings` How a plugin's eBarimt receipts print, set in the plugin's own settings.
+- `type ReceiptPrintSettingsProps { plugin }` What `ReceiptPrintSettings` takes.
 - `<RecordChip record name avatarUrl loading failed>` A record as a chip: its avatar and name.
 - `<RecordOpenerProvider open openNew current dismiss>` The host app's way to open records, which `useOpenRecord` calls.
 - `RecordPage` A record on its own page, as core draws a customer's.
@@ -97,23 +118,43 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `RecordTimeline` Core's timeline of notes, calls and events for a plugin's record.
 - `type RecordTimelineProps { type, id }` Which record `RecordTimeline` shows: its timeline type and id.
 - `<SelectContactContent kind value onValueChange contacts multiple>` A picker's searchable list of customers or companies, the picked first.
+- `setConnectionPicker` Registers core's connection picker.
+- `setIntegrationLogo` Registers core's integration logos.
+- `setReceiptPrintSettings` Registers core's receipt print settings.
 - `setRecordPage` Web registers how a record draws on its own page.
 - `setRecordTimeline` Registers core's timeline; web calls it at startup and plugins don't.
+- `setTransferButtons(buttons)` Registers core's import and export buttons; plugins don't call it.
 - `type TContactContentType` The customer or company types `ContactLink` shows.
 - `type TContactKind` Which contacts a picker lists: core's customers or its companies.
+- `type UnitChoice { id, name, code, parentId }` A branch or department as pickers show one: core's `Unit` has more.
+- `type UnitQueries { list }` Where branch and department pickers read core's units, a kind at a time.
+- `useCurrentRecord()` The record core's panel shows now: null when it shows none or a draft.
+- `useHostSession()` The signed-in member, organisation and permissions; null outside erxes.
 - `useOpenRecord()` Opens a record, or a new draft, in core's side panel.
 - `usePanelExpanded()` Whether the record shows at full size on its own page.
+- `usePermissionCheck()` Whether the signed-in member may do an action.
 - `useRecordPanel()` The record a slot is in, and what the slot can do to it.
 
 ## Fields and pickers
 
+- `<BranchBadge>` A branch as a badge: its code and name.
+- `<BranchesInline>` Branches by id as their names, joined.
+- `<CompaniesInline>` Companies by id: their avatars, and the name.
 - `<ConditionsEditor>` Edits a condition group of rules, for automations and advanced filters.
-- `<DateField value placeholder scope onSave variant>` A day in a table cell or panel row, edited in a popover with a calendar.
+- `<CurrencyDisplay>` A currency by its code: its icon and name, its icon alone, or its code.
+- `CurrencyField.{ValueInput, SelectCurrency, SelectCurrencyCommand}` An amount and its currency: an amount input and a currency picker.
+- `<CurrencyFormatedDisplay>` An amount after its currency's icon, through `formatAmount`.
+- `<CustomersInline>` Customers by id: their avatars, and the name.
+- `CustomerType` Who a plugin record is about: a customer, a company or a team member.
+- `<DateField value min max placeholder scope>` A day in a table cell or panel row, edited in a popover with a calendar.
+- `<DepartmentBadge>` A department as a badge: its code and name.
+- `<DepartmentsInline>` Departments by id as their names, joined.
 - `<Editor>` The block editor, fetched the first time one renders.
 - `editorText(content)` Stored editor content, block JSON or HTML, as the plain text it shows.
 - `<EmailDisplay maxVisible primaryEmail emails emailValidationStatus>` A record's emails as chips, the primary one with its validation mark.
 - `<EmailListField recordId onValueChange onValidationStatusChange noValidation primaryEmail>` An editable list of a record's emails, each with its own menu.
 - `<EntityPicker items itemKey renderItem value onValueChange>` The searchable list behind every record picker; build a picker on it.
+- `<FieldTypeIcon field>` A field's icon on pickers and chips: its own, else its type's.
 - `<FullNameField firstName lastName onValueChange scope>` First and last name inputs in a popover, saved when it closes.
 - `<FullNameValue>` The name `FullNameField` is editing, or "Unknown" when it is empty.
 - `<IconComponent name>` A Tabler icon by its name, such as one stored on a record.
@@ -130,8 +171,16 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `<PhoneDisplay maxVisible primaryPhone phones phoneValidationStatus>` A record's phones as chips, the primary one with its validation mark.
 - `<PhoneField recordId onValueChange onValidationStatusChange primaryPhone phones>` An editable list of a record's phones, each with its own menu.
 - `<PhoneInput value onChange defaultCountry placeholder onEnter>` A phone input with a country flag picker that formats as you type.
+- `<ProductsInline>` Products by id: the first one's code and name, "+N more" after it.
 - `RelativeDateDisplay.{Value}` A date as how long ago it was, with the date and time on hover.
-- `SelectMember` The member picker: a table cell, a field, or a row opening the member.
+- `<SelectBranches>` Picks core's branches in a table cell, a form field or a filter.
+- `<SelectCategory>` Picks core's product categories from a tree that folds.
+- `<SelectCompany>` Picks core's companies in a table cell, a form field or a filter.
+- `<SelectCustomer>` Picks core's customers in a table cell, a form field or a filter.
+- `<SelectDepartments>` Picks core's departments in a table cell, a form field or a filter.
+- `SelectMember.{InlineCell, Field, Linked, FormItem, FilterItem, …}` The member picker: a table cell, a field, or a row opening the member.
+- `<SelectProduct>` Picks core products in a table cell, a form field or a filter.
+- `<SelectProductsBulk>` A sheet that picks many products at once, as 3.x's did.
 - `<SexDisplay value>` A sex code as its label, or nothing when it is not known.
 - `<SexField value onValueChange>` A searchable list to pick a sex code, for a popover or cell editor.
 - `type Tag { id, name }` A tag as the pickers show one: core's `Tag` has these fields and more.
@@ -147,6 +196,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `useMembersById(ids, members)` Members by id, any status.
 - `useProductOptions(products, enabled, picked, search)` Products matching `search` as picker options, the `picked` ones first.
 - `useTagOptions(tags, enabled)` A record type's tags as picker options; none without `tags`.
+- `useUnits(units, kind)` Core's branches or departments: parents first, siblings by code.
 
 ## Components
 
@@ -160,8 +210,8 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type BadgeProps { onClose }` Div props plus `variant`, `size` and `onClose`, which adds a remove x.
 - `badgeVariants` The badge's classes by `variant` and `size`, to style another element.
 - `Breadcrumb.{List, Item, Link, Page, Separator, …}` The trail of links to the current page, on the left of a `PageHeader`.
-- `<Button variant tone size>` A button in the theme's variants, tones and sizes; native by default.
-- `type ButtonProps` Base UI button props plus `variant`, `tone` and `size`.
+- `<Button variant tone size fill selected>` A button in the theme's variants, tones and sizes; native by default.
+- `type ButtonProps` Base UI button props plus the button's variants.
 - `buttonVariants(props)` Button classes by `variant`, `tone` and `size`, to style a link as one.
 - `<Calendar classNames>` A month grid to pick a day or range, in the UI's language.
 - `type CalendarProps` react-day-picker's `DayPicker` props.
@@ -204,6 +254,7 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `Sheet.{Trigger, View, Backdrop, Content, Header, …}` A panel that slides in from a page edge over a dimmed page.
 - `Sidebar.{Content, Footer, Group, GroupAction, GroupContent, …}` A collapsible side navigation with groups, menus and sub-menus.
 - `<Skeleton radius>` A pulsing grey block that holds the place of content while it loads.
+- `<SkeletonArray count>` `count` skeletons of the same size, for a list's rows while it loads.
 - `<Slider>` A draggable slider for one number or a range.
 - `<Spinner size show area containerClassName>` A spinning loader; `area` pads it to stand in for a section or page.
 - `<StringArrayInput id value onValueChange placeholder>` A list of short strings as removable badges.
@@ -228,7 +279,6 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type FileStorageAdapter { upload, remove }` Where erxes-ui's upload hooks and components send files.
 - `getPluginAssetsUrl(pluginName, url)` A file's URL in a plugin UI's deployed `assets` folder.
 - `getPluginRuntime()` The host's plugin runtime, or null outside erxes.
-- `INTEGRATION_CATEGORIES` Every integration category, in Settings › Integrations' order.
 - `type IUIConfig { name, path, icon, settings, integrations, … }` A plugin UI's `CONFIG`, exported from its `./config` remote.
 - `pluginFetch(plugin, path, init)` `fetch` against a plugin's API as the signed-in member.
 - `pluginJson(plugin, path, schema, init)` JSON in, JSON out, checked against `schema`.
@@ -241,10 +291,10 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `type TDashboardWidgetPreview` The schematic a dashboard widget shows in the widget catalog.
 - `type TDataValue` A Data Extensions field's value, as JSON.
 - `type TFieldGroupLimit { key, label, options }` One thing a plugin's field groups can be limited to.
-- `type TIntegrationCategory` An integration's category in Settings › Integrations.
-- `type TIntegrationTab { value, label, component }` A tab on a plugin integration's page.
-- `type TPanelRecordType { contentType, title, icon, detailPath, Title, … }` A record type a plugin shows in core's side panel.
-- `type TPluginIntegration { key, name, summary, icon, category, … }` A plugin's tile in core's Settings › Integrations, next to core's own.
+- `type TIntegrationTab { value, label, component }` A tab on an integration's page.
+- `type TIntegrationUI { key, logo, tabs }` An integration package's logo and tabs in Settings › Integrations.
+- `type TPanelRecordType { contentType, title, newTitle, icon, detailPath, … }` A record type a plugin shows in core's side panel.
+- `type TPluginIntegration { key, icon, tabs }` The icon and tabs of a plugin integration in Settings › Integrations.
 - `type TPluginSettingsPage { path, label, icon }` A plugin's settings page; core's settings link the first one.
 - `type TRecordContacts { customerIds, companyIds }` The customers and companies a record is about.
 - `type TRecordDataFields { type, values, save, limits, appliesTo }` A plugin record type's Data Extensions fields, edited in core.
@@ -261,16 +311,25 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 
 - `amountStep(currency)` A number input's `step` for a currency: 0.01 for USD, 1 for JPY.
 - `cn` Joins classes and drops the ones a later class overrides.
+- `type CurrencyCode` An ISO 4217 code `CURRENCY_CODES` lists (`'MNT'`, `'USD'`).
+- `displayNum(value, p)` A number with separators and exactly `p` decimals (2 by default).
+- `fixNum(value, p)` A number, or "1,234.5" text, rounded to `p` decimals (4 by default).
+- `formatAmount(amount, kind)` An amount to read: 2 decimals, or with `short` "1.2k", "3m", "4b".
 - `formatMoney(amount, currency, language)` An amount as people read it in `language`: 150000 MNT → "MNT 1,500.00".
 - `formatPhoneNumber({ defaultCountry, value })` A phone number formatted as people write it, even half typed.
 - `formatter(language)` The formatters for `language` (an i18next code), for code outside React.
 - `fromAmountInput(text, currency)` A number input's text as an amount in minor units: "12.5" USD → 1250.
+- `isCurrencyCode(code)` Whether `code` is a currency `CURRENCY_CODES` lists; narrows its type.
 - `isUndefinedOrNull(value)` True for `null` and `undefined`, and narrows the value's type.
 - `jsonOf(schema)` A zod schema for a JSON string that decodes to `schema`.
 - `LANGUAGES` The UI's languages, each with its own name and date-fns locale.
+- `loadPhoneFormatter()` Loads the phone library, once.
 - `localTimeZone()` The browser's time zone ("Asia/Ulaanbaatar"), when it says.
+- `type NextPage { hasNextPage, isFetchingNextPage, fetchNextPage }` The next page of a list, as an infinite query has it.
+- `type NumberDigits { decimals, maxDecimals }` The decimals `useFormat().number` shows.
 - `oneOf(options, value)` `value` narrowed to one of `options`, else undefined.
 - `<PopoverScoped scope onOpenChange onEnter closeOnEnter dependencies>` A `Popover` that takes over the hotkey scope while it is open.
+- `printElement(element, { page })` Prints one element of the page, with the page's own styles.
 - `printHtml(html)` Prints a whole HTML page through the browser's print dialog.
 - `readImage(value)` The address to show a stored file at.
 - `SexCode` A person's sex as an ISO/IEC 5218 code.
@@ -286,11 +345,14 @@ core's, in the erxes repo on branch `postgre`. The `ui-patterns` skill has the r
 - `useFocusFirstField(ref)` Puts the cursor in the first field under `ref` when the form opens.
 - `useFormat()` Date, number and money formatters in the UI's language, for components.
 - `useItemKeys(length)` Stable React keys for an editable list whose items have no id.
+- `useLoadOnScroll(pages)` Loads a list's next page as its end scrolls into view.
 - `useMediaQuery(query)` Whether a CSS media query matches now, right from the first render.
 - `useMoney()` `formatMoney` in the UI's language.
 - `usePageHotkey(keys, action, { when, useKey })` A page shortcut, skipped while typing or while a dialog or menu is open.
+- `usePhoneFormatter()` `formatPhoneNumber` for a component, re-rendered once the library loads.
 - `usePreviousHotkeyScope()` Sets a hotkey scope and remembers the old one to go back to.
 - `useScopedHotkeys(keys, callback, scope, dependencies, options)` Runs `callback` on `keys` while the hotkey `scope` is enabled.
+- `useSetHotkeyScope()` Switches the hotkey scope, so the `useScopedHotkeys` of that scope run.
 - `useSexLabels()` Each sex code's label in the UI's language.
 - `useSortAccessibility(nameOf, { pointer })` What a screen reader says as a sorted item moves, in the UI's language.
 - `useSortList(nameOf, options)` The id and screen reader words a sortable list's `DndContext` takes.

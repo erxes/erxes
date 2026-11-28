@@ -1,39 +1,64 @@
-import { subdomainFromHost } from '~/modules/auth/auth.service';
 import { httpOf, unscoped, type CoreContext } from '~/orpc';
-import type { AppRequest } from './customerApps';
 import {
   confirmAddLogin,
   myLogins,
   myProfile,
   mySessions,
-  refreshTokens,
   removeMyLogin,
   revokeMySession,
   sendAddLoginCode,
+  signOutEverywhere,
+  updateMyProfile,
+} from './customerAccount.service';
+import {
+  refreshTokens,
   sendSignInCode,
   signInWithCode,
   signOut,
-  signOutEverywhere,
-  updateMyProfile,
+  type SignInRequest,
 } from './customerAuth.service';
+import { signInMethods } from './customerMethods';
+import { confirmSignUp, sendSignUpCode, signUpFields } from './customerSignUp';
+import { signInWithSocial } from './customerSocial';
+import { portalOfCall } from './portalCalls';
 
-const appRequest = (context: CoreContext): AppRequest => {
+/** The portal the call's `X-Portal-Token` names, the browser's address checked. */
+const signInRequest = async (context: CoreContext): Promise<SignInRequest> => {
   const { req } = httpOf(context);
 
-  return { subdomain: subdomainFromHost(req.get('host')), origin: req.get('origin') };
+  return { portal: await portalOfCall(req.get('x-portal-token'), req.get('origin')) };
 };
 
 export const customerAuthRouter = {
-  sendCode: unscoped.customerAuth.sendCode.handler(({ input, context }) =>
-    sendSignInCode(input, appRequest(context)),
+  methods: unscoped.customerAuth.methods.handler(async ({ context }) =>
+    signInMethods(await signInRequest(context)),
   ),
-  signIn: unscoped.customerAuth.signIn.handler(({ input, context }) =>
-    signInWithCode(input, appRequest(context)),
+  social: unscoped.customerAuth.social.handler(async ({ input, context }) =>
+    signInWithSocial(input, await signInRequest(context)),
   ),
-  refresh: unscoped.customerAuth.refresh.handler(({ input, context }) =>
-    refreshTokens(input, appRequest(context)),
+  fields: unscoped.customerAuth.fields.handler(async ({ context }) =>
+    signUpFields(await signInRequest(context)),
   ),
-  signOut: unscoped.customerAuth.signOut.handler(({ input }) => signOut(input.refreshToken)),
+  signUp: unscoped.customerAuth.signUp.handler(async ({ input, context }) =>
+    sendSignUpCode(input, await signInRequest(context)),
+  ),
+  confirmSignUp: unscoped.customerAuth.confirmSignUp.handler(async ({ input, context }) =>
+    confirmSignUp(input, await signInRequest(context)),
+  ),
+  sendCode: unscoped.customerAuth.sendCode.handler(async ({ input, context }) =>
+    sendSignInCode(input, await signInRequest(context)),
+  ),
+  signIn: unscoped.customerAuth.signIn.handler(async ({ input, context }) =>
+    signInWithCode(input, await signInRequest(context)),
+  ),
+  refresh: unscoped.customerAuth.refresh.handler(async ({ input, context }) =>
+    refreshTokens(input, await signInRequest(context)),
+  ),
+  signOut: unscoped.customerAuth.signOut.handler(async ({ input, context }) => {
+    await signInRequest(context);
+
+    return signOut(input.refreshToken);
+  }),
 };
 
 export const customerAccountRouter = {
